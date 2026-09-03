@@ -1,0 +1,68 @@
+{
+  "artifact": {
+    "effective_bits_per_element": 2.280529593329101,
+    "file_type": "mixed_IQ2_XXS",
+    "filename": "motif3-direct-iq2xxs.gguf",
+    "native_mtp_included": false,
+    "parameter_count": 314701772930,
+    "sha256": "9d6f7aee57f0271223f51d69c63d8576a259809e9f05e2ac596512e940c80c5a",
+    "size_bytes": 89720474560,
+    "tensor_count": 2162
+  },
+  "claims": {
+    "bf16_equivalent": false,
+    "long_context_quality_established": false,
+    "lossless": false,
+    "pure_two_bit": false,
+    "sota": false
+  },
+  "evidence_receipts": {
+    "direct_bf16_iq2_structure_snapshot_sha256": "ac400ef1bd713ece368fe399c4620cddfac5ea1160fd71d28aa73b98f046c2d8",
+    "ppl_kld_receipt_sha256": "2308f1edd64eaf8ef07630ff7ae8937e609166415d44cfd7b353e087992175bc",
+    "task_and_performance_receipt_sha256": "09b8de33930e12d270e5f02a643e06fea5099b18cee6dc67a92399d218d2dccf"
+  },
+  "performance": {
+    "device": "NVIDIA GB10 / DGX Spark",
+    "median_session_mean_tokens_per_second": {
+      "pg_2048_128": 148.339994,
+      "pp_2048": 310.673746,
+      "pp_512": 313.410518,
+      "tg_128": 16.389627
+    },
+    "peak_gpu_uma_allocation_mib": 85713,
+    "protocol": {
+      "batch": 2048,
+      "flash_attention": true,
+      "gpu_layers": 99,
+      "kv_cache": "f16/f16",
+      "repetitions_per_session": 5,
+      "sessions": 3,
+      "threads": 20,
+      "ubatch": 512
+    }
+  },
+  "quality": {
+    "diagnostic_passed": {
+      "general_180": 149,
+      "korean_300": 212,
+      "tool_raw_30": 12,
+      "tool_schema_gated_30": 17
+    },
+    "distributional": {
+      "evaluation_tokens": 49152,
+      "mean_kld": 0.45413,
+      "mean_kld_uncertainty": 0.004009,
+      "mean_perplexity_ratio": 1.411541,
+      "mean_perplexity_ratio_uncertainty": 0.010497,
+      "preservation_gate_passed": false
+    }
+  },
+  "schema_version": "motif3-dgx-spark-public-metrics-v1",
+  "source": {
+    "model_repository": "Motif-Technologies/Motif-3",
+    "resolved_commit": "883d5c441fe3bb994c7b57e60f49e26147f85512",
+    "source_shard_bytes": 629683797740,
+    "source_shard_count": 155,
+    "source_shard_set_sha256": "ea2f2ba268bd5e92d267777f8de67d017ec0a15d38a4eb0f1952b38d9526c6f9"
+  }
+}
