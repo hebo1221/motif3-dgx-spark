@@ -12,6 +12,9 @@ directly to a mixed IQ2_XXS GGUF that fits in the Spark unified-memory budget.
 The release includes exact provenance, a Motif-compatible runtime path, and
 controlled performance measurements.
 
+**Model download:**
+[jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)
+
 ## At a glance
 
 | Item | Result |
@@ -48,7 +51,9 @@ protocol and limitations.
 
 ## What is being released
 
-1. A direct-from-BF16 mixed IQ2_XXS GGUF on Hugging Face.
+1. A
+   [direct-from-BF16 mixed IQ2_XXS GGUF](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)
+   on Hugging Face.
 2. Exact size and SHA-256 receipts for that artifact.
 3. A llama.cpp-compatible Motif-3 chat template.
 4. Aggregate-only evaluation evidence.
