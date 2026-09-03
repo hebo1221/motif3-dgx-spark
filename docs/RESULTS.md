@@ -1,4 +1,4 @@
-# Results and limitations
+# Results and limits
 
 ## Artifact
 
@@ -21,8 +21,9 @@ sequence. Comparing BF16 teacher logits with the direct IQ2 artifact gave:
 | Mean perplexity ratio | 1.411541 +/- 0.010497 | <= 1.10 | fail |
 | Mean KL divergence | 0.454130 +/- 0.004009 | <= 0.10 | fail |
 
-This is the most important quality statement in the release: fitting in memory
-did not preserve the BF16 distribution closely enough.
+This is the result I would not hide behind the systems numbers: the model fits,
+but this quant did not stay close enough to the BF16 output distribution to
+pass either gate.
 
 ## Diagnostic task results
 
@@ -41,7 +42,27 @@ bound case/scorer sources. The original task processes did not capture a full
 runtime-mapped-library receipt, so these rows remain diagnostics rather than a
 publication-grade BF16 comparison.
 
-## Controlled DGX Spark performance
+## DGX Spark performance
+
+### Clean public-runtime run
+
+After publishing the exact runtime commit, I rebuilt from that clean tree and
+ran five repetitions per shape. These are means across the five repetitions;
+the full arrays are in
+[`../evidence/clean_runtime_benchmark.jsonl`](../evidence/clean_runtime_benchmark.jsonl).
+
+| Shape | Mean tok/s | Repetition standard deviation |
+|---|---:|---:|
+| pp512 | 316.71 | 3.30 |
+| pp2048 | 312.76 | 0.96 |
+| tg128 | 16.49 | 0.024 |
+| pp2048 + tg128 | 149.33 | 0.076 |
+
+The same build also loaded the model through `llama-server`, reported one
+healthy slot, and completed a real Korean Chat Completions request. See the
+[clean runtime receipt](../evidence/clean_runtime_verification.json).
+
+### Earlier three-session campaign
 
 Configuration:
 
@@ -55,7 +76,9 @@ Configuration:
 - three-second cool-off before each test.
 
 Three separate baseline sessions were embedded in same-protocol candidate A/B
-runs. The table reports the median session mean and the range across sessions.
+runs before the clean public branch was cut. The table reports the median
+session mean and the range across sessions. It is a useful stability check, not
+a replacement for the clean-build run above.
 
 | Shape | Median tok/s | Session range |
 |---|---:|---:|

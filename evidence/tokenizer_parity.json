@@ -1,0 +1,72 @@
+{
+  "schema_version": "motif3-public-tokenizer-parity-v1",
+  "status": "pass",
+  "verified_at": "2026-09-03T07:14:22Z",
+  "claim": "The public runtime commit reproduced the official Motif-3 token IDs with the final GGUF's embedded tokenizer.ggml.pre metadata and no runtime override.",
+  "auditor": {
+    "path": "scripts/audit_tokenizer_parity.py",
+    "sha256": "7adaecc030a838111838d4f455e725ede6bb8a12b29828af6047dd482308042c"
+  },
+  "runtime": {
+    "repository": "https://github.com/hebo1221/llama.cpp",
+    "tag": "motif3-dgx-spark-runtime-v1.0.0",
+    "commit": "cc3f13b3f172978d7b3c215780d4cc98bb0e1c80",
+    "llama_tokenize_sha256": "64d1a2ecdef6f7efc12ec5afbfdb4df327f31bb4d4ade368218fe577ed1cae16",
+    "mode": [
+      "--offline",
+      "--device",
+      "none",
+      "--stdin",
+      "--no-escape",
+      "--ids"
+    ],
+    "tokenizer_pre_override_used": false,
+    "model_payload_loaded": false
+  },
+  "official_tokenizer": {
+    "repository": "Motif-Technologies/Motif-3",
+    "source_commit": "883d5c441fe3bb994c7b57e60f49e26147f85512",
+    "tokenizer_json_size_bytes": 17548202,
+    "tokenizer_json_sha256": "956d8a693e0ede5283c803aba3fe1d4b46b202d9faac007f947c6f5b61ce7864",
+    "tokenizers_package_version": "0.22.2"
+  },
+  "corpora": {
+    "calibration": {
+      "source_size_bytes": 314949,
+      "source_sha256": "67719397cc2a4663cfa6e25fb4dab580a4db299c4bfc659b80af525f1a5bdcdc",
+      "official_token_count": 61548,
+      "runtime_token_count": 61548,
+      "official_token_ids_sha256": "1d8ceeb9a97aaf21679b652bf9efe3bdaaac1c08e24bb37fc0916f0e97dbee5e",
+      "runtime_token_ids_sha256": "1d8ceeb9a97aaf21679b652bf9efe3bdaaac1c08e24bb37fc0916f0e97dbee5e",
+      "exact_match": true
+    },
+    "heldout": {
+      "source_size_bytes": 292958,
+      "source_sha256": "db1a8338644a5e8fd10d41b16a5a0d86e8d46c5bbacc2d1b092e5d8215234ce1",
+      "official_token_count": 54070,
+      "runtime_token_count": 54070,
+      "official_token_ids_sha256": "a446524bff48e6f935f8737656b1d23555211573ec44af8b60b20b56a4c2737d",
+      "runtime_token_ids_sha256": "a446524bff48e6f935f8737656b1d23555211573ec44af8b60b20b56a4c2737d",
+      "exact_match": true
+    }
+  },
+  "adversarial_fuzz": {
+    "seed": 85003111843379,
+    "case_count": 12011,
+    "joined_input_bytes": 714049,
+    "official_token_count": 318951,
+    "runtime_token_count": 318951,
+    "official_token_ids_sha256": "345315baa62dd5c9471f0d8c2a47bb4b8d3f19f33196b024e4eaf6fe37b0eca0",
+    "runtime_token_ids_sha256": "345315baa62dd5c9471f0d8c2a47bb4b8d3f19f33196b024e4eaf6fe37b0eca0",
+    "exact_match": true
+  },
+  "aggregate": {
+    "corpus_token_ids_compared": 115618,
+    "fuzz_token_ids_compared": 318951,
+    "all_token_ids_exact": true
+  },
+  "limits": [
+    "This establishes tokenizer parity for the bound corpora and deterministic fuzz set, not for every possible Unicode string.",
+    "It is tokenizer evidence only; it does not establish model quality or server behavior."
+  ]
+}

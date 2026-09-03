@@ -23,6 +23,15 @@ Chrono:
 - <https://github.com/timkhronos/llama.cpp/tree/Motif3>
 - GQA-5 Flash Attention PR: <https://github.com/ggml-org/llama.cpp/pull/26404>
 
+The exact tested community runtime is published at:
+
+- <https://github.com/hebo1221/llama.cpp>
+- tag `motif3-dgx-spark-runtime-v1.0.0`
+- commit `cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`
+
+That commit adds Motif-3 tokenizer handling and regression coverage on top of
+the cited model port and GQA-5 work.
+
 llama.cpp is distributed under the MIT License. No llama.cpp binary is
 redistributed in this bundle.
 

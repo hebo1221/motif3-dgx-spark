@@ -49,6 +49,29 @@ The file contains 2,162 tensors and 314,701,772,930 logical elements. Routed
 experts account for most parameters and use 2.0699 effective bits per element;
 the whole tensor payload uses 2.2805 effective bits per element.
 
+## Tokenizer
+
+The final GGUF embeds `tokenizer.ggml.pre=motif3`. That matters: treating the
+vocabulary as ordinary GPT-2 BPE changes word-run and whitespace boundaries.
+
+The public runtime was checked without a command-line metadata override. It
+matched the official Motif tokenizer on 61,548 calibration tokens, 54,070
+held-out tokens, and 318,951 token IDs from a fixed 12,011-case fuzz set. The
+aggregate hashes and counts are in
+[`../evidence/tokenizer_parity.json`](../evidence/tokenizer_parity.json).
+
+## A packaging blemish I am keeping explicit
+
+Two passive provenance fields, `quantize.imatrix.file` and
+`quantize.imatrix.dataset`, still contain local source-side paths from the
+conversion machine. They are not used during inference and contain no model
+weights or credentials, but they should have been normalized before upload.
+
+Changing them would also change the 89.72 GB artifact's SHA-256. I am therefore
+not silently rewriting the published file: the digest in this release binds
+the bytes that are actually on the Hub. A metadata-clean revision, if made,
+will get a new digest and an explicit migration note.
+
 ## Model architecture relevant to deployment
 
 - 53 blocks: 2 dense and 51 MoE;

@@ -1,0 +1,157 @@
+{
+  "schema_version": "motif3-clean-runtime-verification-v1",
+  "status": "pass",
+  "verified_at": "2026-09-03T06:57:35Z",
+  "source": {
+    "repository": "https://github.com/hebo1221/llama.cpp",
+    "branch": "motif3-dgx-spark-v1",
+    "tag": "motif3-dgx-spark-runtime-v1.0.0",
+    "commit": "cc3f13b3f172978d7b3c215780d4cc98bb0e1c80",
+    "parent": "7e6b0d32d6a42aba7431e334a8848e4fd10711f6",
+    "tree": "8942ae5e09c0124faf0ab0feeb2ee691ac07de36",
+    "working_tree_clean_at_test": true
+  },
+  "build": {
+    "build_number": 10498,
+    "build_type": "Release",
+    "cmake_options": {
+      "GGML_CUDA": true,
+      "GGML_CUDA_FA": true,
+      "GGML_CUDA_GRAPHS": true,
+      "GGML_NATIVE": true,
+      "LLAMA_BUILD_UI": false,
+      "LLAMA_USE_PREBUILT_UI": false
+    },
+    "executables": {
+      "llama_bench_sha256": "0fa970e669c4f63d2f59f18ee13c96779f7bd941c0f76d6703f99354e1c17e7d",
+      "llama_server_sha256": "8be4a81ee1bdbefbe9fc4249bde0956a464fa1aed77752ff09c47f275cf87386",
+      "llama_tokenize_sha256": "64d1a2ecdef6f7efc12ec5afbfdb4df327f31bb4d4ade368218fe577ed1cae16"
+    },
+    "local_shared_libraries": {
+      "libllama_sha256": "ff2b6bfbb83a6c0c7b45ebd6136582304f366057c873c7f2670ac926698b995b",
+      "libllama_common_sha256": "93802b6f3fb87ba71e3e04001b8ceb08bb141fb3ff58434cad47a6b9fdb00e22",
+      "libllama_bench_impl_sha256": "522e833638424519887fd493b83c0373a35e704894d3feff8a9f924eb4cebfb1",
+      "libllama_server_impl_sha256": "b0acb9247c79f1f014b8dfc1ce93a7580d93327884c1588ec6f2f74c08e858f6",
+      "libggml_sha256": "a341621297de1cb81d0cc6408e0bb612d2c83ea3342f908ee9694a35b70e7e5e",
+      "libggml_base_sha256": "867685b0b2942d6ba4f5b538dd36b82b0c4b75b520c6ebe3f6d0a35c97b0fc21",
+      "libggml_cpu_sha256": "6a1d35ea1869ac78661d9a63632e32dbe8b85209429013057565b96421212778",
+      "libggml_cuda_sha256": "78a8481d37f235f24e64f6c3a74e4a79114bc8964e3da5fc0b499196a40f41f4"
+    }
+  },
+  "host": {
+    "system": "NVIDIA DGX Spark",
+    "gpu": "NVIDIA GB10",
+    "compute_capability": "12.1",
+    "unified_memory_mib": 124546,
+    "architecture": "aarch64",
+    "cpu_count": 20,
+    "nvidia_driver": "580.126.09",
+    "cuda_toolkit": "13.0.88",
+    "kernel": "6.17.0-1014-nvidia"
+  },
+  "model": {
+    "public_repository": "jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark",
+    "filename": "motif3-direct-iq2xxs.gguf",
+    "file_size_bytes": 89720474560,
+    "file_sha256": "9d6f7aee57f0271223f51d69c63d8576a259809e9f05e2ac596512e940c80c5a",
+    "llama_bench_tensor_bytes": 89710838280,
+    "llama_bench_model_type": "motif3 314B.A13B IQ2_XXS - 2.0625 bpw"
+  },
+  "tests": {
+    "unicode_and_existing_tokenizer_tests": {
+      "passed": 16,
+      "failed": 0
+    },
+    "official_tokenizer_parity": {
+      "status": "pass",
+      "receipt": "tokenizer_parity.json",
+      "receipt_sha256": "954ce250c8d167af56804211b0bc9a23328ef652d1b5e6a6b5ef7c82c3ca3c2e"
+    }
+  },
+  "benchmark": {
+    "command": [
+      "llama-bench",
+      "-m",
+      "motif3-direct-iq2xxs.gguf",
+      "-ngl",
+      "99",
+      "-fa",
+      "on",
+      "-ctk",
+      "f16",
+      "-ctv",
+      "f16",
+      "-b",
+      "2048",
+      "-ub",
+      "512",
+      "-t",
+      "20",
+      "--delay",
+      "3",
+      "-p",
+      "512,2048",
+      "-n",
+      "128",
+      "-pg",
+      "2048,128",
+      "-r",
+      "5",
+      "-o",
+      "jsonl"
+    ],
+    "results_jsonl": "clean_runtime_benchmark.jsonl",
+    "results_jsonl_sha256": "a5ccc5a18c0e1292481bb636ce327aeed6443a92ed2be51bd9efc508a2b5f454",
+    "capture_normalization": "Each JSON object was parsed, model_filename was replaced with the public filename, and the object was serialized compactly. Numeric fields and sample arrays were not changed.",
+    "results": {
+      "pp512_tokens_per_second_mean": 316.714970,
+      "pp2048_tokens_per_second_mean": 312.759553,
+      "tg128_tokens_per_second_mean": 16.492867,
+      "pp2048_tg128_tokens_per_second_mean": 149.333751,
+      "repetitions_per_shape": 5
+    }
+  },
+  "server_smoke_test": {
+    "launch": {
+      "context_tokens": 1024,
+      "parallel_slots": 1,
+      "gpu_layers": 99,
+      "flash_attention": true,
+      "kv_cache": "f16/f16",
+      "batch": 2048,
+      "micro_batch": 512,
+      "host": "127.0.0.1",
+      "web_ui": false,
+      "warmup": false
+    },
+    "health": {
+      "http_status": 200,
+      "body": {
+        "status": "ok"
+      }
+    },
+    "props": {
+      "build_info": "b10498-cc3f13b3f",
+      "model_ftype": "IQ2_XXS - 2.0625 bpw",
+      "total_slots": 1,
+      "n_ctx_slot": 1024
+    },
+    "chat_completion": {
+      "request": "한국의 수도는 어디인가요? 한 문장으로 답해주세요.",
+      "temperature": 0,
+      "max_tokens": 24,
+      "enable_thinking": false,
+      "http_status": 200,
+      "content": "한국의 수도는 서울입니다.",
+      "finish_reason": "stop",
+      "prompt_tokens": 19,
+      "completion_tokens": 7
+    },
+    "shutdown": "graceful SIGINT after the response"
+  },
+  "limits": [
+    "The benchmark is one clean-build session with five repetitions per shape; it is not a cross-device comparison.",
+    "The server smoke test establishes load and one basic Chat Completions path, not broad output quality or tool reliability.",
+    "OS page-cache state was not controlled, so model load time is intentionally not reported as a cold-start result."
+  ]
+}

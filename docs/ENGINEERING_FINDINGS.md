@@ -1,12 +1,13 @@
-# Engineering findings
+# What I tried after the first quant
 
-The project produced more than one quantized file. It established a practical
-baseline, fixed Motif-specific runtime edge cases, and measured where three
-modern repair strategies help or become too expensive.
+Once the direct IQ2 file ran, the obvious question was whether a little more
+precision in the right place could buy back useful quality without giving up
+the single-Spark fit. I tried three different repair directions. None beat the
+plain direct quant overall, but each failure narrowed the next search.
 
-## 1. Direct BF16 quantization is the clean deployment baseline
+## 1. The direct BF16 route remained the best baseline
 
-The most robust path was also the simplest to reproduce:
+The path I trusted most was also the simplest to reproduce:
 
 - pin all 155 official BF16 shards;
 - convert the full core model directly to BF16 GGUF;
@@ -18,7 +19,7 @@ The most robust path was also the simplest to reproduce:
 This removed Q5 double-quantization as a confound and produced the fastest,
 smallest universal artifact evaluated in the campaign.
 
-## 2. Expert-aware runtime work reached finite full-model execution
+## 2. The compact expert overlay worked technically, but cost too much
 
 A GEMQ-style compact expert overlay exposed duplicate local expert IDs in the
 CUDA routing path. A two-pass occurrence map and corrected fallback handling
@@ -30,7 +31,7 @@ That runtime correction is a useful result even though the 14.28 GB overlay
 was not selected for the default release: it made compact per-expert overlays
 technically viable for future kernel optimization.
 
-## 3. A tiny terminal correction found a promising quality direction
+## 3. The tiny terminal correction was the most promising experiment
 
 A 16.56 MB terminal logit-curvature adapter was the most efficient quality
 experiment:
@@ -40,11 +41,11 @@ experiment:
 - prefill change: less than 0.6%;
 - peak allocation: only +22 MiB.
 
-It was not promoted as universal because tool diagnostics regressed, but it
-identified a high-leverage representation worth revisiting with explicit
-tool-margin constraints.
+I did not make it the default because the tool tests regressed. Still, it was
+the clearest sign that a very small correction might recover useful quality if
+tool-control margins are included during training.
 
-## 4. Causal controls separated quality from capacity
+## 4. Restoring late weights mostly bought capacity, not quality
 
 A block-40 plus block-52 Q8 restoration improved the general diagnostic by one
 item but cost 11.82% on tg128 and 9,270 MiB of peak allocation. The experiment
@@ -55,7 +56,7 @@ The larger GEMQ overlay similarly traded about 18-20% speed and 13,621 MiB of
 peak allocation for no task gain. These controls justified retaining direct
 IQ2 as the public default instead of choosing a larger artifact by intuition.
 
-## 5. Tool formatting can be improved without confusing it with policy
+## 5. Better JSON did not mean better tool decisions
 
 Strict schema gating raised the diagnostic tool episode count from 12/30 raw
 to 17/30. Separate experiments showed that target-tool proposal was often
@@ -69,9 +70,13 @@ The practical architecture is therefore decomposed:
 4. apply a deterministic call, clarify, or respond rule;
 5. validate or conservatively repair JSON only after the policy decision.
 
-## Takeaway
+## Where I would go next
 
-The release demonstrates that a 314.7B MoE can be made usable on one DGX
-Spark. The next quality step is not a larger generic-KL overlay; it is a small,
-runtime-aware correction trained against Korean, general, and tool-control
-margins simultaneously.
+The useful result is not that every experiment worked. It is that the 314.7B
+core really does run on one Spark, and the expensive repairs were easy to rule
+out once measured end to end.
+
+If I continue the quality work, I would not build another large generic-KL
+overlay. I would start from the 16.56 MB terminal correction and train it
+against Korean, general, and tool-control margins together, with runtime cost
+as an explicit constraint from the first run.
