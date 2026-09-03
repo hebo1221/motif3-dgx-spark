@@ -83,6 +83,16 @@
     }
   },
   "quality": {
+    "current_v2_score_and_request_replay": {
+      "all_score_replay_claim_gates_ready": true,
+      "general_180_sha256": "6a8fd106a5bcfe9090b498f1d8c1e7501b1dd34384a2512f7cae8b0c0850d302",
+      "korean_300_sha256": "efb84f8f5389161c2660d896a5dad3879e212c5c1fae0177a9738d524f466a0d",
+      "raw_cases_and_responses_public": false,
+      "samples_replayed": 540,
+      "schema_version": "motif3-score-replay-receipt-v2",
+      "tool_raw_30_sha256": "db57d86205e8fb9bd0ed26d1e128baa5872f7139dcb6f4027073c85ec49766ae",
+      "tool_schema_gated_30_sha256": "34e5e94096d586cdb8887a02da31c8cde463da04d8cdc13df4da215bfafe0458"
+    },
     "diagnostic_passed": {
       "general_180": 149,
       "korean_300": 212,

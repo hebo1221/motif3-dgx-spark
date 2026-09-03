@@ -37,10 +37,12 @@ are provided only to characterize this artifact.
 | Raw strict tool episodes | 12 / 30 | 40.00% |
 | Schema-gated tool episodes | 17 / 30 | 56.67% |
 
-All stored scores used in the final comparison replayed exactly against their
-bound case/scorer sources. The original task processes did not capture a full
-runtime-mapped-library receipt, so these rows remain diagnostics rather than a
-publication-grade BF16 comparison.
+All 540 stored responses behind these four rows replayed exactly with the
+current v2 scorer and request-binding checks. The aggregate receipt hashes are
+in [`public_metrics.json`](../evidence/public_metrics.json). Raw cases and
+responses are not redistributed, and the original task processes did not
+capture a full runtime-mapped-library receipt, so these remain diagnostics
+rather than a publication-grade BF16 comparison.
 
 ## DGX Spark performance
 
