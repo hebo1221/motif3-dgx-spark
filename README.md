@@ -233,6 +233,26 @@ The tokenizer comparison is published in
   not affect inference; the current SHA binds those bytes, and any cleaned
   model revision will get a new digest rather than a silent replacement.
 
+## Open question: model behavior or deployment trade-off?
+
+The held-out perplexity and KL comparison establishes that this 2.2805 bp/e
+artifact loses information relative to BF16. It does not establish how that
+loss maps to downstream behavior: which failures are already present in the
+parent model, which appear only after quantization, or which tensor families
+account for most of the change.
+
+I opened [a focused collaboration discussion](https://github.com/hebo1221/motif3-dgx-spark/discussions/1)
+for three kinds of evidence:
+
+- paired task results from the official BF16 model or a traceable Q5 build;
+- expert-aware or layer-aware mixed-precision proposals that could still fit
+  safely in 128 GB;
+- independent DGX Spark throughput and memory reproductions.
+
+The absent MTP head is a separate speculative-speed limitation, not an
+explanation for the target model's measured BF16-to-IQ2 distribution shift.
+Configurations and raw results that disagree with mine are welcome.
+
 ## The longer version
 
 - [How the file was made](docs/METHOD.md)
