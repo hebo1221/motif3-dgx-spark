@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If this release helped your work, please cite the software and model artifact below."
+title: "Motif-3 315B on one DGX Spark"
+type: software
+authors:
+  - name: hebo1221
+version: 1.0.3
+date-released: 2026-09-03
+repository-code: "https://github.com/hebo1221/motif3-dgx-spark"
+url: "https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark"
+license: MIT
+abstract: >-
+  A reproducible community release of the 314.7B-parameter Motif-3 sparse-MoE
+  core model as an 83.56 GiB mixed IQ2_XXS GGUF, with a pinned llama.cpp
+  runtime, DGX Spark measurements, tokenizer parity evidence, and explicit
+  quality-retention boundaries.
+keywords:
+  - Motif-3
+  - DGX Spark
+  - GGUF
+  - llama.cpp
+  - quantization
+  - mixture of experts
+preferred-citation:
+  type: software
+  title: "Motif-3 315B on one DGX Spark"
+  authors:
+    - name: hebo1221
+  version: 1.0.3
+  date-released: 2026-09-03
+  repository-code: "https://github.com/hebo1221/motif3-dgx-spark"
+  url: "https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark"

@@ -1,5 +1,7 @@
 # Motif-3 315B on one DGX Spark
 
+![Motif-3 315B on one DGX Spark: 83.56 GiB, 316.71 tok/s prompt processing, and 16.49 tok/s generation](assets/motif3-dgx-spark-result-card.png)
+
 I wanted to know whether the final
 [Motif-3](https://huggingface.co/Motif-Technologies/Motif-3) checkpoint could
 live entirely in a DGX Spark's 128 GB unified memory, without sending model
@@ -12,6 +14,25 @@ template, and the benchmark rows are all public.
 
 **Download the model:**
 [jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)
+
+## 한국어 요약
+
+한마디로, 3,147억 파라미터 규모의 sparse MoE인 Motif-3 핵심 모델을
+DGX Spark 한 대의 128 GB 통합 메모리에 전부 올려 실제로 구동한
+작업입니다. 최종 GGUF는 83.56 GiB이고, 공개한 동일 빌드에서 pp512
+316.71 tok/s, tg128 16.49 tok/s를 기록했습니다.
+
+이 작업의 핵심은 단순히 모델을 2비트로 줄인 데 있지 않습니다. 공식
+BF16 체크포인트에서 직접 만든 혼합 IQ2_XXS GGUF, 정확히 재현 가능한
+llama.cpp 커밋, 토크나이저 일치 검증, 원시 벤치마크와 체크섬을 한 묶음으로
+공개했습니다. 다운로드가 끝나면
+[`scripts/verify_download.sh`](scripts/verify_download.sh)로 모델과 템플릿을
+읽기 전용으로 확인할 수 있습니다.
+
+다만 이것은 **단일 Spark 구동 가능성에 대한 성공 사례**이지, BF16과 같은
+품질을 보장하는 모델은 아닙니다. 사전에 정한 perplexity·KL 품질 유지
+기준은 통과하지 못했습니다. 로컬 연구와 시스템 실험에는 유용하지만,
+중요한 용도라면 자신의 데이터로 먼저 검증해 주세요.
 
 ## What worked
 
@@ -219,6 +240,14 @@ The tokenizer comparison is published in
 - [What the failed repair experiments taught me](docs/ENGINEERING_FINDINGS.md)
 - [Runtime details and troubleshooting](docs/RUNTIME.md)
 - [Machine-readable metrics](evidence/public_metrics.json)
+
+## Share your result
+
+If you run this on another DGX Spark or a similar 128 GB NVIDIA system, please
+use the [benchmark report form](https://github.com/hebo1221/motif3-dgx-spark/issues/new?template=benchmark.yml).
+Exact commands and raw `llama-bench` JSONL are much more useful than a single
+headline number. Questions and early observations are welcome in
+[Discussions](https://github.com/hebo1221/motif3-dgx-spark/discussions).
 
 ## License and attribution
 

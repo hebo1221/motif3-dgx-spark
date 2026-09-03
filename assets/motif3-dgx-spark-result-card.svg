@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Motif-3 315B running on one NVIDIA DGX Spark</title>
+  <desc id="desc">Verified systems result: an 83.56 GiB mixed IQ2_XXS GGUF reached 316.71 prompt tokens per second and 16.49 generation tokens per second. The BF16 quality-retention gate did not pass.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07130f"/>
+      <stop offset="0.55" stop-color="#0b1715"/>
+      <stop offset="1" stop-color="#10151b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.2" cy="0.15" r="0.85">
+      <stop offset="0" stop-color="#76e54f" stop-opacity="0.22"/>
+      <stop offset="0.55" stop-color="#31c76f" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#0b1715" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#76e54f"/>
+      <stop offset="1" stop-color="#31c79a"/>
+    </linearGradient>
+    <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse">
+      <path d="M 56 0 L 0 0 0 56" fill="none" stroke="#c8ffe0" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" rx="36" fill="url(#background)"/>
+  <rect width="1600" height="900" rx="36" fill="url(#glow)"/>
+  <rect x="1" y="1" width="1598" height="898" rx="35" fill="none" stroke="#9ff087" stroke-opacity="0.16" stroke-width="2"/>
+  <rect x="40" y="40" width="1520" height="820" rx="28" fill="url(#grid)"/>
+
+  <g font-family="Inter, Segoe UI, Arial, sans-serif">
+    <g transform="translate(92 84)">
+      <rect x="0" y="0" width="326" height="42" rx="21" fill="#75e451" fill-opacity="0.13" stroke="#75e451" stroke-opacity="0.55"/>
+      <circle cx="24" cy="21" r="6" fill="#75e451"/>
+      <text x="43" y="28" fill="#bdfaa9" font-size="18" font-weight="700" letter-spacing="2.4">PUBLIC REPRODUCTION</text>
+    </g>
+
+    <text x="92" y="215" fill="#f3fbf7" font-size="86" font-weight="800" letter-spacing="-3">MOTIF-3 ON ONE</text>
+    <text x="92" y="307" fill="url(#accent)" font-size="86" font-weight="800" letter-spacing="-3">DGX SPARK</text>
+    <text x="96" y="358" fill="#aebfba" font-size="25" font-weight="600" letter-spacing="2.2">314.7B SPARSE MoE CORE · 128 GB UNIFIED MEMORY</text>
+
+    <g transform="translate(92 432)" filter="url(#shadow)">
+      <rect width="430" height="230" rx="25" fill="#111e1b" stroke="#89e86c" stroke-opacity="0.22"/>
+      <text x="30" y="50" fill="#8fa39c" font-size="18" font-weight="700" letter-spacing="2">MODEL SIZE</text>
+      <text x="30" y="130" fill="#f5fff8" font-size="62" font-weight="800" letter-spacing="-2">83.56</text>
+      <text x="238" y="130" fill="#75e451" font-size="30" font-weight="700">GiB</text>
+      <text x="30" y="182" fill="#bdcbc6" font-size="20">mixed IQ2_XXS GGUF</text>
+      <text x="30" y="211" fill="#71847d" font-size="16">all 54 layers GPU-resident</text>
+    </g>
+
+    <g transform="translate(548 432)" filter="url(#shadow)">
+      <rect width="430" height="230" rx="25" fill="#111e1b" stroke="#89e86c" stroke-opacity="0.22"/>
+      <text x="30" y="50" fill="#8fa39c" font-size="18" font-weight="700" letter-spacing="2">PROMPT · PP512</text>
+      <text x="30" y="130" fill="#f5fff8" font-size="62" font-weight="800" letter-spacing="-2">316.71</text>
+      <text x="293" y="130" fill="#75e451" font-size="24" font-weight="700">tok/s</text>
+      <text x="30" y="182" fill="#bdcbc6" font-size="20">five-run clean-build mean</text>
+      <text x="30" y="211" fill="#71847d" font-size="16">Flash Attention · F16 KV</text>
+    </g>
+
+    <g transform="translate(1004 432)" filter="url(#shadow)">
+      <rect width="430" height="230" rx="25" fill="#111e1b" stroke="#89e86c" stroke-opacity="0.22"/>
+      <text x="30" y="50" fill="#8fa39c" font-size="18" font-weight="700" letter-spacing="2">GENERATION · TG128</text>
+      <text x="30" y="130" fill="#f5fff8" font-size="62" font-weight="800" letter-spacing="-2">16.49</text>
+      <text x="224" y="130" fill="#75e451" font-size="24" font-weight="700">tok/s</text>
+      <text x="30" y="182" fill="#bdcbc6" font-size="20">five-run clean-build mean</text>
+      <text x="30" y="211" fill="#71847d" font-size="16">exact public runtime commit</text>
+    </g>
+
+    <line x1="92" y1="722" x2="1434" y2="722" stroke="#9af17f" stroke-opacity="0.16"/>
+    <text x="92" y="772" fill="#dce9e4" font-size="22" font-weight="600">Official BF16 → BF16 GGUF → mixed IQ2_XXS</text>
+    <text x="92" y="809" fill="#82968e" font-size="18">Exact runtime · checksums · tokenizer parity · raw benchmark rows</text>
+
+    <g transform="translate(1090 752)">
+      <rect width="344" height="66" rx="15" fill="#2b2416" stroke="#e6b94e" stroke-opacity="0.48"/>
+      <text x="20" y="27" fill="#f1ce77" font-size="14" font-weight="800" letter-spacing="1.2">QUALITY RETENTION</text>
+      <text x="20" y="50" fill="#f4e4b9" font-size="17" font-weight="700">BF16 gate not passed</text>
+    </g>
+  </g>
+</svg>

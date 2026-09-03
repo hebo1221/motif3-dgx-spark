@@ -1,0 +1,86 @@
+name: Report a benchmark
+description: Share a reproducible Motif-3 result from DGX Spark or comparable hardware.
+title: "[Benchmark] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing the release. Complete commands and raw repetitions are more useful than a single best number. Please remove tokens, hostnames, usernames, and private paths from logs before posting.
+
+  - type: checkboxes
+    id: artifact
+    attributes:
+      label: Artifact check
+      options:
+        - label: I verified the model SHA-256 as `9d6f7aee57f0271223f51d69c63d8576a259809e9f05e2ac596512e940c80c5a`.
+          required: true
+        - label: I will clearly identify every change from the pinned runtime and documented benchmark settings.
+          required: true
+
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware and software
+      description: Include GPU, system memory, CPU, OS, NVIDIA driver, CUDA version, and compiler.
+      placeholder: |
+        GPU / memory:
+        CPU:
+        OS:
+        NVIDIA driver / CUDA:
+        Compiler:
+    validations:
+      required: true
+
+  - type: input
+    id: runtime
+    attributes:
+      label: Runtime commit
+      description: Paste the full llama.cpp commit SHA.
+      placeholder: cc3f13b3f172978d7b3c215780d4cc98bb0e1c80
+    validations:
+      required: true
+
+  - type: textarea
+    id: build
+    attributes:
+      label: Build command
+      description: Include all CMake flags and any relevant environment settings.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: benchmark
+    attributes:
+      label: Benchmark command
+      description: Paste the exact llama-bench or server command. Include FA, KV type, batch, micro-batch, context, threads, and parallel slots.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: results
+    attributes:
+      label: Results
+      description: Include all repetitions or attach raw JSONL. Separate prompt processing, generation, and end-to-end measurements.
+      placeholder: |
+        Shape / repetitions:
+        Mean and standard deviation:
+        Peak NVIDIA process allocation:
+        Notes on warm-up and cooling:
+    validations:
+      required: true
+
+  - type: textarea
+    id: deviations
+    attributes:
+      label: Deviations and observations
+      description: What differs from the documented setup? Note throttling, OOMs, context splitting, or unexpected behavior.
+
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Public evidence
+      options:
+        - label: I understand that this report is public and have removed private or sensitive data.
+          required: true
