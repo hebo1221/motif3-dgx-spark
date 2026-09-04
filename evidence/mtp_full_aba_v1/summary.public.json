@@ -1,0 +1,143 @@
+{
+  "artifacts": {
+    "mtp_sidecar": {
+      "official_revision": "883d5c441fe3bb994c7b57e60f49e26147f85512",
+      "sha256": "d813251f1b7e8158399352af6e44c92df2445cd807fda1a869d2247279806f81",
+      "size_bytes": 512363040
+    },
+    "target": {
+      "sha256": "dff7f7db077364a3eb0164224f7384b5fbb36d11f9e905d921f15874f6ffcab9",
+      "size_bytes": 89720481568
+    }
+  },
+  "claim_scope": {
+    "counterbalanced_decode_speedup_observed": true,
+    "cross_hardware_generalization": false,
+    "external_publication_performed": false,
+    "fastest_or_world_record": false,
+    "frozen_greedy_token_parity": true,
+    "http_tail_latency_or_concurrency_measured": false,
+    "underlying_iq2_quality_improved": false,
+    "universal_numerical_identity": false
+  },
+  "correctness": {
+    "all_three_arms_exact": true,
+    "target_pre_to_post_equal_cases": 5,
+    "target_pre_to_post_equal_tokens": 5120,
+    "target_to_mtp_equal_cases": 5,
+    "target_to_mtp_equal_tokens": 5120
+  },
+  "limitations": [
+    "the result is a single-host observation over five frozen Korean prompt depths",
+    "server-reported decode timing is not an HTTP TTFT, E2E, or concurrency benchmark",
+    "the baseline drift value is descriptive and was not a preregistered promotion threshold",
+    "speculative verification preserves accepted target tokens but does not improve IQ2 model quality"
+  ],
+  "performance": {
+    "absolute_target_baseline_drift_fraction": 0.001288444695056623,
+    "counterbalanced_target_mean_tps": 14.587213376465215,
+    "mtp_to_counterbalanced_target_ratio": 1.2035533858240894,
+    "mtp_to_target_post_ratio": 1.2043297421038106,
+    "mtp_to_target_pre_ratio": 1.202778029836498,
+    "mtp_tps": 17.556490048983157,
+    "per_workload": [
+      {
+        "draft_acceptance_rate": 0.4217134416543575,
+        "input_tokens": 128,
+        "mtp_to_counterbalanced_target_ratio": 1.1948259084399504,
+        "mtp_tps": 18.87160633452861,
+        "output_tokens": 1024,
+        "target_post_to_pre_ratio": 1.0138506877098323,
+        "target_post_tps": 15.903069810139266,
+        "target_pre_tps": 15.685810546780218,
+        "workload_id": "workload-001"
+      },
+      {
+        "draft_acceptance_rate": 0.45196003074558033,
+        "input_tokens": 512,
+        "mtp_to_counterbalanced_target_ratio": 1.2448865482153209,
+        "mtp_tps": 19.665967297707123,
+        "output_tokens": 1024,
+        "target_post_to_pre_ratio": 0.9930000040624288,
+        "target_post_tps": 15.74191216560824,
+        "target_pre_tps": 15.852882277147062,
+        "workload_id": "workload-002"
+      },
+      {
+        "draft_acceptance_rate": 0.4797136038186158,
+        "input_tokens": 2048,
+        "mtp_to_counterbalanced_target_ratio": 1.2678967373377399,
+        "mtp_tps": 19.343747391761333,
+        "output_tokens": 1024,
+        "target_post_to_pre_ratio": 0.9986505045752797,
+        "target_post_tps": 15.246262459981915,
+        "target_pre_tps": 15.266865024482277,
+        "workload_id": "workload-003"
+      },
+      {
+        "draft_acceptance_rate": 0.4793322734499205,
+        "input_tokens": 8192,
+        "mtp_to_counterbalanced_target_ratio": 1.168945231997564,
+        "mtp_tps": 16.404977870037648,
+        "output_tokens": 1024,
+        "target_post_to_pre_ratio": 0.9932928682033693,
+        "target_post_tps": 13.986778105876875,
+        "target_pre_tps": 14.081222722534626,
+        "workload_id": "workload-004"
+      },
+      {
+        "draft_acceptance_rate": 0.5308537616229924,
+        "input_tokens": 16000,
+        "mtp_to_counterbalanced_target_ratio": 1.1616699603676377,
+        "mtp_tps": 14.640722047781049,
+        "output_tokens": 1024,
+        "target_post_to_pre_ratio": 0.9962243808337722,
+        "target_post_tps": 12.579330941907838,
+        "target_pre_tps": 12.627005706665994,
+        "workload_id": "workload-005"
+      }
+    ],
+    "target_post_tps": 14.577809909696496,
+    "target_pre_tps": 14.596616843233935
+  },
+  "privacy": {
+    "gpu_uuid_included": false,
+    "local_paths_or_process_identifiers_included": false,
+    "per_case_identifiers_included": false,
+    "raw_prompts_or_tokens_included": false
+  },
+  "purpose": "aggregate-only native-MTP greedy parity and A-B-A decode evidence",
+  "qualification": "single-host frozen-workload observation on one NVIDIA DGX Spark",
+  "runtime": {
+    "accelerator": "NVIDIA GB10",
+    "binary_sha256": "3d365321d3d3813859de2293c164402df55d30ef72126aa138f160ff5ebfce8b",
+    "cmake_cache_sha256": "71cf8ec992e2970bd588c9a32de2528a04443be6c12a0ad14f80814e105ba724",
+    "dependency_set_sha256": "5208d9dc0629ed25391bfa6ebf950cb55006cd1d1ece666e9f1da3f52fac89b1",
+    "driver_version": "580.126.09",
+    "git_commit": "cc3f13b3f172978d7b3c215780d4cc98bb0e1c80",
+    "source_diff_sha256": "64985863e1a7f951116d10206e004bd73fdf2d88c04451f03d2536cc634736fe"
+  },
+  "schema_version": "motif3-public-mtp-greedy-aba-v1",
+  "source_receipt_sha256": "a837852f75805cb363b259c5eebbece8470133964d05f4dd60bf983a05c09d36",
+  "speculation": {
+    "acceptance_rate": 0.4711160081851094,
+    "accepted_tokens": 2993,
+    "draft_max": 3,
+    "draft_tokens": 6353
+  },
+  "status": "complete",
+  "workload": {
+    "arm_order": [
+      "target_only",
+      "mtp",
+      "target_only_recovery"
+    ],
+    "case_count": 5,
+    "generated_tokens_per_arm": 5120,
+    "greedy": true,
+    "output_tokens_per_case_per_arm": 1024,
+    "pairwise_exact_token_comparisons": 10240,
+    "parallel_slots": 1,
+    "prompt_cache": false
+  }
+}

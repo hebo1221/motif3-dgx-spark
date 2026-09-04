@@ -37,6 +37,27 @@ This closes a prompt token-ID correctness gap. It does not alter the model
 weights, repair the failed BF16-to-IQ2 quality gate, or establish a new speed
 result. See [`../evidence/tokenizer_exact_v1.json`](../evidence/tokenizer_exact_v1.json).
 
+## Experimental native MTP follow-up
+
+Release v1.2.0 adds an opt-in source patch and aggregate evidence for Motif's
+one-layer MTP head. On one GB10, a clean isolated build matched all 5,120 greedy
+target tokens in the MTP arm and all 5,120 tokens in a fresh target-only
+recovery arm.
+
+| Metric | Value |
+|---|---:|
+| Counterbalanced target decode | 14.5872 tok/s |
+| MTP decode | 17.5565 tok/s |
+| MTP / target | **1.2036x** |
+| Draft acceptance | 2,993 / 6,353 (47.11%) |
+| Target baseline drift | 0.129% |
+
+The tested target is not byte-identical to the downloadable v1 GGUF, the
+sidecar weights are not redistributed, and these are server-reported decode
+timings rather than HTTP latency measurements. See
+[`MTP_EXPERIMENTAL.md`](MTP_EXPERIMENTAL.md) and the
+[`aggregate receipt`](../evidence/mtp_full_aba_v1/summary.public.json).
+
 ## Diagnostic task results
 
 These are fixed internal diagnostic sets, not public leaderboard scores. They
@@ -125,6 +146,8 @@ or generation quality at 256K.
 - pure 2-bit storage;
 - SOTA quality or speed;
 - BF16-equivalent tool calling;
-- native MTP/speculative decoding;
+- an MTP head inside the downloadable GGUF;
+- MTP speedup for the downloadable v1 GGUF or hardware other than the tested
+  GB10;
 - 256K quality retention;
 - portability to unmodified upstream llama.cpp.

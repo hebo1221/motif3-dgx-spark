@@ -1,0 +1,111 @@
+{
+  "artifacts": {
+    "diagnostic_patch": {
+      "path": "patches/llama-cpp-motif3-mtp-batch-invariance-diagnostic-v1.patch",
+      "sha256": "a3da8979eea172ae650da6e87953c3327f6b786b3c067c80e077e28da3d1cd6c",
+      "size_bytes": 43197
+    },
+    "runtime_patch": {
+      "path": "patches/llama-cpp-motif3-mtp-runtime-v1.patch",
+      "sha256": "9568454b651e43dcfd784b37a21364fb6f2d6d3420ae308581acd377eb315629",
+      "size_bytes": 105673
+    },
+    "sidecar": {
+      "format": "BF16",
+      "sha256": "d813251f1b7e8158399352af6e44c92df2445cd807fda1a869d2247279806f81",
+      "tensor_count": 19
+    },
+    "target": {
+      "format": "mixed IQ2_XXS",
+      "sha256": "dff7f7db077364a3eb0164224f7384b5fbb36d11f9e905d921f15874f6ffcab9"
+    }
+  },
+  "base": {
+    "commit": "cc3f13b3f172978d7b3c215780d4cc98bb0e1c80",
+    "description": "Motif-3 tokenizer-correct DGX Spark fork base"
+  },
+  "build": {
+    "cmake": {
+      "build_shared_libs": true,
+      "build_type": "Release",
+      "ggml_cuda": true,
+      "ggml_cuda_architectures": "121a-real",
+      "ggml_cuda_fa": true,
+      "ggml_cuda_graphs": true,
+      "ggml_native": true,
+      "llama_curl": false
+    },
+    "cmake_cache_sha256": "71cf8ec992e2970bd588c9a32de2528a04443be6c12a0ad14f80814e105ba724",
+    "compiler": "GNU 13.3.0",
+    "cuda": "13.0.88",
+    "dependency_set_sha256": "5208d9dc0629ed25391bfa6ebf950cb55006cd1d1ece666e9f1da3f52fac89b1",
+    "llama_build": 10498,
+    "platform": "Linux aarch64",
+    "resolved_outputs": {
+      "libggml_base_sha256": "777ef41510fb8bcc86bb30a3351a1d2feb5799e05ed1b2f1f7bd00bb0f05c716",
+      "libggml_cpu_sha256": "bd9842fcbfc71a49e4ee3b08d087badffadaeb16a22f009061f074436cbac0e5",
+      "libggml_cuda_sha256": "abe7dfb03f882cd86e6f8599ac8a9d55a6cb4d892ff3be961b2c98cec65c19c1",
+      "libggml_sha256": "f42886926c5d2003d440d3ce06a1b2fd303cc12e13ada6ee9894b44f928b94fd",
+      "libllama_common_sha256": "d39813fc1e868bb179be95753c7578b9da689e2e144a0b6a8ac62b4e581176fe",
+      "libllama_server_impl_sha256": "d51534a4464fce2108c085b26da2bd2491ac88fb29e53d6d73113aedb3d22320",
+      "libllama_sha256": "318d2490b55be7248990bf6ae627e18abc9397dfce449ae0cc93e2c631efa0cc",
+      "llama_server_sha256": "3d365321d3d3813859de2293c164402df55d30ef72126aa138f160ff5ebfce8b"
+    },
+    "source_diff_sha256": "64985863e1a7f951116d10206e004bd73fdf2d88c04451f03d2536cc634736fe"
+  },
+  "created_at": "2026-09-05T00:41:11+09:00",
+  "evidence": {
+    "clean_patch_diagnostic": {
+      "acceptance_rate": 0.3881019830028329,
+      "accepted": 137,
+      "drafted": 353,
+      "exact_greedy_tokens": "256/256",
+      "force_mmq_all": false,
+      "force_mmq_all_cache_entry_present": false,
+      "mtp_decode_tokens_per_second": 18.770614551392615,
+      "mtp_to_target_ratio": 1.1619797300918124,
+      "private_receipt_sha256": "d022d3d3dd309b95ce30b8a44245a24947ea3dea6d6f57cbfdcd76c6a76cba84",
+      "status": "pass",
+      "target_decode_tokens_per_second": 16.15399482907458,
+      "token_sha256": "6c88c860daec6e8cf2fa3142628964b921d40fe248becdf617bd848a52035ce4"
+    },
+    "formal_full_aba": {
+      "acceptance_rate": 0.4711160081851094,
+      "counterbalanced_target_decode_tokens_per_second": 14.587213376465215,
+      "exact_greedy_tokens": "5120/5120",
+      "exact_recovery_tokens": "5120/5120",
+      "isolated_patch_build": true,
+      "mtp_decode_tokens_per_second": 17.556490048983157,
+      "mtp_to_counterbalanced_target_ratio": 1.2035533858240894,
+      "private_receipt_sha256": "a837852f75805cb363b259c5eebbece8470133964d05f4dd60bf983a05c09d36",
+      "public_bundle_manifest_sha256": "9656bb56c99e7089da3963be1377686fb0cc240a16521019788cd43ad3ea161f",
+      "public_summary_sha256": "c673c4d0458b2505ed8d21e52d4138038733e8e2dec4a3f810f94f4f3111f3e3",
+      "status": "pass",
+      "target_baseline_absolute_drift": 0.001288444695056623
+    }
+  },
+  "limitations": [
+    "experimental opt-in path",
+    "the separate 256-token diagnostic is corroborative; the full A-B-A is the primary evidence",
+    "full A-B-A is a single-host five-workload observation",
+    "GB10 only",
+    "no HTTP concurrency or unified-memory peak claim",
+    "no target quality improvement claim",
+    "raw private receipts excluded"
+  ],
+  "schema_version": "motif3-mtp-runtime-patch-bundle-v1",
+  "status": "complete",
+  "tests": {
+    "converter": "7/7",
+    "cuda_flash_attention_gqa5": "2/2",
+    "cuda_flash_attention_gqa80": "2/2",
+    "cuda_mul_mat_id_iq2_xxs": "73/73",
+    "cuda_mul_mat_id_q2_k": "3/3",
+    "cuda_mul_mat_id_q8_0": "75/75",
+    "kernel_path_receipt": "3/3",
+    "mtp_workspace_harnesses": "21/21",
+    "patch_roundtrip": "pass",
+    "synthetic_mtp_graph": "1/1"
+  },
+  "updated_at": "2026-09-05T02:09:37+09:00"
+}

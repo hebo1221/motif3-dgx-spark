@@ -1,0 +1,1056 @@
+diff --git a/examples/CMakeLists.txt b/examples/CMakeLists.txt
+index 39f802d25..127ae5a0e 100644
+--- a/examples/CMakeLists.txt
++++ b/examples/CMakeLists.txt
+@@ -24,6 +24,7 @@ else()
+     add_subdirectory(idle)
+     add_subdirectory(lookahead)
+     add_subdirectory(lookup)
++    add_subdirectory(motif3-batch-invariance)
+     add_subdirectory(parallel)
+     add_subdirectory(passkey)
+     add_subdirectory(retrieval)
+diff --git a/examples/motif3-batch-invariance/CMakeLists.txt b/examples/motif3-batch-invariance/CMakeLists.txt
+new file mode 100644
+index 000000000..7038d7636
+--- /dev/null
++++ b/examples/motif3-batch-invariance/CMakeLists.txt
+@@ -0,0 +1,10 @@
++set(TARGET motif3-batch-invariance)
++add_executable(${TARGET} motif3-batch-invariance.cpp)
++install(TARGETS ${TARGET} RUNTIME)
++target_link_libraries(${TARGET} PRIVATE llama-common llama ${CMAKE_THREAD_LIBS_INIT})
++target_include_directories(${TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/src)
++target_compile_features(${TARGET} PRIVATE cxx_std_17)
++target_compile_definitions(${TARGET} PRIVATE
++    LLAMA_BUILD_NUMBER=${LLAMA_BUILD_NUMBER}
++    LLAMA_BUILD_COMMIT="${LLAMA_BUILD_COMMIT}"
++)
+diff --git a/examples/motif3-batch-invariance/motif3-batch-invariance.cpp b/examples/motif3-batch-invariance/motif3-batch-invariance.cpp
+new file mode 100644
+index 000000000..82d8d2d57
+--- /dev/null
++++ b/examples/motif3-batch-invariance/motif3-batch-invariance.cpp
+@@ -0,0 +1,1022 @@
++#include "common.h"
++#include "ggml-backend.h"
++#include "llama-ext.h"
++#include "llama.h"
++#include "sampling.h"
++
++#include <algorithm>
++#include <cerrno>
++#include <charconv>
++#include <cmath>
++#include <cstdint>
++#include <cstdio>
++#include <cstdlib>
++#include <cstring>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <iterator>
++#include <limits>
++#include <memory>
++#include <stdexcept>
++#include <string>
++#include <string_view>
++#include <vector>
++
++#ifndef LLAMA_BUILD_NUMBER
++#define LLAMA_BUILD_NUMBER 0
++#endif
++
++#ifndef LLAMA_BUILD_COMMIT
++#define LLAMA_BUILD_COMMIT "unknown"
++#endif
++
++namespace {
++
++constexpr const char * PLAN_HEADER = "motif3-fa-parity-prompts-v1";
++constexpr const char * OUTPUT_SCHEMA = "motif3-batch-invariance-diagnostic-v1";
++constexpr size_t MAX_PLAN_BYTES = 2 * 1024 * 1024;
++constexpr size_t MAX_PROMPT_BYTES = 512 * 1024;
++
++struct options {
++    std::string model;
++    std::string prompts;
++    std::string case_id = "ko-isl128";
++    int32_t pivot = 17;
++    int32_t width = 4;
++    int32_t batch_offset = 0;
++    int32_t trailing_token = -1;
++    int32_t n_generate = 32;
++    int32_t n_ctx = 22016;
++    int32_t n_batch = 2048;
++    int32_t n_ubatch = 512;
++    int32_t n_threads = 20;
++    int32_t n_gpu_layers = 99;
++    bool flash_attn = true;
++    bool capture_layer_two_ffn = false;
++};
++
++struct prompt_case {
++    std::string case_id;
++    int32_t expected_tokens = 0;
++    std::string prompt;
++};
++
++struct comparison {
++    std::string mode;
++    int64_t different_logits = 0;
++    double max_abs_logit_diff = 0.0;
++    llama_token sequential_top1 = LLAMA_TOKEN_NULL;
++    llama_token batched_top1 = LLAMA_TOKEN_NULL;
++    double sequential_margin = 0.0;
++    double batched_margin = 0.0;
++    bool logits_bitwise_equal = false;
++    bool top1_equal = false;
++    bool expected_next_matches_sequential = false;
++    bool expected_next_matches_batched = false;
++    bool nextn_available = false;
++    int64_t different_nextn = 0;
++    double max_abs_nextn_diff = 0.0;
++    bool nextn_bitwise_equal = false;
++    std::vector<float> sequential_logits;
++    int64_t captured_nodes = 0;
++    int64_t different_captured_nodes = 0;
++    std::string first_different_node;
++    std::string previous_equal_node;
++    double first_different_node_max_abs = 0.0;
++};
++
++using model_ptr = std::unique_ptr<llama_model, decltype(&llama_model_free)>;
++using context_ptr = std::unique_ptr<llama_context, decltype(&llama_free)>;
++using common_sampler_ptr = std::unique_ptr<common_sampler, decltype(&common_sampler_free)>;
++
++struct diagnostic_log_state {
++    bool continue_previous = false;
++};
++
++struct capture_record {
++    std::string name;
++    ggml_type type = GGML_TYPE_COUNT;
++    std::vector<uint8_t> first_token;
++};
++
++struct capture_state {
++    bool enabled = false;
++    bool capture_layer_two_ffn = false;
++    int32_t token_offset = 0;
++    std::string error;
++    std::vector<capture_record> records;
++};
++
++void diagnostic_log_callback(enum ggml_log_level level, const char * text, void * user_data) {
++    auto * state = static_cast<diagnostic_log_state *>(user_data);
++    bool emit = level == GGML_LOG_LEVEL_WARN || level == GGML_LOG_LEVEL_ERROR;
++    if (level == GGML_LOG_LEVEL_CONT) {
++        emit = state->continue_previous;
++    } else {
++        state->continue_previous = emit;
++    }
++    if (emit) {
++        std::fputs(text, stderr);
++    }
++}
++
++bool is_layer_checkpoint(const char * raw_name, bool capture_layer_two_ffn) {
++    const std::string_view name(raw_name == nullptr ? "" : raw_name);
++    static constexpr const char * layer_zero_nodes[] = {
++        "mhc_norm-0",
++        "mhc_h_pre-0",
++        "mhc_h_post-0",
++        "mhc_h_res-0",
++        "mhc_attn_red-0",
++        "attn_norm-0",
++        "gdla_q_lat-0",
++        "gdla_q_lat_norm-0",
++        "gdla_q-0",
++        "gdla_kv_raw-0",
++        "gdla_q_pe-0",
++        "gdla_k_pe-0",
++        "gdla_kv_cmpr-0",
++        "gdla_kv-0",
++        "gdla_lambda-0",
++        "gdla_gate-0",
++        "gdla_attn_raw-0",
++        "gdla_diff-0",
++        "gdla_gated-0",
++        "gdla_out-0",
++    };
++    if (std::any_of(std::begin(layer_zero_nodes), std::end(layer_zero_nodes),
++            [&](const char * wanted) { return name == wanted; })) {
++        return true;
++    }
++    static constexpr const char * layer_two_ffn_nodes[] = {
++        "mhc_norm-2",
++        "mhc_h_pre-2",
++        "mhc_h_post-2",
++        "mhc_h_res-2",
++        "mhc_ffn_red-2",
++        "ffn_norm-2",
++        "ffn_moe_logits-2",
++        "ffn_moe_probs-2",
++        "ffn_moe_probs_biased-2",
++        "ffn_moe_topk-2",
++        "ffn_moe_weights-2",
++        "ffn_moe_weights_norm-2",
++        "ffn_moe_weights_scaled-2",
++        "ffn_moe_gate-2",
++        "ffn_moe_up-2",
++        "ffn_poly-2",
++        "ffn_poly_act-2",
++        "ffn_moe_down-2",
++        "ffn_moe_weighted-2",
++        "ffn_moe_out-2",
++        "ffn_gate-2",
++        "ffn_up-2",
++        "ffn_down-2",
++        "ffn_shexp-2",
++        "ffn_out-2",
++    };
++    if (capture_layer_two_ffn &&
++            std::any_of(std::begin(layer_two_ffn_nodes), std::end(layer_two_ffn_nodes),
++            [&](const char * wanted) { return name == wanted; })) {
++        return true;
++    }
++    auto is_numbered = [&](std::string_view prefix) {
++        if (name.rfind(prefix, 0) != 0 || name.size() == prefix.size()) {
++            return false;
++        }
++        return std::all_of(name.begin() + static_cast<std::ptrdiff_t>(prefix.size()), name.end(),
++            [](char character) { return character >= '0' && character <= '9'; });
++    };
++    return name == "mhc_mean" || name == "h_nextn" ||
++           name == "result_norm" || name == "result_output" ||
++           is_numbered("mhc_attn_out-") || is_numbered("mhc_ffn_out-");
++}
++
++bool capture_layer_checkpoint(ggml_tensor * tensor, bool ask, void * user_data) {
++    auto * state = static_cast<capture_state *>(user_data);
++    if (!state->enabled || !is_layer_checkpoint(tensor->name, state->capture_layer_two_ffn)) {
++        return false;
++    }
++    if (ask) {
++        return true;
++    }
++    try {
++        capture_record record;
++        record.name = tensor->name;
++        record.type = tensor->type;
++        const bool token_dim_two =
++            record.name.rfind("mhc_attn_out-", 0) == 0 ||
++            record.name.rfind("mhc_ffn_out-", 0) == 0 ||
++            record.name.rfind("mhc_h_res-", 0) == 0 ||
++            record.name == "gdla_q_pe-0" ||
++            record.name == "gdla_k_pe-0" ||
++            record.name == "ffn_moe_weights-2" ||
++            record.name == "ffn_moe_weights_norm-2" ||
++            record.name == "ffn_moe_weights_scaled-2" ||
++            record.name == "ffn_moe_gate-2" ||
++            record.name == "ffn_moe_up-2" ||
++            record.name == "ffn_poly-2" ||
++            record.name == "ffn_poly_act-2" ||
++            record.name == "ffn_moe_down-2" ||
++            record.name == "ffn_moe_weighted-2";
++        const bool token_dim_three =
++            record.name == "gdla_diff-0" ||
++            record.name == "gdla_gated-0";
++        const size_t token_stride = token_dim_three ? tensor->nb[3] :
++            token_dim_two ? tensor->nb[2] : tensor->nb[1];
++        const bool detailed_layer_two = state->capture_layer_two_ffn &&
++            record.name.size() > 2 && record.name.substr(record.name.size() - 2) == "-2";
++        size_t slice_bytes = token_stride;
++        if (detailed_layer_two) {
++            int token_dim = 1;
++            if (token_dim_two) {
++                token_dim = 2;
++            }
++            if ((record.name == "ffn_poly-2" || record.name == "ffn_poly_act-2") &&
++                    tensor->ne[1] != 8) {
++                token_dim = 1;
++            }
++            slice_bytes = ggml_row_size(tensor->type, tensor->ne[0]);
++            for (int dim = 1; dim < token_dim; ++dim) {
++                slice_bytes *= static_cast<size_t>(tensor->ne[dim]);
++            }
++        }
++        const size_t byte_offset = static_cast<size_t>(state->token_offset) * token_stride;
++        if (slice_bytes == 0 || byte_offset > ggml_nbytes(tensor) ||
++                slice_bytes > ggml_nbytes(tensor) - byte_offset) {
++            throw std::runtime_error(
++                "invalid first-token slice geometry for " + record.name +
++                ": slice=" + std::to_string(slice_bytes) +
++                ", tensor=" + std::to_string(ggml_nbytes(tensor)));
++        }
++        record.first_token.resize(slice_bytes);
++        ggml_backend_tensor_get(tensor, record.first_token.data(), byte_offset, slice_bytes);
++        state->records.push_back(std::move(record));
++        return true;
++    } catch (const std::exception & error) {
++        state->error = error.what();
++        return false;
++    }
++}
++
++[[noreturn]] void fail(const std::string & message) {
++    throw std::runtime_error(message);
++}
++
++void usage(const char * argv0) {
++    std::fprintf(
++        stderr,
++        "usage: %s --model MODEL.gguf --prompts PROMPTS.tsv "
++        "[--case-id ID --pivot N --width N --batch-offset N --trailing-token ID "
++        "--n-generate N --fa on|off --capture-layer-two-ffn]\n",
++        argv0);
++}
++
++int32_t parse_positive(const char * raw, const char * name, int32_t maximum) {
++    int32_t value = 0;
++    const std::string_view text(raw);
++    const auto parsed = std::from_chars(text.data(), text.data() + text.size(), value);
++    if (parsed.ec != std::errc() || parsed.ptr != text.data() + text.size() ||
++            value <= 0 || value > maximum) {
++        fail(std::string(name) + " must be an integer within 1.." + std::to_string(maximum));
++    }
++    return value;
++}
++
++int32_t parse_nonnegative(const char * raw, const char * name, int32_t maximum) {
++    int32_t value = 0;
++    const std::string_view text(raw);
++    const auto parsed = std::from_chars(text.data(), text.data() + text.size(), value);
++    if (parsed.ec != std::errc() || parsed.ptr != text.data() + text.size() ||
++            value < 0 || value > maximum) {
++        fail(std::string(name) + " must be an integer within 0.." + std::to_string(maximum));
++    }
++    return value;
++}
++
++options parse_options(int argc, char ** argv) {
++    options result;
++    for (int index = 1; index < argc; ++index) {
++        const std::string argument(argv[index]);
++        auto value = [&](const char * name) -> const char * {
++            if (index + 1 >= argc) {
++                fail(std::string(name) + " requires a value");
++            }
++            return argv[++index];
++        };
++        if (argument == "--model") {
++            result.model = value("--model");
++        } else if (argument == "--prompts") {
++            result.prompts = value("--prompts");
++        } else if (argument == "--case-id") {
++            result.case_id = value("--case-id");
++        } else if (argument == "--pivot") {
++            result.pivot = parse_nonnegative(value("--pivot"), "--pivot", 4096);
++        } else if (argument == "--width") {
++            result.width = parse_positive(value("--width"), "--width", 8);
++        } else if (argument == "--batch-offset") {
++            result.batch_offset = parse_nonnegative(value("--batch-offset"), "--batch-offset", 7);
++        } else if (argument == "--trailing-token") {
++            result.trailing_token = parse_nonnegative(
++                value("--trailing-token"), "--trailing-token", std::numeric_limits<int32_t>::max());
++        } else if (argument == "--n-generate") {
++            result.n_generate = parse_positive(value("--n-generate"), "--n-generate", 4096);
++        } else if (argument == "--n-ctx") {
++            result.n_ctx = parse_positive(value("--n-ctx"), "--n-ctx", 1024 * 1024);
++        } else if (argument == "--n-batch") {
++            result.n_batch = parse_positive(value("--n-batch"), "--n-batch", 65536);
++        } else if (argument == "--n-ubatch") {
++            result.n_ubatch = parse_positive(value("--n-ubatch"), "--n-ubatch", 65536);
++        } else if (argument == "--threads") {
++            result.n_threads = parse_positive(value("--threads"), "--threads", 4096);
++        } else if (argument == "--ngl") {
++            result.n_gpu_layers = parse_positive(value("--ngl"), "--ngl", 4096);
++        } else if (argument == "--fa") {
++            const std::string mode = value("--fa");
++            if (mode == "on") {
++                result.flash_attn = true;
++            } else if (mode == "off") {
++                result.flash_attn = false;
++            } else {
++                fail("--fa must be on or off");
++            }
++        } else if (argument == "--capture-layer-two-ffn") {
++            result.capture_layer_two_ffn = true;
++        } else if (argument == "--help" || argument == "-h") {
++            usage(argv[0]);
++            std::exit(0);
++        } else {
++            fail("unknown argument: " + argument);
++        }
++    }
++    if (result.model.empty() || result.prompts.empty()) {
++        fail("--model and --prompts are required");
++    }
++    if (result.case_id.empty() || result.case_id.size() > 64) {
++        fail("--case-id must contain 1..64 characters");
++    }
++    if (result.n_ubatch > result.n_batch) {
++        fail("--n-ubatch must not exceed --n-batch");
++    }
++    if (result.pivot + result.width >= result.n_generate) {
++        fail("--n-generate must exceed --pivot + --width");
++    }
++    if (result.batch_offset >= result.width) {
++        fail("--batch-offset must be smaller than --width");
++    }
++    return result;
++}
++
++int hex_value(char character) {
++    if (character >= '0' && character <= '9') {
++        return character - '0';
++    }
++    if (character >= 'a' && character <= 'f') {
++        return character - 'a' + 10;
++    }
++    return -1;
++}
++
++std::string decode_hex(const std::string & encoded) {
++    if (encoded.empty() || encoded.size() % 2 != 0 || encoded.size() / 2 > MAX_PROMPT_BYTES) {
++        fail("prompt hex has an unsafe size");
++    }
++    std::string decoded;
++    decoded.reserve(encoded.size() / 2);
++    for (size_t index = 0; index < encoded.size(); index += 2) {
++        const int high = hex_value(encoded[index]);
++        const int low = hex_value(encoded[index + 1]);
++        if (high < 0 || low < 0) {
++            fail("prompt hex must be lowercase hexadecimal");
++        }
++        const char byte = static_cast<char>((high << 4) | low);
++        if (byte == '\0') {
++            fail("prompt contains NUL");
++        }
++        decoded.push_back(byte);
++    }
++    return decoded;
++}
++
++prompt_case load_case(const std::string & path, const std::string & wanted) {
++    std::ifstream stream(path, std::ios::binary);
++    if (!stream) {
++        fail("cannot open prompt plan: " + path);
++    }
++    stream.seekg(0, std::ios::end);
++    const std::streamoff size = stream.tellg();
++    if (size <= 0 || size > static_cast<std::streamoff>(MAX_PLAN_BYTES)) {
++        fail("prompt plan size is outside the safety bound");
++    }
++    stream.seekg(0, std::ios::beg);
++    std::string raw(static_cast<size_t>(size), '\0');
++    if (!stream.read(raw.data(), size)) {
++        fail("cannot read complete prompt plan");
++    }
++    if (raw.back() != '\n' || raw.find('\r') != std::string::npos || raw.find('\0') != std::string::npos) {
++        fail("prompt plan must be LF-terminated and NUL-free");
++    }
++
++    size_t start = 0;
++    size_t line_number = 0;
++    prompt_case found;
++    int matches = 0;
++    while (start < raw.size()) {
++        const size_t end = raw.find('\n', start);
++        if (end == std::string::npos) {
++            fail("unterminated prompt-plan line");
++        }
++        const std::string line = raw.substr(start, end - start);
++        start = end + 1;
++        ++line_number;
++        if (line_number == 1) {
++            if (line != PLAN_HEADER) {
++                fail("unsupported prompt-plan header");
++            }
++            continue;
++        }
++        const size_t first = line.find('\t');
++        const size_t second = first == std::string::npos ? std::string::npos : line.find('\t', first + 1);
++        if (first == std::string::npos || second == std::string::npos || line.find('\t', second + 1) != std::string::npos) {
++            fail("prompt-plan row must have exactly three fields");
++        }
++        if (line.substr(0, first) != wanted) {
++            continue;
++        }
++        ++matches;
++        found.case_id = wanted;
++        found.expected_tokens = parse_positive(
++            line.substr(first + 1, second - first - 1).c_str(), "expected tokens", 1024 * 1024);
++        found.prompt = decode_hex(line.substr(second + 1));
++    }
++    if (matches != 1) {
++        fail("requested case must occur exactly once in the prompt plan");
++    }
++    return found;
++}
++
++std::vector<llama_token> tokenize(const llama_vocab * vocab, const prompt_case & item) {
++    const int32_t needed = -llama_tokenize(
++        vocab, item.prompt.data(), static_cast<int32_t>(item.prompt.size()), nullptr, 0, true, true);
++    if (needed <= 0) {
++        fail("tokenization sizing failed");
++    }
++    std::vector<llama_token> tokens(static_cast<size_t>(needed));
++    const int32_t observed = llama_tokenize(
++        vocab,
++        item.prompt.data(),
++        static_cast<int32_t>(item.prompt.size()),
++        tokens.data(),
++        static_cast<int32_t>(tokens.size()),
++        true,
++        true);
++    if (observed != needed || observed != item.expected_tokens) {
++        fail("prompt token count differs from the frozen plan");
++    }
++    return tokens;
++}
++
++llama_context_params make_context_params(const options & config, capture_state * capture) {
++    llama_context_params params = llama_context_default_params();
++    params.n_ctx = static_cast<uint32_t>(config.n_ctx);
++    params.n_batch = static_cast<uint32_t>(config.n_batch);
++    params.n_ubatch = static_cast<uint32_t>(config.n_ubatch);
++    params.n_threads = config.n_threads;
++    params.n_threads_batch = config.n_threads;
++    params.flash_attn_type = config.flash_attn ?
++        LLAMA_FLASH_ATTN_TYPE_ENABLED : LLAMA_FLASH_ATTN_TYPE_DISABLED;
++    params.type_k = GGML_TYPE_F16;
++    params.type_v = GGML_TYPE_F16;
++    params.no_perf = true;
++    if (capture != nullptr) {
++        params.cb_eval = capture_layer_checkpoint;
++        params.cb_eval_user_data = capture;
++    }
++    return params;
++}
++
++context_ptr make_context(
++        llama_model * model,
++        const options & config,
++        bool nextn,
++        capture_state * capture = nullptr) {
++    context_ptr result(llama_init_from_model(model, make_context_params(config, capture)), &llama_free);
++    if (!result) {
++        fail("cannot create llama context");
++    }
++    if (nextn) {
++        llama_set_embeddings_nextn(result.get(), true, false);
++    }
++    return result;
++}
++
++void decode_tokens(
++        llama_context * ctx,
++        const std::vector<llama_token> & tokens,
++        llama_pos position,
++        bool all_logits,
++        int32_t capacity) {
++    if (tokens.empty() || static_cast<int32_t>(tokens.size()) > capacity) {
++        fail("decode token batch has an unsafe size");
++    }
++    llama_batch batch = llama_batch_init(capacity, 0, 1);
++    for (size_t index = 0; index < tokens.size(); ++index) {
++        const bool logits = all_logits || index + 1 == tokens.size();
++        common_batch_add(batch, tokens[index], position + static_cast<llama_pos>(index), {0}, logits);
++    }
++    const int32_t status = llama_decode(ctx, batch);
++    llama_batch_free(batch);
++    if (status != 0) {
++        fail("llama_decode failed with status " + std::to_string(status));
++    }
++}
++
++void decode_prompt_like_server(
++        llama_context * ctx,
++        const std::vector<llama_token> & prompt,
++        bool all_logits,
++        int32_t capacity) {
++    // The server's default context-checkpoint path evaluates the last four
++    // prompt tokens separately.  That changes low-bit kernel shapes, so it is
++    // part of the numerical state we are diagnosing.
++    constexpr size_t checkpoint_tail = 4;
++    if (prompt.size() <= checkpoint_tail) {
++        decode_tokens(ctx, prompt, 0, all_logits, capacity);
++        return;
++    }
++    const auto split = prompt.end() - checkpoint_tail;
++    size_t offset = 0;
++    const size_t prefix_size = static_cast<size_t>(split - prompt.begin());
++    while (offset < prefix_size) {
++        const size_t count = std::min(
++            static_cast<size_t>(capacity), prefix_size - offset);
++        decode_tokens(
++            ctx,
++            std::vector<llama_token>(
++                prompt.begin() + static_cast<std::ptrdiff_t>(offset),
++                prompt.begin() + static_cast<std::ptrdiff_t>(offset + count)),
++            static_cast<llama_pos>(offset),
++            all_logits,
++            capacity);
++        offset += count;
++    }
++    decode_tokens(
++        ctx,
++        std::vector<llama_token>(split, prompt.end()),
++        static_cast<llama_pos>(prompt.size() - checkpoint_tail),
++        all_logits,
++        static_cast<int32_t>(checkpoint_tail));
++}
++
++std::pair<llama_token, double> top1_and_margin(
++        const std::vector<float> & logits,
++        const llama_vocab * vocab) {
++    if (logits.size() < 2) {
++        fail("logit vector is too short");
++    }
++    int32_t n_suppress = 0;
++    const llama_token * suppress = llama_vocab_get_suppress_tokens(vocab, &n_suppress);
++    auto is_suppressed = [&](llama_token token) {
++        if (llama_vocab_is_eog(vocab, token)) {
++            return true;
++        }
++        for (int32_t index = 0; index < n_suppress; ++index) {
++            if (suppress[index] == token) {
++                return true;
++            }
++        }
++        return false;
++    };
++
++    llama_token best = LLAMA_TOKEN_NULL;
++    float best_value = -std::numeric_limits<float>::infinity();
++    float second_value = -std::numeric_limits<float>::infinity();
++    for (size_t index = 0; index < logits.size(); ++index) {
++        const float value = logits[index];
++        if (!std::isfinite(value)) {
++            fail("logit vector contains a non-finite value");
++        }
++        if (is_suppressed(static_cast<llama_token>(index))) {
++            continue;
++        }
++        if (value > best_value) {
++            second_value = best_value;
++            best_value = value;
++            best = static_cast<llama_token>(index);
++        } else if (value > second_value) {
++            second_value = value;
++        }
++    }
++    if (best == LLAMA_TOKEN_NULL) {
++        fail("all logits were suppressed");
++    }
++    return {best, static_cast<double>(best_value) - static_cast<double>(second_value)};
++}
++
++common_params_sampling make_sampling_params(const llama_vocab * vocab) {
++    common_params_sampling params;
++    params.seed = 42;
++    params.temp = 0.0f;
++    params.top_k = 1;
++    params.top_p = 1.0f;
++    params.min_p = 0.0f;
++    params.penalty_repeat = 1.0f;
++    params.penalty_freq = 0.0f;
++    params.penalty_present = 0.0f;
++    params.dry_multiplier = 0.0f;
++    params.xtc_probability = 0.0f;
++    params.ignore_eos = true;
++    params.backend_sampling = false;
++    params.samplers = {
++        COMMON_SAMPLER_TYPE_TOP_K,
++        COMMON_SAMPLER_TYPE_TEMPERATURE,
++    };
++    for (llama_token token = 0; token < llama_vocab_n_tokens(vocab); ++token) {
++        if (llama_vocab_is_eog(vocab, token)) {
++            params.logit_bias.push_back({token, -INFINITY});
++        }
++    }
++    return params;
++}
++
++llama_token sample_like_server(
++        const llama_model * model,
++        const llama_vocab * vocab,
++        llama_context * ctx,
++        int32_t logits_index) {
++    common_params_sampling params = make_sampling_params(vocab);
++    common_sampler_ptr sampler(common_sampler_init(model, params), &common_sampler_free);
++    if (!sampler) {
++        fail("cannot initialize the server-equivalent sampler");
++    }
++    return common_sampler_sample(sampler.get(), ctx, logits_index);
++}
++
++std::vector<llama_token> generate_baseline(
++        llama_model * model,
++        const llama_vocab * vocab,
++        const std::vector<llama_token> & prompt,
++        const options & config) {
++    context_ptr ctx = make_context(model, config, false);
++    common_params_sampling sampling_params = make_sampling_params(vocab);
++    common_sampler_ptr sampler(common_sampler_init(model, sampling_params), &common_sampler_free);
++    if (!sampler) {
++        fail("cannot initialize the baseline sampler");
++    }
++
++    auto generate_once = [&]() {
++        decode_prompt_like_server(ctx.get(), prompt, false, config.n_batch);
++        std::vector<llama_token> generated;
++        generated.reserve(static_cast<size_t>(config.n_generate));
++        for (int32_t step = 0; step < config.n_generate; ++step) {
++            const llama_token token = common_sampler_sample(sampler.get(), ctx.get(), -1);
++            common_sampler_accept(sampler.get(), token, true);
++            generated.push_back(token);
++            if (step + 1 < config.n_generate) {
++                decode_tokens(
++                    ctx.get(),
++                    {token},
++                    static_cast<llama_pos>(prompt.size() + generated.size() - 1),
++                    true,
++                    1);
++            }
++        }
++        return generated;
++    };
++
++    // The production parity runner performs one discarded generation on the
++    // same server context before the measured request.  CUDA graph capture can
++    // otherwise select a different numerical path for the first low-margin
++    // token, so reproduce that state transition explicitly.
++    (void) generate_once();
++    llama_memory_clear(llama_get_memory(ctx.get()), false);
++    common_sampler_reset(sampler.get());
++    return generate_once();
++}
++
++void replay_prefix(
++        llama_context * ctx,
++        const std::vector<llama_token> & prompt,
++        const std::vector<llama_token> & generated,
++        int32_t pivot,
++        const options & config,
++        bool nextn) {
++    decode_prompt_like_server(ctx, prompt, nextn, config.n_batch);
++    for (int32_t index = 0; index < pivot; ++index) {
++        decode_tokens(
++            ctx,
++            {generated[static_cast<size_t>(index)]},
++            static_cast<llama_pos>(prompt.size() + static_cast<size_t>(index)),
++            true,
++            1);
++    }
++}
++
++double captured_max_abs_diff(const capture_record & left, const capture_record & right) {
++    if (left.type != right.type || left.first_token.size() != right.first_token.size()) {
++        return std::numeric_limits<double>::infinity();
++    }
++    double result = 0.0;
++    if (left.type == GGML_TYPE_F32) {
++        for (size_t offset = 0; offset < left.first_token.size(); offset += sizeof(float)) {
++            float lhs;
++            float rhs;
++            std::memcpy(&lhs, left.first_token.data() + offset, sizeof(lhs));
++            std::memcpy(&rhs, right.first_token.data() + offset, sizeof(rhs));
++            result = std::max(result, std::abs(static_cast<double>(lhs) - static_cast<double>(rhs)));
++        }
++    } else if (left.type == GGML_TYPE_F16) {
++        for (size_t offset = 0; offset < left.first_token.size(); offset += sizeof(ggml_fp16_t)) {
++            ggml_fp16_t lhs;
++            ggml_fp16_t rhs;
++            std::memcpy(&lhs, left.first_token.data() + offset, sizeof(lhs));
++            std::memcpy(&rhs, right.first_token.data() + offset, sizeof(rhs));
++            result = std::max(result, std::abs(
++                static_cast<double>(ggml_fp16_to_fp32(lhs)) -
++                static_cast<double>(ggml_fp16_to_fp32(rhs))));
++        }
++    } else if (left.type == GGML_TYPE_BF16) {
++        for (size_t offset = 0; offset < left.first_token.size(); offset += sizeof(ggml_bf16_t)) {
++            ggml_bf16_t lhs;
++            ggml_bf16_t rhs;
++            std::memcpy(&lhs, left.first_token.data() + offset, sizeof(lhs));
++            std::memcpy(&rhs, right.first_token.data() + offset, sizeof(rhs));
++            result = std::max(result, std::abs(
++                static_cast<double>(ggml_bf16_to_fp32(lhs)) -
++                static_cast<double>(ggml_bf16_to_fp32(rhs))));
++        }
++    }
++    return result;
++}
++
++void summarize_captures(
++        comparison & result,
++        const capture_state & sequential,
++        const capture_state & batched) {
++    if (!sequential.error.empty() || !batched.error.empty()) {
++        fail("layer checkpoint capture failed: " + sequential.error + batched.error);
++    }
++    if (sequential.records.size() != batched.records.size()) {
++        fail("sequential and batched checkpoint counts differ");
++    }
++    result.captured_nodes = static_cast<int64_t>(sequential.records.size());
++    for (size_t index = 0; index < sequential.records.size(); ++index) {
++        const capture_record & left = sequential.records[index];
++        const capture_record & right = batched.records[index];
++        if (left.name != right.name || left.type != right.type ||
++                left.first_token.size() != right.first_token.size()) {
++            fail("sequential and batched checkpoint geometry differs at index " + std::to_string(index) +
++                ": left=" + left.name + "/" + std::to_string(left.first_token.size()) +
++                ", right=" + right.name + "/" + std::to_string(right.first_token.size()));
++        }
++        if (left.first_token != right.first_token) {
++            ++result.different_captured_nodes;
++            if (result.first_different_node.empty()) {
++                result.first_different_node = left.name;
++                result.first_different_node_max_abs = captured_max_abs_diff(left, right);
++                if (index > 0) {
++                    result.previous_equal_node = sequential.records[index - 1].name;
++                }
++            }
++        }
++    }
++}
++
++comparison compare_mode(
++        llama_model * model,
++        const llama_vocab * vocab,
++        const std::vector<llama_token> & prompt,
++        const std::vector<llama_token> & generated,
++        const options & config,
++        bool nextn) {
++    capture_state sequential_capture;
++    capture_state batched_capture;
++    sequential_capture.capture_layer_two_ffn = config.capture_layer_two_ffn;
++    batched_capture.capture_layer_two_ffn = config.capture_layer_two_ffn;
++    context_ptr sequential = make_context(model, config, nextn, nextn ? nullptr : &sequential_capture);
++    context_ptr batched = make_context(model, config, nextn, nextn ? nullptr : &batched_capture);
++    replay_prefix(
++        sequential.get(), prompt, generated, config.pivot + config.batch_offset, config, nextn);
++    replay_prefix(batched.get(), prompt, generated, config.pivot, config, nextn);
++
++    const llama_pos sequential_position = static_cast<llama_pos>(
++        prompt.size() + static_cast<size_t>(config.pivot + config.batch_offset));
++    const llama_pos batched_position = static_cast<llama_pos>(
++        prompt.size() + static_cast<size_t>(config.pivot));
++    sequential_capture.enabled = !nextn;
++    decode_tokens(
++        sequential.get(),
++        {generated[static_cast<size_t>(config.pivot + config.batch_offset)]},
++        sequential_position,
++        true,
++        1);
++    llama_synchronize(sequential.get());
++    sequential_capture.enabled = false;
++    const auto first = generated.begin() + config.pivot;
++    const auto last = first + config.width;
++    std::vector<llama_token> batched_tokens(first, last);
++    if (config.trailing_token >= 0) {
++        batched_tokens.back() = config.trailing_token;
++    }
++    batched_capture.token_offset = config.batch_offset;
++    batched_capture.enabled = !nextn;
++    decode_tokens(
++        batched.get(),
++        batched_tokens,
++        batched_position,
++        true,
++        config.width);
++    llama_synchronize(batched.get());
++    batched_capture.enabled = false;
++
++    const int32_t n_vocab = llama_vocab_n_tokens(llama_model_get_vocab(model));
++    float * sequential_raw = llama_get_logits_ith(sequential.get(), 0);
++    float * batched_raw = llama_get_logits_ith(batched.get(), config.batch_offset);
++    if (sequential_raw == nullptr || batched_raw == nullptr) {
++        fail("logit retrieval failed");
++    }
++    std::vector<float> sequential_logits(sequential_raw, sequential_raw + n_vocab);
++    std::vector<float> batched_logits(batched_raw, batched_raw + n_vocab);
++
++    comparison result;
++    result.mode = nextn ? "nextn_enabled" : "plain";
++    result.logits_bitwise_equal = std::memcmp(
++        sequential_logits.data(), batched_logits.data(), sequential_logits.size() * sizeof(float)) == 0;
++    for (size_t index = 0; index < sequential_logits.size(); ++index) {
++        if (std::memcmp(&sequential_logits[index], &batched_logits[index], sizeof(float)) != 0) {
++            ++result.different_logits;
++        }
++        result.max_abs_logit_diff = std::max(
++            result.max_abs_logit_diff,
++            std::abs(static_cast<double>(sequential_logits[index]) - static_cast<double>(batched_logits[index])));
++    }
++    const auto sequential_choice = top1_and_margin(sequential_logits, vocab);
++    const auto batched_choice = top1_and_margin(batched_logits, vocab);
++    result.sequential_top1 = sample_like_server(model, vocab, sequential.get(), 0);
++    result.sequential_margin = sequential_choice.second;
++    result.batched_top1 = sample_like_server(model, vocab, batched.get(), config.batch_offset);
++    result.batched_margin = batched_choice.second;
++    result.top1_equal = result.sequential_top1 == result.batched_top1;
++    const llama_token expected = generated[
++        static_cast<size_t>(config.pivot + config.batch_offset + 1)];
++    result.expected_next_matches_sequential = result.sequential_top1 == expected;
++    result.expected_next_matches_batched = result.batched_top1 == expected;
++    result.sequential_logits = std::move(sequential_logits);
++    if (!nextn) {
++        summarize_captures(result, sequential_capture, batched_capture);
++    }
++
++    if (nextn) {
++        const int32_t n_embd = llama_model_n_embd_out(model);
++        float * sequential_h = llama_get_embeddings_nextn_ith(sequential.get(), 0);
++        float * batched_h = llama_get_embeddings_nextn_ith(batched.get(), config.batch_offset);
++        if (sequential_h == nullptr || batched_h == nullptr) {
++            fail("nextn hidden-state retrieval failed");
++        }
++        result.nextn_available = true;
++        result.nextn_bitwise_equal = std::memcmp(
++            sequential_h, batched_h, static_cast<size_t>(n_embd) * sizeof(float)) == 0;
++        for (int32_t index = 0; index < n_embd; ++index) {
++            if (std::memcmp(&sequential_h[index], &batched_h[index], sizeof(float)) != 0) {
++                ++result.different_nextn;
++            }
++            result.max_abs_nextn_diff = std::max(
++                result.max_abs_nextn_diff,
++                std::abs(static_cast<double>(sequential_h[index]) - static_cast<double>(batched_h[index])));
++        }
++    }
++    return result;
++}
++
++void print_tokens(const std::vector<llama_token> & tokens) {
++    std::cout << '[';
++    for (size_t index = 0; index < tokens.size(); ++index) {
++        if (index != 0) {
++            std::cout << ',';
++        }
++        std::cout << tokens[index];
++    }
++    std::cout << ']';
++}
++
++void print_comparison(const comparison & value, bool include_leading_comma) {
++    if (include_leading_comma) {
++        std::cout << ',';
++    }
++    std::cout << "{\"batched_margin\":" << value.batched_margin
++              << ",\"batched_top1\":" << value.batched_top1
++              << ",\"captured_nodes\":" << value.captured_nodes
++              << ",\"different_captured_nodes\":" << value.different_captured_nodes
++              << ",\"different_logits\":" << value.different_logits
++              << ",\"different_nextn\":" << value.different_nextn
++              << ",\"expected_next_matches_batched\":" << (value.expected_next_matches_batched ? "true" : "false")
++              << ",\"expected_next_matches_sequential\":" << (value.expected_next_matches_sequential ? "true" : "false")
++              << ",\"logits_bitwise_equal\":" << (value.logits_bitwise_equal ? "true" : "false")
++              << ",\"first_different_node\":\"" << value.first_different_node << "\""
++              << ",\"first_different_node_max_abs\":" << value.first_different_node_max_abs
++              << ",\"max_abs_logit_diff\":" << value.max_abs_logit_diff
++              << ",\"max_abs_nextn_diff\":" << value.max_abs_nextn_diff
++              << ",\"mode\":\"" << value.mode << "\""
++              << ",\"nextn_available\":" << (value.nextn_available ? "true" : "false")
++              << ",\"nextn_bitwise_equal\":" << (value.nextn_bitwise_equal ? "true" : "false")
++              << ",\"previous_equal_node\":\"" << value.previous_equal_node << "\""
++              << ",\"sequential_margin\":" << value.sequential_margin
++              << ",\"sequential_top1\":" << value.sequential_top1
++              << ",\"top1_equal\":" << (value.top1_equal ? "true" : "false")
++              << '}';
++}
++
++int run(const options & config) {
++    const prompt_case item = load_case(config.prompts, config.case_id);
++
++    diagnostic_log_state log_state;
++    llama_log_set(diagnostic_log_callback, &log_state);
++    llama_backend_init();
++    struct backend_guard {
++        ~backend_guard() { llama_backend_free(); }
++    } guard;
++
++    llama_model_params model_params = llama_model_default_params();
++    model_params.n_gpu_layers = config.n_gpu_layers;
++    model_ptr model(llama_model_load_from_file(config.model.c_str(), model_params), &llama_model_free);
++    if (!model) {
++        fail("cannot load model");
++    }
++    const llama_vocab * vocab = llama_model_get_vocab(model.get());
++    if (vocab == nullptr || llama_model_has_encoder(model.get()) || !llama_model_has_decoder(model.get())) {
++        fail("diagnostic requires a decoder-only model with a vocabulary");
++    }
++    if (config.trailing_token >= llama_vocab_n_tokens(vocab)) {
++        fail("--trailing-token is outside the model vocabulary");
++    }
++    const std::vector<llama_token> prompt = tokenize(vocab, item);
++    if (prompt.size() + static_cast<size_t>(config.n_generate) >= static_cast<size_t>(config.n_ctx)) {
++        fail("prompt plus generated tokens exceeds context capacity");
++    }
++
++    const std::vector<llama_token> generated = generate_baseline(model.get(), vocab, prompt, config);
++    comparison plain = compare_mode(model.get(), vocab, prompt, generated, config, false);
++    comparison nextn = compare_mode(model.get(), vocab, prompt, generated, config, true);
++
++    const int32_t n_vocab = llama_vocab_n_tokens(vocab);
++    if (plain.sequential_logits.size() != nextn.sequential_logits.size()) {
++        fail("plain and nextn sequential logit geometry differs");
++    }
++    int64_t sequential_mode_differences = 0;
++    double sequential_mode_max_abs_diff = 0.0;
++    for (int32_t index = 0; index < n_vocab; ++index) {
++        const float left = plain.sequential_logits[static_cast<size_t>(index)];
++        const float right = nextn.sequential_logits[static_cast<size_t>(index)];
++        if (std::memcmp(&left, &right, sizeof(float)) != 0) {
++            ++sequential_mode_differences;
++        }
++        sequential_mode_max_abs_diff = std::max(
++            sequential_mode_max_abs_diff,
++            std::abs(static_cast<double>(left) - static_cast<double>(right)));
++    }
++
++    std::cout << std::setprecision(17)
++              << "{\"baseline_tokens\":";
++    print_tokens(generated);
++    std::cout << ",\"build_commit\":\"" << LLAMA_BUILD_COMMIT << "\""
++              << ",\"build_number\":" << LLAMA_BUILD_NUMBER
++              << ",\"batch_offset\":" << config.batch_offset
++              << ",\"capture_layer_two_ffn\":" << (config.capture_layer_two_ffn ? "true" : "false")
++              << ",\"case_id\":\"" << item.case_id << "\""
++              << ",\"comparisons\":[";
++    print_comparison(plain, false);
++    print_comparison(nextn, true);
++    std::cout << "]"
++              << ",\"expected_next_token\":"
++              << generated[static_cast<size_t>(config.pivot + config.batch_offset + 1)]
++              << ",\"flash_attn\":" << (config.flash_attn ? "true" : "false")
++              << ",\"n_batch\":" << config.n_batch
++              << ",\"n_ctx\":" << config.n_ctx
++              << ",\"n_generate\":" << config.n_generate
++              << ",\"n_ubatch\":" << config.n_ubatch
++              << ",\"n_vocab\":" << n_vocab
++              << ",\"pivot_input_token\":"
++              << generated[static_cast<size_t>(config.pivot + config.batch_offset)]
++              << ",\"pivot_output_index\":" << config.pivot + config.batch_offset + 1
++              << ",\"prompt_tokens\":" << prompt.size()
++              << ",\"record_type\":\"result\""
++              << ",\"schema_version\":\"" << OUTPUT_SCHEMA << "\""
++              << ",\"sequential_plain_vs_nextn_different_logits\":" << sequential_mode_differences
++              << ",\"sequential_plain_vs_nextn_max_abs_logit_diff\":" << sequential_mode_max_abs_diff
++              << ",\"trailing_token_override\":" << config.trailing_token
++              << ",\"width\":" << config.width
++              << "}\n";
++    return 0;
++}
++
++} // namespace
++
++int main(int argc, char ** argv) {
++    try {
++        return run(parse_options(argc, argv));
++    } catch (const std::exception & error) {
++        std::fprintf(stderr, "motif3-batch-invariance: %s\n", error.what());
++        return 2;
++    }
++}

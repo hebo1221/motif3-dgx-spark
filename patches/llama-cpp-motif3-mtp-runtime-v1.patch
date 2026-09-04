@@ -1,0 +1,2243 @@
+diff --git a/common/speculative.cpp b/common/speculative.cpp
+index 89e9b2782..1db9bd513 100644
+--- a/common/speculative.cpp
++++ b/common/speculative.cpp
+@@ -81,6 +81,11 @@ static bool common_speculative_are_compatible(
+         return false;
+     }
+ 
++    if (vocab_type_tgt == LLAMA_VOCAB_TYPE_NONE) {
++        SPC_WRN("%s", "speculative decoding requires target and draft token vocabularies\n");
++        return false;
++    }
++
+     if (llama_vocab_get_add_bos(vocab_tgt) != llama_vocab_get_add_bos(vocab_dft) ||
+         (llama_vocab_get_add_bos(vocab_tgt) && llama_vocab_bos(vocab_tgt) != llama_vocab_bos(vocab_dft))) {
+         SPC_WRN("draft model bos tokens must match target model to use speculation. add: %d - %d, id: %d - %d)\n",
+@@ -128,6 +133,37 @@ static bool common_speculative_are_compatible(
+     return true;
+ }
+ 
++// MTP sidecars share the target token embedding and output-head semantics.
++// Generic draft-model compatibility deliberately tolerates a small vocabulary
++// tail difference and skips the first special-token rows; that is not safe for
++// an auxiliary head trained against an exact target vocabulary.
++static bool common_speculative_mtp_vocab_is_exact(
++        const llama_model * model_tgt,
++        const llama_model * model_dft) {
++    if (!common_speculative_are_compatible(model_tgt, model_dft)) {
++        return false;
++    }
++
++    const llama_vocab * vocab_tgt = llama_model_get_vocab(model_tgt);
++    const llama_vocab * vocab_dft = llama_model_get_vocab(model_dft);
++    const int n_vocab_tgt = llama_vocab_n_tokens(vocab_tgt);
++    const int n_vocab_dft = llama_vocab_n_tokens(vocab_dft);
++    if (n_vocab_tgt != n_vocab_dft) {
++        SPC_WRN("MTP draft vocabulary size must exactly match target: target=%d, draft=%d\n",
++                n_vocab_tgt, n_vocab_dft);
++        return false;
++    }
++
++    for (int id = 0; id < n_vocab_tgt; ++id) {
++        if (std::strcmp(llama_vocab_get_text(vocab_tgt, id), llama_vocab_get_text(vocab_dft, id)) != 0 ||
++                llama_vocab_get_attr(vocab_tgt, id) != llama_vocab_get_attr(vocab_dft, id)) {
++            SPC_WRN("MTP draft vocabulary differs from target at token id %d\n", id);
++            return false;
++        }
++    }
++    return true;
++}
++
+ using common_speculative_draft_params_vec = std::vector<common_speculative_draft_params>;
+ 
+ // state of an implementation of speculative decoding
+@@ -1322,6 +1358,11 @@ struct common_speculative_impl_draft_mtp : public common_speculative_impl {
+         auto * ctx_dft = this->params.ctx_dft;
+         GGML_ASSERT(ctx_tgt && ctx_dft && "MTP requires ctx_tgt and ctx_dft to be set");
+ 
++        if (!common_speculative_mtp_vocab_is_exact(
++                    llama_get_model(ctx_tgt), llama_get_model(ctx_dft))) {
++            throw std::runtime_error("MTP target and draft vocabularies must match exactly");
++        }
++
+         n_embd = llama_model_n_embd_out(llama_get_model(ctx_dft));
+         GGML_ASSERT(n_embd == llama_model_n_embd_out(llama_get_model(ctx_tgt)) &&
+                 "MTP input row width must match the target h_nextn width");
+@@ -1371,7 +1412,15 @@ struct common_speculative_impl_draft_mtp : public common_speculative_impl {
+         llama_set_embeddings_nextn(ctx_tgt, true, /*masked*/ false);
+         llama_set_embeddings_nextn(ctx_dft, true, /*masked*/ true);
+ 
+-        is_mem_shared = llama_get_ctx_other(ctx_dft) == ctx_tgt;
++        // ctx_other does not itself imply shared KV memory.  Motif-3 linked
++        // sidecars use it to borrow the target embedding and output tensors,
++        // while keeping an independent growing SWA cache.  Gemma4 Assistant
++        // is the current MTP architecture whose draft steps intentionally
++        // reuse one shared-memory position.
++        char arch[64] = {};
++        const int64_t arch_len = llama_model_meta_val_str(
++                llama_get_model(ctx_dft), "general.architecture", arch, sizeof(arch));
++        is_mem_shared = arch_len > 0 && std::strcmp(arch, "gemma4-assistant") == 0;
+         chain_heads   = n_mtp_layers > 1 && !is_mem_shared;
+ 
+         if (chain_heads) {
+@@ -1583,6 +1632,22 @@ struct common_speculative_impl_draft_mtp : public common_speculative_impl {
+ 
+         int i = 0;
+ 
++        // process() catches the draft context up with the complete target
++        // verification batch.  For a non-shared single-head MTP model that
++        // includes the token at dp.n_past, but the first draft step must
++        // decode that same token again paired with the newly captured target
++        // hidden state.  Remove the stale row first; otherwise llama_decode()
++        // sees Y == X instead of the required Y == X + 1 and every second
++        // draft attempt falls back after an inconsistent-position error.
++        if (!chain_heads && !is_mem_shared) {
++            auto * mem_dft = llama_get_memory(ctx_dft);
++            for (llama_seq_id seq_id = 0; seq_id < (llama_seq_id) n_seq; ++seq_id) {
++                if (drafting[seq_id]) {
++                    llama_memory_seq_rm(mem_dft, seq_id, dparams[seq_id].n_past, -1);
++                }
++            }
++        }
++
+         while (n_drafting > 0) {
+             // each step decodes under a different head, i.e. a different decoder layer, and
+             // KV is per layer. process() filled this layer's KV only for positions < n_past
+@@ -2395,7 +2460,7 @@ common_speculative_init_result::common_speculative_init_result(
+         model_path = params.speculative.draft.mparams.path;
+         LOG_INF("%s: loading draft model '%s'\n", __func__, model_path.c_str());
+ 
+-        llama_model * model_dft = llama_model_load_from_file(params.model.path.c_str(), mparams);
++        llama_model * model_dft = llama_model_load_from_file(model_path.c_str(), mparams);
+         if (model_dft == NULL) {
+             LOG_ERR("%s: failed to load draft model, '%s'\n", __func__, model_path.c_str());
+             return;
+diff --git a/conversion/motif3.py b/conversion/motif3.py
+index 5eb51f74f..ed0b7d640 100644
+--- a/conversion/motif3.py
++++ b/conversion/motif3.py
+@@ -1,6 +1,8 @@
+ from __future__ import annotations
+ 
+-from typing import TYPE_CHECKING, Iterable
++import re
++from pathlib import Path
++from typing import TYPE_CHECKING, Callable, Iterable
+ 
+ from .base import ModelBase, TextModel, gguf, logger
+ 
+@@ -16,12 +18,172 @@ class Motif3Model(TextModel):
+     """
+ 
+     model_arch = gguf.MODEL_ARCH.MOTIF3
++    supports_mtp_export = True
++    _MTP_SHARED_FROM_TARGET_KEY = "motif3.mtp.shared_tensors_from_target"
++
++    # filter_tensors() is a classmethod and runs while ModelBase.__init__ is
++    # indexing the checkpoint, before TextModel has initialized block_count.
++    _n_main_layers: int | None = None
++    _n_mtp_layers: int | None = None
++
++    # Pinned MotifForCausalLM checkpoints store exactly these 19 private
++    # tensors in each MTP block.  Keep this source-side list separate from the
++    # GGUF names below: accepting an unknown private tensor and hoping the
++    # generic mapper rejects it later makes sparse sidecar conversion too easy
++    # to misconfigure.
++    _MTP_PRIVATE_SUFFIXES = frozenset({
++        "embed_norm.weight",
++        "input_proj.weight",
++        "final_layernorm.weight",
++        "input_layernorm.weight",
++        "post_attention_layernorm.weight",
++        "self_attn.wq_a.weight",
++        "self_attn.q_norm.weight",
++        "self_attn.wq_b.weight",
++        "self_attn.wq_b_gate.weight",
++        "self_attn.wkv_a.weight",
++        "self_attn.kv_norm.weight",
++        "self_attn.wkv_b.weight",
++        "self_attn.lambda_proj.weight",
++        "self_attn.wo.weight",
++        "mlp.gate_proj.weight",
++        "mlp.up_proj.weight",
++        "mlp.down_proj.weight",
++        "mlp.act_fn.weight",
++        "mlp.act_fn.bias",
++    })
++    _MTP_DIRECT_REMAP = {
++        "embed_norm.weight":        "nextn.enorm.weight",
++        "input_proj.weight":        "nextn.eh_proj.weight",
++        "final_layernorm.weight":   "nextn.shared_head_norm.weight",
++    }
+ 
+     def __init__(self, *args, **kwargs):
+         super().__init__(*args, **kwargs)
++        self._main_block_count = int(self.hparams["num_hidden_layers"])
++        n_mtp = int(self.hparams.get("num_nextn_predict_layers", 0))
++        if n_mtp not in (0, 1):
++            raise ValueError("Motif-3 conversion currently supports at most one MTP layer")
++        if self.mtp_only and n_mtp != 1:
++            raise ValueError("--mtp was requested, but the checkpoint does not declare one MTP layer")
++        if not self.no_mtp:
++            self.block_count = self._main_block_count + n_mtp
++        self.tensor_map = gguf.get_tensor_name_map(self.model_arch, self.block_count)
+         # collect alpha_{pre,post,res} scalars into a single [3] tensor per mHC block
+         self._mhc_alpha: dict[str, dict[str, Tensor]] = {}
+ 
++        if not self.no_mtp and n_mtp == 1:
++            self._validate_mtp_source_contract()
++
++    def index_tensors(self, remote_hf_model_id: str | None = None) -> dict[str, Callable[[], Tensor]]:
++        type(self)._n_main_layers = int(self.hparams["num_hidden_layers"])
++        type(self)._n_mtp_layers = int(self.hparams.get("num_nextn_predict_layers", 0))
++        return super().index_tensors(remote_hf_model_id=remote_hf_model_id)
++
++    @classmethod
++    def filter_tensors(cls, item: tuple[str, Callable[[], Tensor]]) -> tuple[str, Callable[[], Tensor]] | None:
++        if (titem := super().filter_tensors(item)) is None:
++            return None
++        name, gen = titem
++
++        match = re.match(r"model\.mtp_layers\.(\d+)\.(.*)", name)
++        if match is not None:
++            if cls.no_mtp:
++                return None
++            if cls._n_main_layers is None:
++                raise ValueError("Motif-3 MTP filtering requires num_hidden_layers")
++            if cls._n_mtp_layers is None:
++                raise ValueError("Motif-3 MTP filtering requires num_nextn_predict_layers")
++
++            mtp_idx = int(match.group(1))
++            rest = match.group(2)
++            if mtp_idx >= cls._n_mtp_layers:
++                raise ValueError(
++                    f"Motif-3 checkpoint contains undeclared MTP layer {mtp_idx}; "
++                    f"num_nextn_predict_layers={cls._n_mtp_layers}"
++                )
++            if rest not in cls._MTP_PRIVATE_SUFFIXES:
++                raise ValueError(f"unexpected Motif-3 MTP tensor: {name}")
++            rest = cls._MTP_DIRECT_REMAP.get(rest, rest)
++            name = f"model.layers.{cls._n_main_layers + mtp_idx}.{rest}"
++        elif cls.mtp_only:
++            # Motif MTP is always paired with an exact target model.  Keeping
++            # the target embedding, final norm, and LM head in the sidecar
++            # duplicates more than 3.6 GB of BF16 payload.  The runtime shares
++            # the target tensors through ctx_other instead.
++            return None
++
++        return name, gen
++
++    def _expected_mtp_source_shapes(self) -> dict[str, tuple[int, ...]]:
++        """Return the exact post-remap PyTorch shapes for the one Motif MTP block."""
++
++        hparams = self.hparams
++        n_embd = int(hparams["hidden_size"])
++        n_ff = int(hparams["intermediate_size"])
++        n_head = int(hparams["num_attention_heads"])
++        n_head_kv = int(hparams["num_key_value_heads"])
++        n_noise = int(hparams["num_noise_heads"])
++        n_signal = n_head - n_noise
++        n_head_k = int(hparams["head_dim"])
++        n_head_v = int(hparams["v_head_dim"])
++        n_rope = int(hparams["qk_rope_head_dim"])
++        n_q_rank = int(hparams["q_lora_rank"])
++        n_kv_rank = int(hparams["kv_lora_rank"])
++        n_head_k_nope = n_head_k - n_rope
++        if n_signal <= 0 or n_head_k_nope <= 0:
++            raise ValueError("invalid Motif-3 MTP attention dimensions in config.json")
++
++        prefix = f"model.layers.{self._main_block_count}."
++        return {
++            prefix + "nextn.enorm.weight": (n_embd,),
++            prefix + "nextn.eh_proj.weight": (n_embd, 2 * n_embd),
++            prefix + "nextn.shared_head_norm.weight": (n_embd,),
++            prefix + "input_layernorm.weight": (n_embd,),
++            prefix + "post_attention_layernorm.weight": (n_embd,),
++            prefix + "self_attn.wq_a.weight": (n_q_rank, n_embd),
++            prefix + "self_attn.q_norm.weight": (n_q_rank,),
++            prefix + "self_attn.wq_b.weight": (n_head * n_head_k, n_q_rank),
++            prefix + "self_attn.wq_b_gate.weight": (n_signal * n_head_v, n_q_rank),
++            prefix + "self_attn.wkv_a.weight": (n_kv_rank + n_rope, n_embd),
++            prefix + "self_attn.kv_norm.weight": (n_kv_rank,),
++            prefix + "self_attn.wkv_b.weight": (
++                n_head_kv * (n_head_k_nope + n_head_v), n_kv_rank),
++            prefix + "self_attn.lambda_proj.weight": (n_signal, n_embd),
++            prefix + "self_attn.wo.weight": (n_embd, n_signal * n_head_v),
++            prefix + "mlp.gate_proj.weight": (n_ff, n_embd),
++            prefix + "mlp.up_proj.weight": (n_ff, n_embd),
++            prefix + "mlp.down_proj.weight": (n_embd, n_ff),
++            prefix + "mlp.act_fn.weight": (3,),
++            prefix + "mlp.act_fn.bias": (1,),
++        }
++
++    def _validate_mtp_source_contract(self) -> None:
++        """Fail before writing if a sparse/combined source is not the official MTP contract."""
++
++        expected = self._expected_mtp_source_shapes()
++        actual_names = set(self.model_tensors)
++        missing = sorted(set(expected) - actual_names)
++        extra = sorted(actual_names - set(expected)) if self.mtp_only else []
++        if missing or extra:
++            details = []
++            if missing:
++                details.append(f"missing tensors: {missing}")
++            if extra:
++                details.append(f"unexpected tensors: {extra}")
++            raise ValueError("Motif-3 MTP source tensor contract failed: " + "; ".join(details))
++
++        shape_errors = []
++        for name, expected_shape in expected.items():
++            tensor = self.model_tensors[name]()
++            actual_shape = tuple(int(dim) for dim in tensor.shape)
++            if actual_shape != expected_shape:
++                shape_errors.append(f"{name}: {actual_shape} != {expected_shape}")
++        if shape_errors:
++            raise ValueError(
++                "Motif-3 MTP source tensor shape contract failed: " + "; ".join(shape_errors)
++            )
++
+     # the o200k_base / GPT-4o split pattern, as it appears (JSON-decoded) in
+     # tokenizer.json. llama.cpp implements exactly this under the "gpt-4o" pre
+     # type (src/llama-vocab.cpp, LLAMA_VOCAB_PRE_TYPE_GPT4O).
+@@ -128,6 +290,13 @@ class Motif3Model(TextModel):
+         super().set_gguf_parameters()
+         hparams = self.hparams
+ 
++        if not self.no_mtp:
++            n_mtp = int(hparams.get("num_nextn_predict_layers", 0))
++            if n_mtp > 0:
++                self.gguf_writer.add_nextn_predict_layers(n_mtp)
++        if self.mtp_only:
++            self.gguf_writer.add_bool(self._MTP_SHARED_FROM_TARGET_KEY, True)
++
+         # attention (GDLA)
+         qk_rope = int(hparams["qk_rope_head_dim"])
+         head_dim = int(hparams["head_dim"])       # qk_nope + qk_rope
+@@ -222,13 +391,8 @@ class Motif3Model(TextModel):
+     def modify_tensors(self, data_torch: Tensor, name: str, bid: int | None) -> Iterable[tuple[str, Tensor]]:
+         T = gguf.MODEL_TENSOR
+ 
+-        # skip the MTP (multi-token-prediction) head tensors.
+-        if name.startswith("model.mtp_layers."):
+-            logger.debug(f"skipping MTP tensor {name}")
+-            return []
+         if bid is not None and bid >= self.block_count:
+-            logger.debug(f"skipping MTP tensor {name}")
+-            return []
++            raise ValueError(f"tensor block id {bid} exceeds GGUF block_count={self.block_count}: {name}")
+         if name.endswith(".rotary_emb.inv_freq"):
+             return []
+ 
+@@ -252,6 +416,17 @@ class Motif3Model(TextModel):
+                 "needs a new entry.")
+         sub = name[len(prefix):]
+ 
++        # Motif's MTP fusion differs from DeepSeek/Step3: only the shifted token
++        # embedding is normalized. The previous target hidden state is consumed
++        # as-is, so there is deliberately no NEXTN_HNORM tensor.
++        nextn_map = {
++            "nextn.enorm.weight":             T.NEXTN_ENORM,
++            "nextn.eh_proj.weight":           T.NEXTN_EH_PROJ,
++            "nextn.shared_head_norm.weight":  T.NEXTN_SHARED_HEAD_NORM,
++        }
++        if sub in nextn_map:
++            return out(nextn_map[sub], data_torch)
++
+         # layer norms
+         if sub == "input_layernorm.weight":
+             return out(T.ATTN_NORM, data_torch)
+@@ -274,6 +449,12 @@ class Motif3Model(TextModel):
+ 
+         # for GDLA wkv_b, keep both the fused tensor, and also emit the per kv head split used by the MLA latent cache.
+         if sub == "self_attn.wkv_b.weight":
++            # The MTP decoder is always SWA and therefore uses the fused GQA
++            # projection directly. The K/V split is only an MLA-cache
++            # optimization for full-attention trunk layers.
++            if bid is not None and bid >= self._main_block_count:
++                return out(T.ATTN_KV_B, data_torch)
++
+             import torch
+ 
+             n_head_kv  = int(self.hparams["num_key_value_heads"])
+@@ -370,3 +551,16 @@ class Motif3Model(TextModel):
+         super().prepare_tensors()
+         if self._mhc_alpha:
+             raise ValueError(f"incomplete mHC alpha groups: {list(self._mhc_alpha.keys())}")
++
++    def prepare_metadata(self, vocab_only: bool):
++        from_dir = self.fname_out.is_dir()
++        super().prepare_metadata(vocab_only=vocab_only)
++
++        if not self.mtp_only or not from_dir:
++            return
++
++        output_type: str = self.ftype.name.partition("_")[2]
++        fname_default: str = gguf.naming_convention(
++            self.metadata.name, self.metadata.basename, self.metadata.finetune,
++            self.metadata.version, size_label=None, output_type=output_type, model_type=None)
++        self.fname_out = Path(self.fname_out).parent / f"mtp-{fname_default}.gguf"
+diff --git a/ggml/include/ggml.h b/ggml/include/ggml.h
+index 32462d79a..456950e68 100644
+--- a/ggml/include/ggml.h
++++ b/ggml/include/ggml.h
+@@ -443,6 +443,7 @@ extern "C" {
+     enum ggml_op_hint {
+         GGML_HINT_NONE             = 0,
+         GGML_HINT_SRC0_IS_HADAMARD = 1,
++        GGML_HINT_BATCH_INVARIANT  = 2,
+     };
+ 
+     // model file types
+diff --git a/ggml/src/ggml-cuda/fattn-common.cuh b/ggml/src/ggml-cuda/fattn-common.cuh
+index e67cc7fdf..26a737720 100644
+--- a/ggml/src/ggml-cuda/fattn-common.cuh
++++ b/ggml/src/ggml-cuda/fattn-common.cuh
+@@ -718,6 +718,59 @@ static __global__ void flash_attn_mask_to_KV_max(
+     KV_max[sequence*ne31 + jt] = KV_max_sj;
+ }
+ 
++// Find the exact exclusive K/V bound for each query tile.  The regular
++// mask-to-KV optimization rounds the bound to FATTN_KQ_STRIDE because it is
++// intended to skip whole tiles.  Speculative verification needs the exact
++// bound: otherwise a one-token decode and the matching query inside a wider
++// causal batch execute a different final K/V tile.
++template <int ncols1>
++__launch_bounds__(FATTN_KQ_STRIDE/2, 1)
++static __global__ void flash_attn_mask_to_KV_max_exact(
++        const half * mask_ptr, int * KV_max_ptr, const int ne30, const int64_t s31, const int64_t s33) {
++    const half * GGML_CUDA_RESTRICT mask   = mask_ptr;
++    int        * GGML_CUDA_RESTRICT KV_max = KV_max_ptr;
++
++    const int ne31     = gridDim.x;
++    const int tid      = threadIdx.x;
++    const int sequence = blockIdx.y;
++    const int jt       = blockIdx.x;
++
++    mask += sequence*s33 + jt*ncols1*s31;
++
++    __shared__ int max_valid_exclusive;
++    const int ntiles = (ne30 + FATTN_KQ_STRIDE - 1) / FATTN_KQ_STRIDE;
++    for (int tile = ntiles - 1; tile >= 0; --tile) {
++        if (tid == 0) {
++            max_valid_exclusive = 0;
++        }
++        __syncthreads();
++
++        const int tile_offset = tile*FATTN_KQ_STRIDE;
++#pragma unroll
++        for (int j = 0; j < ncols1; ++j) {
++#pragma unroll
++            for (int lane = 0; lane < 2; ++lane) {
++                const int k = tile_offset + 2*tid + lane;
++                if (k < ne30 && !isinf(__half2float(mask[j*s31 + k]))) {
++                    atomicMax(&max_valid_exclusive, k + 1);
++                }
++            }
++        }
++        __syncthreads();
++
++        if (max_valid_exclusive != 0) {
++            if (tid == 0) {
++                KV_max[sequence*ne31 + jt] = max_valid_exclusive;
++            }
++            return;
++        }
++    }
++
++    if (tid == 0) {
++        KV_max[sequence*ne31 + jt] = 0;
++    }
++}
++
+ template<int D, int ncols1, int ncols2> // D == head size
+ __launch_bounds__(D, 1)
+ static __global__ void flash_attn_stream_k_fixup_uniform(
+@@ -1087,11 +1140,17 @@ void launch_fattn(
+     const int gqa_ratio    = Q->ne[2] / K->ne[2];
+     const int ntiles_z_gqa = ((gqa_ratio + ncols2 - 1) / ncols2);
+     const int ntiles_dst   = ntiles_x * ntiles_z_gqa * K->ne[2] * Q->ne[3];
++    const bool batch_invariant_motif_attention =
++        Q->ne[1] <= 4 && ncols1 == 1 &&
++        ((Q->ne[0] == 192 && V->ne[0] == 128 && gqa_ratio == 5  && ncols2 == 8) ||
++         (Q->ne[0] == 576 && V->ne[0] == 512 && gqa_ratio == 80 && ncols2 == 16));
+ 
+     // Optional optimization where the mask is scanned to determine whether part of the calculation can be skipped.
+     // Only worth the overhead if there is at lease one FATTN_KQ_STRIDE x FATTN_KQ_STRIDE square to be skipped or
+     //     multiple sequences of possibly different lengths.
+-    if (mask && K->ne[1] % FATTN_KQ_STRIDE == 0 && (Q->ne[1] >= 1024 || Q->ne[3] > 1)) {
++    if (mask && (batch_invariant_motif_attention ||
++            (K->ne[1] % FATTN_KQ_STRIDE == 0 && (Q->ne[1] >= 1024 || Q->ne[3] > 1)))) {
++        GGML_ASSERT(mask->ne[0] >= K->ne[1]);
+         const int64_t s31 = mask->nb[1] / sizeof(half2);
+         const int64_t s33 = mask->nb[3] / sizeof(half2);
+ 
+@@ -1099,12 +1158,16 @@ void launch_fattn(
+         const dim3 block_dim_KV_max(FATTN_KQ_STRIDE/2, 1, 1);
+ 
+         const int ne_KV_max = blocks_num_KV_max.x*blocks_num_KV_max.y;
+-        const int iter_k = K->ne[1] / FATTN_KQ_STRIDE;
+-
+         KV_max.alloc(ne_KV_max);
+         ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params(blocks_num_KV_max, block_dim_KV_max, 0, main_stream);
+-        ggml_cuda_kernel_launch(flash_attn_mask_to_KV_max<ncols1>, launch_params,
+-            (const half2 *) mask->data, KV_max.ptr, iter_k, s31, s33);
++        if (batch_invariant_motif_attention) {
++            ggml_cuda_kernel_launch(flash_attn_mask_to_KV_max_exact<ncols1>, launch_params,
++                (const half *) mask->data, KV_max.ptr, K->ne[1], 2*s31, 2*s33);
++        } else {
++            const int iter_k = K->ne[1] / FATTN_KQ_STRIDE;
++            ggml_cuda_kernel_launch(flash_attn_mask_to_KV_max<ncols1>, launch_params,
++                (const half2 *) mask->data, KV_max.ptr, iter_k, s31, s33);
++        }
+         CUDA_CHECK(cudaGetLastError());
+     }
+ 
+@@ -1115,7 +1178,6 @@ void launch_fattn(
+     int parallel_blocks = max_blocks_per_sm;
+ 
+     const int ntiles_KV = (K->ne[1] + nbatch_fa - 1) / nbatch_fa; // Max. number of parallel blocks limited by KV cache length.
+-
+     dim3 blocks_num;
+     if (stream_k) {
+         // For short contexts it can be faster to have the SMs work on whole tiles because this lets us skip the fixup.
+@@ -1129,7 +1191,16 @@ void launch_fattn(
+         blocks_num.y = 1;
+         blocks_num.z = 1;
+ 
+-        if(use_stream_k) {
++        if (use_stream_k && batch_invariant_motif_attention) {
++            // A speculative batch contains future, causally masked queries.
++            // Deriving the stream-K partition from the total query-tile count
++            // gives the same accepted token a different reduction tree than
++            // ordinary one-token decode.  Use a fixed number of K partitions
++            // per output tile for Motif-3's small GQA=5 decode batches so the
++            // reduction is independent of speculative batch width.
++            constexpr int invariant_blocks_per_tile = 1;
++            blocks_num.x = ntiles_dst * std::min(ntiles_KV, invariant_blocks_per_tile);
++        } else if(use_stream_k) {
+             const int nblocks_stream_k_raw = std::min(max_blocks, ntiles_KV*ntiles_dst);
+             // Round down to a multiple of ntiles_dst so that each output tile gets the same number of blocks (avoids fixup).
+             // Only do this if the occupancy loss from rounding is acceptable.
+diff --git a/ggml/src/ggml-cuda/fattn-mma-f16.cuh b/ggml/src/ggml-cuda/fattn-mma-f16.cuh
+index 7f4cfd551..d73ce6a2f 100644
+--- a/ggml/src/ggml-cuda/fattn-mma-f16.cuh
++++ b/ggml/src/ggml-cuda/fattn-mma-f16.cuh
+@@ -1823,20 +1823,19 @@ static __global__ void flash_attn_ext_f16(
+ 
+         const float slope = ncols2 == 1 ? get_alibi_slope(max_bias, zt_Q, n_head_log2, m0, m1) : 1.0f;
+ 
+-        if (KV_max) {
+-            kb0_stop = min(kb0_stop, KV_max[sequence*iter_j + jt] / nbatch_fa);
+-        }
++        const int k_VKQ_max = KV_max ? KV_max[sequence*iter_j + jt] : ne11;
++        kb0_stop = min(kb0_stop, (k_VKQ_max + nbatch_fa - 1) / nbatch_fa);
+         constexpr bool is_fixup = false; // All but (potentially) the last iterations write their data to dst rather than the fixup buffer.
+         if (kb0_start == 0) {
+             constexpr bool needs_fixup = false; // CUDA block is working on an entire tile.
+             flash_attn_ext_f16_process_tile<DKQ, DV, ncols1, ncols2, nwarps, use_logit_softcap, V_is_K_view, needs_fixup, is_fixup>
+                 (Q_f2, K_h2, V_h2, mask_h, sinks_f, dstk, dst_meta, scale, slope, logit_softcap,
+-                 ne01, ne02, gqa_ratio, ne11, stride_Q1, stride_Q2, stride_K, stride_V, stride_mask, jt, zt_gqa, kb0_start, kb0_stop);
++                 ne01, ne02, gqa_ratio, k_VKQ_max, stride_Q1, stride_Q2, stride_K, stride_V, stride_mask, jt, zt_gqa, kb0_start, kb0_stop);
+         } else {
+             constexpr bool needs_fixup = true; // CUDA block is missing the beginning of a tile.
+             flash_attn_ext_f16_process_tile<DKQ, DV, ncols1, ncols2, nwarps, use_logit_softcap, V_is_K_view, needs_fixup, is_fixup>
+                 (Q_f2, K_h2, V_h2, mask_h, sinks_f, dstk, dst_meta, scale, slope, logit_softcap,
+-                 ne01, ne02, gqa_ratio, ne11, stride_Q1, stride_Q2, stride_K, stride_V, stride_mask, jt, zt_gqa, kb0_start, kb0_stop);
++                 ne01, ne02, gqa_ratio, k_VKQ_max, stride_Q1, stride_Q2, stride_K, stride_V, stride_mask, jt, zt_gqa, kb0_start, kb0_stop);
+         }
+ 
+         kbc += iter_k;
+@@ -1869,15 +1868,14 @@ static __global__ void flash_attn_ext_f16(
+ 
+     const float slope = ncols2 == 1 ? get_alibi_slope(max_bias, zt_Q, n_head_log2, m0, m1) : 1.0f;
+ 
+-    if (KV_max) {
+-        kb0_stop = min(kb0_stop, KV_max[sequence*iter_j + jt] / nbatch_fa);
+-    }
++    const int k_VKQ_max = KV_max ? KV_max[sequence*iter_j + jt] : ne11;
++    kb0_stop = min(kb0_stop, (k_VKQ_max + nbatch_fa - 1) / nbatch_fa);
+ 
+     constexpr bool is_fixup = true; // Last index writes its data to fixup buffer to avoid data races with other blocks.
+     constexpr bool needs_fixup = false;
+     flash_attn_ext_f16_process_tile<DKQ, DV, ncols1, ncols2, nwarps, use_logit_softcap, V_is_K_view, needs_fixup, is_fixup>
+         (Q_f2, K_h2, V_h2, mask_h, sinks_f, dstk, dst_meta, scale, slope, logit_softcap,
+-         ne01, ne02, gqa_ratio, ne11, stride_Q1, stride_Q2, stride_K, stride_V, stride_mask, jt, zt_gqa, kb0_start, kb0_stop);
++         ne01, ne02, gqa_ratio, k_VKQ_max, stride_Q1, stride_Q2, stride_K, stride_V, stride_mask, jt, zt_gqa, kb0_start, kb0_stop);
+ #else
+     GGML_UNUSED_VARS(Q_ptr, K_ptr, V_ptr, mask_ptr, sinks_ptr, KV_max_ptr, dst_ptr, dst_meta_ptr, scale,
+         max_bias, m0, m1, n_head_log2, logit_softcap,
+diff --git a/ggml/src/ggml-cuda/fattn.cu b/ggml/src/ggml-cuda/fattn.cu
+index 1637bedf6..4ead08fe0 100644
+--- a/ggml/src/ggml-cuda/fattn.cu
++++ b/ggml/src/ggml-cuda/fattn.cu
+@@ -110,6 +110,82 @@ static void ggml_cuda_flash_attn_ext_mma_f16_switch_ncols2(ggml_backend_cuda_con
+     }
+ }
+ 
++static void ggml_cuda_flash_attn_ext_mma_f16_motif_gqa5_small(
++        ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
++    const ggml_tensor * Q    = dst->src[0];
++    const ggml_tensor * K    = dst->src[1];
++    const ggml_tensor * V    = dst->src[2];
++    const ggml_tensor * mask = dst->src[3];
++
++    GGML_ASSERT(Q != nullptr && K != nullptr && V != nullptr && mask != nullptr);
++    GGML_ASSERT(Q->ne[0] == 192 && V->ne[0] == 128);
++    GGML_ASSERT(Q->ne[2] / K->ne[2] == 5);
++    GGML_ASSERT(Q->ne[1] >= 1 && Q->ne[1] <= 4);
++    GGML_ASSERT(K->type == GGML_TYPE_F16 && V->type == GGML_TYPE_F16);
++
++    // The target path decodes one query at a time, while speculative
++    // verification evaluates up to four.  Even with one-column MMA tiles,
++    // keeping those queries in one launch changes their attention reduction
++    // enough to perturb low-margin logits and the KV states of accepted
++    // tokens.  Slice only this attention op into one-query launches.  All
++    // surrounding projection and MoE operations remain batched.
++    for (int64_t iq = 0; iq < Q->ne[1]; ++iq) {
++        ggml_tensor q_slice = *Q;
++        q_slice.ne[1] = 1;
++        q_slice.data = (char *) Q->data + iq*Q->nb[1];
++
++        ggml_tensor mask_slice = *mask;
++        mask_slice.ne[1] = 1;
++        mask_slice.data = (char *) mask->data + iq*mask->nb[1];
++
++        ggml_tensor dst_slice = *dst;
++        dst_slice.ne[2] = 1;
++        dst_slice.data = (char *) dst->data + iq*dst->nb[2];
++        dst_slice.src[0] = &q_slice;
++        dst_slice.src[3] = &mask_slice;
++
++        ggml_cuda_flash_attn_ext_mma_f16_case<192, 128, 1, 8>(ctx, &dst_slice);
++    }
++}
++
++static void ggml_cuda_flash_attn_ext_mma_f16_motif_mla_small(
++        ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
++    const ggml_tensor * Q    = dst->src[0];
++    const ggml_tensor * K    = dst->src[1];
++    const ggml_tensor * V    = dst->src[2];
++    const ggml_tensor * mask = dst->src[3];
++
++    GGML_ASSERT(Q != nullptr && K != nullptr && V != nullptr && mask != nullptr);
++    GGML_ASSERT(Q->ne[0] == 576 && V->ne[0] == 512);
++    GGML_ASSERT(Q->ne[2] / K->ne[2] == 80);
++    GGML_ASSERT(Q->ne[1] >= 1 && Q->ne[1] <= 4);
++    GGML_ASSERT(K->type == GGML_TYPE_F16 && V->type == GGML_TYPE_F16);
++
++    // Motif-3 full-attention layers use one 512-dimensional MLA cache head
++    // for 80 query heads.  A single-token decode selects the 1x16 MMA tile,
++    // while a four-token verification batch normally selects 4x16.  Run the
++    // four query rows as independent 1x16 launches so each accepted token has
++    // exactly the target decode arithmetic while the rest of the graph stays
++    // batched.
++    for (int64_t iq = 0; iq < Q->ne[1]; ++iq) {
++        ggml_tensor q_slice = *Q;
++        q_slice.ne[1] = 1;
++        q_slice.data = (char *) Q->data + iq*Q->nb[1];
++
++        ggml_tensor mask_slice = *mask;
++        mask_slice.ne[1] = 1;
++        mask_slice.data = (char *) mask->data + iq*mask->nb[1];
++
++        ggml_tensor dst_slice = *dst;
++        dst_slice.ne[2] = 1;
++        dst_slice.data = (char *) dst->data + iq*dst->nb[2];
++        dst_slice.src[0] = &q_slice;
++        dst_slice.src[3] = &mask_slice;
++
++        ggml_cuda_flash_attn_ext_mma_f16_case<576, 512, 1, 16>(ctx, &dst_slice);
++    }
++}
++
+ static void ggml_cuda_flash_attn_ext_mma_f16(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+     const int cc = ggml_cuda_info().devices[ggml_cuda_get_device()].cc;
+     const ggml_tensor * KQV  = dst;
+@@ -152,7 +228,15 @@ static void ggml_cuda_flash_attn_ext_mma_f16(ggml_backend_cuda_context & ctx, gg
+                 ggml_cuda_flash_attn_ext_mma_f16_switch_ncols1<192, 128, 16>(ctx, dst);
+             } else {
+                 // GQA ratios that are not divisible by 8 ( like motif 3's 5) are handled by padding the tile to 8 channels, with out of bounds channels masked.
+-                ggml_cuda_flash_attn_ext_mma_f16_switch_ncols1<192, 128,  8>(ctx, dst);
++                if (gqa_ratio == 5 && Q->ne[1] <= 4) {
++                    // Motif-3 speculative verification uses at most four
++                    // queries.  Keep each query on the same one-query MMA
++                    // launch as ordinary decode so accepted tokens do not
++                    // accumulate batch-shape-dependent KV drift.
++                    ggml_cuda_flash_attn_ext_mma_f16_motif_gqa5_small(ctx, dst);
++                } else {
++                    ggml_cuda_flash_attn_ext_mma_f16_switch_ncols1<192, 128,  8>(ctx, dst);
++                }
+             }
+         } break;
+         case 256:
+@@ -190,7 +274,10 @@ static void ggml_cuda_flash_attn_ext_mma_f16(ggml_backend_cuda_context & ctx, gg
+ 
+             GGML_ASSERT(Q->ne[2] % K->ne[2] == 0);
+             const int gqa_ratio = Q->ne[2] / K->ne[2];
+-            if (gqa_ratio == 20) { // GLM 4.7 Flash
++            if (gqa_ratio == 80 && Q->ne[1] <= 4 &&
++                    K->type == GGML_TYPE_F16 && V->type == GGML_TYPE_F16) {
++                ggml_cuda_flash_attn_ext_mma_f16_motif_mla_small(ctx, dst);
++            } else if (gqa_ratio == 20) { // GLM 4.7 Flash
+                 if (cc >= GGML_CUDA_CC_DGX_SPARK) {
+                     if (Q->ne[1] <= 8) {
+                         ggml_cuda_flash_attn_ext_mma_f16_switch_ncols1<576, 512, 16>(ctx, dst);
+diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
+index a8a1c09ca..767016788 100644
+--- a/ggml/src/ggml-cuda/ggml-cuda.cu
++++ b/ggml/src/ggml-cuda/ggml-cuda.cu
+@@ -1833,6 +1833,34 @@ static void ggml_cuda_mul_mat(ggml_backend_cuda_context & ctx, const ggml_tensor
+     const int cc        = ggml_cuda_info().devices[ctx.device].cc;
+     const int warp_size = ggml_cuda_info().devices[ctx.device].warp_size;
+ 
++    // A speculative verifier compares batched candidate logits with the
++    // ordinary one-token target path.  On GB10 the tuned MMVQ launch geometry
++    // changes with the column count, which can perturb low-margin logits.  The
++    // Q8_0 output projection can preserve the exact one-column arithmetic for
++    // all candidates in a single batch-invariant launch.
++    if (hint == GGML_HINT_BATCH_INVARIANT && cc == GGML_CUDA_CC_DGX_SPARK &&
++            ne11 > 1 && ne11 <= 4 && ne12 == 1 && ne13 == 1 && ne2 == 1 && ne3 == 1) {
++        if (src0->type == GGML_TYPE_Q8_0 && ggml_cuda_should_use_mmvq(src0->type, cc, 1)) {
++            ggml_cuda_mul_mat_vec_q(ctx, src0, src1, nullptr, dst, nullptr, true);
++            return;
++        }
++
++        // The hint remains safe for other weight types, albeit with one launch
++        // per candidate until they gain a batch-invariant kernel.
++        for (int64_t column = 0; column < ne11; ++column) {
++            ggml_tensor src1_column = *src1;
++            src1_column.data = static_cast<char *>(src1->data) + column * nb11;
++            src1_column.ne[1] = 1;
++
++            ggml_tensor dst_column = *dst;
++            dst_column.data = static_cast<char *>(dst->data) + column * nb1;
++            dst_column.ne[1] = 1;
++
++            ggml_cuda_mul_mat(ctx, src0, &src1_column, &dst_column);
++        }
++        return;
++    }
++
+     if (ggml_cuda_should_use_mmvf(src0->type, cc, src0->ne, src0->nb, ne11)) {
+         // The custom F16 vector kernel can be used over batched cuBLAS GEMM.
+         // But this is only faster for GPUs without tensor cores or with a thin src0 matrix (particularly KQV in attention)
+@@ -1879,11 +1907,9 @@ static bool ggml_cuda_mul_mat_id_needs_sync(const ggml_tensor * dst, const int c
+     }
+ 
+     if (dst->ne[2] <= MMVQ_MAX_BATCH_SIZE) {
+-        if (ggml_is_quantized(src0->type)) {
+-            if (dst->ne[2] <= get_mmvq_mmid_max_batch(src0->type, cc)) {
+-                return false;
+-            }
+-        } else if (GGML_CUDA_CC_IS_AMD(cc)) {
++        if (ggml_cuda_should_use_mmvq(src0->type, cc, src1->ne[2])) {
++            return false;
++        } else if (!ggml_is_quantized(src0->type) && GGML_CUDA_CC_IS_AMD(cc)) {
+             return false;
+         }
+     }
+@@ -1915,13 +1941,10 @@ static void ggml_cuda_mul_mat_id(ggml_backend_cuda_context & ctx, ggml_tensor *
+     if (src1->type == GGML_TYPE_F32 && dst->type == GGML_TYPE_F32) {
+         static_assert(MMVQ_MAX_BATCH_SIZE == MMVF_MAX_BATCH_SIZE);
+         if (ne2 <= MMVQ_MAX_BATCH_SIZE) {
+-            if (ggml_is_quantized(src0->type)) {
+-                const int mmvq_mmid_max = get_mmvq_mmid_max_batch(src0->type, cc);
+-                if (ne2 <= mmvq_mmid_max) {
+-                    ggml_cuda_mul_mat_vec_q(ctx, src0, src1, ids, dst);
+-                    return;
+-                }
+-            } else {
++            if (ggml_cuda_should_use_mmvq(src0->type, cc, ne12)) {
++                ggml_cuda_mul_mat_vec_q(ctx, src0, src1, ids, dst);
++                return;
++            } else if (!ggml_is_quantized(src0->type)) {
+                 if (GGML_CUDA_CC_IS_AMD(cc)) {
+                     ggml_cuda_mul_mat_vec_f(ctx, src0, src1, ids, dst);
+                     return;
+diff --git a/ggml/src/ggml-cuda/mmvf.cu b/ggml/src/ggml-cuda/mmvf.cu
+index d7dbc8b99..fda24db1a 100644
+--- a/ggml/src/ggml-cuda/mmvf.cu
++++ b/ggml/src/ggml-cuda/mmvf.cu
+@@ -803,6 +803,14 @@ bool ggml_cuda_should_use_mmvf(enum ggml_type type, int cc, const int64_t * src0
+     switch (type) {
+         case GGML_TYPE_F32:
+             if (GGML_CUDA_CC_IS_NVIDIA(cc)) {
++                // Keep four-token verification batches on the same reduction
++                // kernel as single-token decode on Ada and newer GPUs.  This
++                // matters for low-margin speculative decoding: switching to
++                // MMF/cuBLAS at width four can change the F32 argmax even when
++                // every logical token is independent.
++                if (cc >= GGML_CUDA_CC_ADA_LOVELACE) {
++                    return ne11 <= 4;
++                }
+                 if (ampere_mma_available(cc)) {
+                     return ne11 <= 3;
+                 }
+@@ -846,12 +854,16 @@ bool ggml_cuda_should_use_mmvf(enum ggml_type type, int cc, const int64_t * src0
+         case GGML_TYPE_BF16:
+             if (GGML_CUDA_CC_IS_NVIDIA(cc)) {
+                 const bool src0_small = (src0_ne[1] <= 512 || src0_ne[2]*src0_ne[3] == 1);
+-                if (ampere_mma_available(cc)) {
+-                    return src0_small && ne11 == 1;
+-                }
++                // Match the single-token MMVF path for the four-token
++                // speculative verification batch on Ada and newer GPUs.
++                // Keeping this check ahead of the broader Ampere MMA test is
++                // required because Ada also satisfies ampere_mma_available().
+                 if (cc >= GGML_CUDA_CC_ADA_LOVELACE) {
+                     return src0_small && ne11 <= 4;
+                 }
++                if (ampere_mma_available(cc)) {
++                    return src0_small && ne11 == 1;
++                }
+                 if (bf16_mma_hardware_available(cc)) {
+                     return src0_small && ne11 <= 3;
+                 }
+diff --git a/ggml/src/ggml-cuda/mmvq.cu b/ggml/src/ggml-cuda/mmvq.cu
+index 970534809..d9ac435dd 100644
+--- a/ggml/src/ggml-cuda/mmvq.cu
++++ b/ggml/src/ggml-cuda/mmvq.cu
+@@ -541,7 +541,8 @@ static constexpr __host__ __device__ int calc_rows_per_block(int ncols_dst, int
+     return 1;
+ }
+ 
+-template <ggml_type type, int ncols_dst, bool has_fusion, bool small_k = false, bool halve_iters = false>
++template <ggml_type type, int ncols_dst, bool has_fusion, bool small_k = false, bool halve_iters = false,
++          bool independent_cols = false>
+ __launch_bounds__(calc_nwarps(type, ncols_dst, get_device_table_id(), small_k, halve_iters)*ggml_cuda_get_physical_warp_size(), 1)
+ static __global__ void mul_mat_vec_q(
+         const void * vx_ptr, const void * vy_ptr, const int32_t * ids_ptr, const ggml_cuda_mm_fusion_args_device fusion, float * dst_ptr,
+@@ -549,7 +550,7 @@ static __global__ void mul_mat_vec_q(
+         const uint32_t stride_col_dst, const uint3 channel_ratio, const uint32_t stride_channel_x,
+         const uint32_t stride_channel_y, const uint32_t stride_channel_dst, const uint3 sample_ratio,
+         const uint32_t stride_sample_x, const uint32_t stride_sample_y, const uint32_t stride_sample_dst,
+-        const uint32_t ids_stride) {
++        const uint32_t ids_stride, const uint32_t independent_ncols) {
+     const void    * GGML_CUDA_RESTRICT vx  = vx_ptr;
+     const void    * GGML_CUDA_RESTRICT vy  = vy_ptr;
+     const int32_t * GGML_CUDA_RESTRICT ids = ids_ptr;
+@@ -570,16 +571,18 @@ static __global__ void mul_mat_vec_q(
+     const     int blocks_per_row_x = ncols_x / qk;
+     constexpr int blocks_per_iter = vdr * nwarps*warp_size / qi;
+ 
+-    const uint32_t channel_dst = blockIdx.y;
++    const uint32_t channel_dst    = blockIdx.y;
++    const uint32_t independent_col = independent_cols ? blockIdx.z % independent_ncols : 0;
+ 
+     uint32_t channel_x;
+     uint32_t channel_y;
+     uint32_t sample_dst;
+ 
+     ggml_cuda_pdl_sync();
+-    channel_x  = ncols_dst == 1 && ids ? ids[channel_dst]                     : fastdiv(channel_dst, channel_ratio);
++    channel_x  = ncols_dst == 1 && ids ? ids[channel_dst + independent_col*ids_stride]
++                                       : fastdiv(channel_dst, channel_ratio);
+     channel_y  = ncols_dst == 1 && ids ? fastmodulo(channel_dst, nchannels_y) : channel_dst;
+-    sample_dst = blockIdx.z;
++    sample_dst = independent_cols ? blockIdx.z / independent_ncols : blockIdx.z;
+ 
+     const uint32_t sample_x    = fastdiv(sample_dst, sample_ratio);
+     const uint32_t sample_y    = sample_dst;
+@@ -652,7 +655,8 @@ static __global__ void mul_mat_vec_q(
+     float tmp[ncols_dst][rows_per_cuda_block] = {{0.0f}};
+     float tmp_gate[ncols_dst][rows_per_cuda_block] = {{0.0f}};
+ 
+-    const block_q8_1 * y = ((const block_q8_1 *) vy) + sample_y*stride_sample_y + channel_y*stride_channel_y;
++    const block_q8_1 * y = ((const block_q8_1 *) vy) + sample_y*stride_sample_y +
++                           channel_y*stride_channel_y + independent_col*stride_col_y;
+     const int kbx_offset = sample_x*stride_sample_x + channel_x*stride_channel_x + row0*stride_row_x;
+ 
+     for (int kbx = tid / (qi/vdr); kbx < blocks_per_row_x; kbx += blocks_per_iter) {
+@@ -699,7 +703,8 @@ static __global__ void mul_mat_vec_q(
+         return;
+     }
+ 
+-    dst += sample_dst*stride_sample_dst + channel_dst*stride_channel_dst + row0;
++    dst += sample_dst*stride_sample_dst + channel_dst*stride_channel_dst +
++           independent_col*stride_col_dst + row0;
+ 
+     // sum up partial sums and write back result
+ #pragma unroll
+@@ -834,6 +839,128 @@ static __global__ void mul_mat_vec_q_moe(
+     }
+ }
+ 
++// Batch-invariant small-column kernel for speculative verification.
++//
++// The ordinary one-column MMVQ kernel spreads a row over several physical
++// warps, stores the non-zero warp partials in shared memory, then adds those
++// partials to warp zero before the final warp reduction.  Using one ordinary
++// multi-token warp per candidate changes that addition tree.  Here each
++// candidate uses one physical warp but keeps one accumulator per *virtual*
++// one-column warp.  The K traversal and final additions are therefore exactly
++// the same as the one-column kernel, without shared memory or a block-wide
++// synchronization between candidates.
++template <ggml_type type, bool small_k = false, bool halve_iters = false>
++__launch_bounds__(MMVQ_MAX_BATCH_SIZE*ggml_cuda_get_physical_warp_size(), 1)
++static __global__ void mul_mat_vec_q_batch_invariant(
++        const void * vx_ptr, const void * vy_ptr, const int32_t * ids_ptr, float * dst_ptr,
++        const uint32_t ncols_x, const uint3 nchannels_y, const uint32_t nrows_x,
++        const uint32_t stride_row_x, const uint32_t stride_col_y, const uint32_t stride_col_dst,
++        const uint3 channel_ratio, const uint32_t stride_channel_x,
++        const uint32_t stride_channel_y, const uint32_t stride_channel_dst,
++        const uint3 sample_ratio, const uint32_t stride_sample_x,
++        const uint32_t stride_sample_y, const uint32_t stride_sample_dst,
++        const uint32_t ncols_dst, const uint32_t ids_stride) {
++    const void    * GGML_CUDA_RESTRICT vx  = vx_ptr;
++    const void    * GGML_CUDA_RESTRICT vy  = vy_ptr;
++    const int32_t * GGML_CUDA_RESTRICT ids = ids_ptr;
++    float         * GGML_CUDA_RESTRICT dst = dst_ptr;
++
++    constexpr int qk        = ggml_cuda_type_traits<type>::qk;
++    constexpr int qi        = ggml_cuda_type_traits<type>::qi;
++    constexpr int vdr       = get_vdr_mmvq(type);
++    constexpr int warp_size = ggml_cuda_get_physical_warp_size();
++    constexpr mmvq_parameter_table_id table_id = get_device_table_id();
++    constexpr int nwarps = calc_nwarps(type, 1, table_id, small_k, halve_iters);
++    constexpr int rows_per_cuda_block = calc_rows_per_block(1, table_id, small_k, nwarps);
++    constexpr int blocks_per_iter = vdr*nwarps*warp_size/qi;
++    constexpr vec_dot_q_cuda_t vec_dot_q_cuda = get_vec_dot_q_cuda(type);
++
++    const uint32_t token_idx   = threadIdx.y;
++    const uint32_t channel_dst = blockIdx.y;
++    const uint32_t sample_dst  = blockIdx.z;
++    const int      row0        = rows_per_cuda_block*blockIdx.x;
++
++    if (token_idx >= ncols_dst) {
++        return;
++    }
++
++    ggml_cuda_pdl_sync();
++
++    const uint32_t channel_x = ids ? ids[channel_dst + token_idx*ids_stride]
++                                   : fastdiv(channel_dst, channel_ratio);
++    const uint32_t channel_y = ids ? fastmodulo(channel_dst, nchannels_y)
++                                   : channel_dst;
++    const uint32_t sample_x  = fastdiv(sample_dst, sample_ratio);
++    const uint32_t sample_y  = sample_dst;
++
++    const int blocks_per_row_x = ncols_x/qk;
++    const block_q8_1 * y = ((const block_q8_1 *) vy) + sample_y*stride_sample_y +
++                           channel_y*stride_channel_y + token_idx*stride_col_y;
++    const int kbx_offset = sample_x*stride_sample_x + channel_x*stride_channel_x +
++                           row0*stride_row_x;
++
++    float tmp[nwarps][rows_per_cuda_block] = {{0.0f}};
++
++#pragma unroll
++    for (int virtual_warp = 0; virtual_warp < nwarps; ++virtual_warp) {
++        const int tid = virtual_warp*warp_size + threadIdx.x;
++        for (int kbx = tid/(qi/vdr); kbx < blocks_per_row_x; kbx += blocks_per_iter) {
++            const int kby = kbx*(qk/QK8_1);
++            const int kqs = vdr*(tid % (qi/vdr));
++#pragma unroll
++            for (int row = 0; row < rows_per_cuda_block; ++row) {
++                tmp[virtual_warp][row] += vec_dot_q_cuda(
++                    vx, &y[kby], kbx_offset + row*stride_row_x + kbx, kqs);
++            }
++        }
++    }
++
++#pragma unroll
++    for (int row = 0; row < rows_per_cuda_block; ++row) {
++        float result = tmp[0][row];
++#pragma unroll
++        for (int virtual_warp = 1; virtual_warp < nwarps; ++virtual_warp) {
++            result += tmp[virtual_warp][row];
++        }
++        result = warp_reduce_sum<warp_size>(result);
++        if (threadIdx.x == row &&
++                (rows_per_cuda_block == 1 || uint32_t(row0 + row) < nrows_x)) {
++            dst[sample_dst*stride_sample_dst + channel_dst*stride_channel_dst +
++                token_idx*stride_col_dst + row0 + row] = result;
++        }
++    }
++}
++
++template <ggml_type type, bool small_k = false, bool halve_iters = false>
++static void mul_mat_vec_q_batch_invariant_launch(
++        const void * vx, const void * vy, const int32_t * ids, float * dst,
++        const uint32_t ncols_x, const uint3 nchannels_y, const uint32_t nrows_x,
++        const uint32_t stride_row_x, const uint32_t stride_col_y, const uint32_t stride_col_dst,
++        const uint3 channel_ratio, const uint32_t stride_channel_x,
++        const uint32_t stride_channel_y, const uint32_t stride_channel_dst,
++        const uint3 sample_ratio, const uint32_t stride_sample_x,
++        const uint32_t stride_sample_y, const uint32_t stride_sample_dst,
++        const uint32_t ncols_dst, const uint32_t ids_stride,
++        const int warp_size, const int nchannels_dst, const int nsamples_dst, cudaStream_t stream) {
++    // This helper is dispatched only by the runtime GB10 branch below.  The
++    // host side needs the same row geometry to size grid.x.
++    constexpr mmvq_parameter_table_id table_id = MMVQ_PARAMETERS_GB10;
++    constexpr int nwarps = calc_nwarps(type, 1, table_id, small_k, halve_iters);
++    constexpr int rows_per_cuda_block = calc_rows_per_block(1, table_id, small_k, nwarps);
++
++    const int64_t nblocks_rows = (nrows_x + rows_per_cuda_block - 1)/rows_per_cuda_block;
++    const dim3 block_nums(nblocks_rows, nchannels_dst, nsamples_dst);
++    const dim3 block_dims(warp_size, ncols_dst);
++    const ggml_cuda_kernel_launch_params launch_params =
++        ggml_cuda_kernel_launch_params(block_nums, block_dims, 0, stream);
++
++    ggml_cuda_kernel_launch(mul_mat_vec_q_batch_invariant<type, small_k, halve_iters>, launch_params,
++        vx, vy, ids, dst, ncols_x, nchannels_y, nrows_x,
++        stride_row_x, stride_col_y, stride_col_dst, channel_ratio,
++        stride_channel_x, stride_channel_y, stride_channel_dst, sample_ratio,
++        stride_sample_x, stride_sample_y, stride_sample_dst, ncols_dst, ids_stride);
++}
++
+ template<ggml_type type>
+ static std::pair<dim3, dim3> calc_launch_params(
+         const int ncols_dst, const int nrows_x, const int nchannels_dst, const int nsamples_or_ntokens,
+@@ -846,7 +973,8 @@ static std::pair<dim3, dim3> calc_launch_params(
+     return {block_nums, block_dims};
+ }
+ 
+-template<ggml_type type, int c_ncols_dst, bool small_k = false, bool halve_iters = false>
++template<ggml_type type, int c_ncols_dst, bool small_k = false, bool halve_iters = false,
++         bool independent_cols = false>
+ static void mul_mat_vec_q_switch_fusion(
+         const void * vx, const void * vy, const int32_t * ids, const ggml_cuda_mm_fusion_args_device fusion, float * dst,
+         const uint32_t ncols_x, const uint3 nchannels_y, const uint32_t stride_row_x, const uint32_t stride_col_y,
+@@ -854,17 +982,17 @@ static void mul_mat_vec_q_switch_fusion(
+         const uint32_t stride_channel_y, const uint32_t stride_channel_dst, const uint3 sample_ratio,
+         const uint32_t stride_sample_x, const uint32_t stride_sample_y, const uint32_t stride_sample_dst,
+         const dim3 & block_nums, const dim3 & block_dims, const int nbytes_shared,
+-        const uint32_t ids_stride, cudaStream_t stream) {
++        const uint32_t ids_stride, cudaStream_t stream, const uint32_t independent_ncols = 1) {
+ 
+     const bool has_fusion = fusion.gate != nullptr || fusion.x_bias != nullptr || fusion.gate_bias != nullptr ||
+                             fusion.x_scale != nullptr || fusion.gate_scale != nullptr;
+     if constexpr (c_ncols_dst == 1) {
+         if (has_fusion) {
+             const ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params(block_nums, block_dims, nbytes_shared, stream);
+-            ggml_cuda_kernel_launch(mul_mat_vec_q<type, c_ncols_dst, true, small_k, halve_iters>, launch_params,
++            ggml_cuda_kernel_launch(mul_mat_vec_q<type, c_ncols_dst, true, small_k, halve_iters, independent_cols>, launch_params,
+                  vx, vy, ids, fusion, dst, ncols_x, nchannels_y, stride_row_x, stride_col_y, stride_col_dst,
+                  channel_ratio, stride_channel_x, stride_channel_y, stride_channel_dst,
+-                 sample_ratio, stride_sample_x, stride_sample_y, stride_sample_dst, ids_stride);
++                 sample_ratio, stride_sample_x, stride_sample_y, stride_sample_dst, ids_stride, independent_ncols);
+             return;
+         }
+     }
+@@ -872,10 +1000,10 @@ static void mul_mat_vec_q_switch_fusion(
+     GGML_ASSERT(!has_fusion && "fusion only supported for ncols_dst=1");
+ 
+     const ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params(block_nums, block_dims, nbytes_shared, stream);
+-    ggml_cuda_kernel_launch(mul_mat_vec_q<type, c_ncols_dst, false, small_k, halve_iters>, launch_params,
++    ggml_cuda_kernel_launch(mul_mat_vec_q<type, c_ncols_dst, false, small_k, halve_iters, independent_cols>, launch_params,
+         vx, vy, ids, fusion, dst, ncols_x, nchannels_y, stride_row_x, stride_col_y, stride_col_dst,
+         channel_ratio, stride_channel_x, stride_channel_y, stride_channel_dst,
+-        sample_ratio, stride_sample_x, stride_sample_y, stride_sample_dst, ids_stride);
++        sample_ratio, stride_sample_x, stride_sample_y, stride_sample_dst, ids_stride, independent_ncols);
+ }
+ 
+ template <ggml_type type>
+@@ -908,7 +1036,7 @@ static void mul_mat_vec_q_switch_ncols_dst(
+         const int nchannels_x, const int nchannels_y, const int nchannels_dst,
+         const int stride_channel_x, const int stride_channel_y, const int stride_channel_dst,
+         const int nsamples_x, const int nsamples_dst, const int stride_sample_x, const int stride_sample_y, const int stride_sample_dst,
+-        const int ids_stride, cudaStream_t stream) {
++        const int ids_stride, cudaStream_t stream, const bool force_independent_cols = false) {
+ 
+     GGML_ASSERT(ncols_x % ggml_blck_size(type) == 0);
+     GGML_ASSERT(ncols_dst <= MMVQ_MAX_BATCH_SIZE);
+@@ -990,47 +1118,93 @@ static void mul_mat_vec_q_switch_ncols_dst(
+         return idle * 8 <= iters_wide * 2;
+     };
+ 
+-    if (has_ids && ncols_dst > 1) {
+-        // Multi-token MUL_MAT_ID path - dedicated MoE kernel
+-        mul_mat_vec_q_moe_launch<type>(
+-            vx, vy, ids, dst, ncols_x, nchannels_y_fd, nrows_x,
+-            stride_row_x, stride_col_y, stride_col_dst,
+-            stride_channel_x, stride_channel_y, stride_channel_dst,
+-            ncols_dst, ids_stride, warp_size, nchannels_dst, stream);
+-        return;
+-    }
++    // Speculative verification must reproduce the one-token arithmetic for
++    // every candidate.  Keep the exact one-column launch geometry and map the
++    // independent candidates onto grid.z so that all columns share one launch
++    // without sharing reductions or changing their accumulation order.
++    const auto launch_columns = [&](auto independent_cols_tag,
++                                    const void * vy_column, const int32_t * ids_column, float * dst_column) {
++        static constexpr int c_ncols_dst = 1;
++        constexpr bool c_independent_cols = decltype(independent_cols_tag)::value;
++        const auto launch = [&](auto small_k_tag, auto halve_iters_tag) {
++            constexpr bool c_small_k = decltype(small_k_tag)::value;
++            constexpr bool c_promoted =
++                calc_nwarps(type, c_ncols_dst, MMVQ_PARAMETERS_GB10, false, true) !=
++                calc_nwarps(type, c_ncols_dst, MMVQ_PARAMETERS_GB10, false, false);
++            constexpr bool c_halve_iters = decltype(halve_iters_tag)::value && c_promoted;
++
++            std::pair<dim3, dim3> dims = calc_launch_params<type>(
++                c_ncols_dst, nrows_x, nchannels_dst, nsamples_dst,
++                warp_size, table_id, c_small_k, c_halve_iters);
++            if constexpr (c_independent_cols) {
++                dims.first.z *= ncols_dst;
++            }
++            mul_mat_vec_q_switch_fusion<type, c_ncols_dst, c_small_k, c_halve_iters, c_independent_cols>(
++                vx, vy_column, ids_column, fusion, dst_column, ncols_x, nchannels_y_fd,
++                stride_row_x, stride_col_y, stride_col_dst, channel_ratio_fd,
++                stride_channel_x, stride_channel_y, stride_channel_dst, sample_ratio_fd,
++                stride_sample_x, stride_sample_y, stride_sample_dst,
++                dims.first, dims.second, 0, ids_stride, stream,
++                c_independent_cols ? ncols_dst : 1);
++        };
+ 
+-    switch (ncols_dst) {
+-        case 1: {
+-            // static, else MSVC lambda capture breaks the constexpr uses below
+-            static constexpr int c_ncols_dst = 1;
++        if (should_use_small_k(c_ncols_dst)) {
++            launch(std::true_type{}, std::false_type{});
++        } else if (should_halve_iters()) {
++            launch(std::false_type{}, std::true_type{});
++        } else {
++            launch(std::false_type{}, std::false_type{});
++        }
++    };
+ 
+-            // Tag types keep the flags compile-time, so __launch_bounds__ matches what is launched.
++    if (ncols_dst > 1 && ncols_dst <= 4 && table_id == MMVQ_PARAMETERS_GB10 &&
++            (has_ids || force_independent_cols)) {
++        constexpr bool has_batch_invariant_kernel =
++            type == GGML_TYPE_IQ2_XXS || type == GGML_TYPE_Q2_K || type == GGML_TYPE_Q8_0;
++        if constexpr (has_batch_invariant_kernel) {
++            const bool has_fusion = fusion.gate != nullptr || fusion.x_bias != nullptr ||
++                                    fusion.gate_bias != nullptr || fusion.x_scale != nullptr ||
++                                    fusion.gate_scale != nullptr;
++            GGML_ASSERT(!has_fusion);
+             const auto launch = [&](auto small_k_tag, auto halve_iters_tag) {
+                 constexpr bool c_small_k = decltype(small_k_tag)::value;
+-                // Types the table does not promote would compile a second, identical kernel.
+                 constexpr bool c_promoted =
+-                    calc_nwarps(type, c_ncols_dst, MMVQ_PARAMETERS_GB10, false, true) !=
+-                    calc_nwarps(type, c_ncols_dst, MMVQ_PARAMETERS_GB10, false, false);
+-
++                    calc_nwarps(type, 1, MMVQ_PARAMETERS_GB10, false, true) !=
++                    calc_nwarps(type, 1, MMVQ_PARAMETERS_GB10, false, false);
+                 constexpr bool c_halve_iters = decltype(halve_iters_tag)::value && c_promoted;
+-
+-                const std::pair<dim3, dim3> dims = calc_launch_params<type>(c_ncols_dst, nrows_x, nchannels_dst,
+-                                                                              nsamples_dst, warp_size, table_id, c_small_k, c_halve_iters);
+-                mul_mat_vec_q_switch_fusion<type, c_ncols_dst, c_small_k, c_halve_iters>(
+-                    vx, vy, ids, fusion, dst, ncols_x, nchannels_y_fd, stride_row_x, stride_col_y, stride_col_dst,
+-                    channel_ratio_fd, stride_channel_x, stride_channel_y, stride_channel_dst, sample_ratio_fd,
+-                    stride_sample_x, stride_sample_y, stride_sample_dst, dims.first, dims.second, 0, ids_stride,
+-                    stream);
++                mul_mat_vec_q_batch_invariant_launch<type, c_small_k, c_halve_iters>(
++                    vx, vy, ids, dst, ncols_x, nchannels_y_fd, nrows_x,
++                    stride_row_x, stride_col_y, stride_col_dst, channel_ratio_fd,
++                    stride_channel_x, stride_channel_y, stride_channel_dst, sample_ratio_fd,
++                    stride_sample_x, stride_sample_y, stride_sample_dst, ncols_dst, ids_stride,
++                    warp_size, nchannels_dst, nsamples_dst, stream);
+             };
+-
+-            if (should_use_small_k(c_ncols_dst)) {
+-                launch(std::true_type{},  std::false_type{});
++            if (should_use_small_k(1)) {
++                launch(std::true_type{}, std::false_type{});
+             } else if (should_halve_iters()) {
+                 launch(std::false_type{}, std::true_type{});
+             } else {
+                 launch(std::false_type{}, std::false_type{});
+             }
++        } else {
++            launch_columns(std::true_type{}, vy, ids, dst);
++        }
++        return;
++    }
++
++    if (has_ids && ncols_dst > 1) {
++        // Multi-token MUL_MAT_ID path - dedicated MoE kernel
++        mul_mat_vec_q_moe_launch<type>(
++            vx, vy, ids, dst, ncols_x, nchannels_y_fd, nrows_x,
++            stride_row_x, stride_col_y, stride_col_dst,
++            stride_channel_x, stride_channel_y, stride_channel_dst,
++            ncols_dst, ids_stride, warp_size, nchannels_dst, stream);
++        return;
++    }
++
++    switch (ncols_dst) {
++        case 1: {
++            launch_columns(std::false_type{}, vy, ids, dst);
+         } break;
+         case 2: {
+             constexpr int c_ncols_dst = 2;
+@@ -1248,7 +1422,7 @@ static void mul_mat_vec_q_switch_type(
+ 
+ void ggml_cuda_mul_mat_vec_q(
+         ggml_backend_cuda_context & ctx, const ggml_tensor * src0, const ggml_tensor * src1, const ggml_tensor * ids, ggml_tensor * dst,
+-        const ggml_cuda_mm_fusion_args_host * fusion) {
++        const ggml_cuda_mm_fusion_args_host * fusion, const bool batch_invariant) {
+     GGML_ASSERT(        src1->type == GGML_TYPE_F32);
+     GGML_ASSERT(        dst->type  == GGML_TYPE_F32);
+     GGML_ASSERT(!ids || ids->type  == GGML_TYPE_I32); // Optional, used for batched GGML_MUL_MAT_ID.
+@@ -1354,11 +1528,20 @@ void ggml_cuda_mul_mat_vec_q(
+ 
+     const int64_t ids_stride = ids ? ids->nb[1] / ggml_type_size(ids->type) : 0;
+ 
+-    mul_mat_vec_q_switch_type(
+-        src0->data, src0->type, src1_q8_1.get(), ids_d, fusion_local, dst_d, ne00,
+-        ne01,              ncols_dst,     s01, stride_col_y,     stride_col_dst,
+-        ne02, nchannels_y, nchannels_dst, s02, stride_channel_y, stride_channel_dst,
+-        ne03,              ne3,           s03, s13,              s3,               ids_stride, stream);
++    if (batch_invariant) {
++        GGML_ASSERT(!ids && src0->type == GGML_TYPE_Q8_0 && ncols_dst > 1 && ncols_dst <= 4);
++        mul_mat_vec_q_switch_ncols_dst<GGML_TYPE_Q8_0>(
++            src0->data, src1_q8_1.get(), nullptr, fusion_local, dst_d, ne00,
++            ne01,              ncols_dst,     s01, stride_col_y,     stride_col_dst,
++            ne02, nchannels_y, nchannels_dst, s02, stride_channel_y, stride_channel_dst,
++            ne03,              ne3,           s03, s13,              s3,               ids_stride, stream, true);
++    } else {
++        mul_mat_vec_q_switch_type(
++            src0->data, src0->type, src1_q8_1.get(), ids_d, fusion_local, dst_d, ne00,
++            ne01,              ncols_dst,     s01, stride_col_y,     stride_col_dst,
++            ne02, nchannels_y, nchannels_dst, s02, stride_channel_y, stride_channel_dst,
++            ne03,              ne3,           s03, s13,              s3,               ids_stride, stream);
++    }
+ }
+ 
+ void ggml_cuda_op_mul_mat_vec_q(
+diff --git a/ggml/src/ggml-cuda/mmvq.cuh b/ggml/src/ggml-cuda/mmvq.cuh
+index 5605bf7a4..d18f5ffb4 100644
+--- a/ggml/src/ggml-cuda/mmvq.cuh
++++ b/ggml/src/ggml-cuda/mmvq.cuh
+@@ -9,7 +9,8 @@ bool ggml_cuda_should_use_mmvq(enum ggml_type type, int cc, int64_t ne11);
+ int get_mmvq_mmid_max_batch(ggml_type type, int cc);
+ 
+ void ggml_cuda_mul_mat_vec_q(ggml_backend_cuda_context & ctx,
+-    const ggml_tensor * src0, const ggml_tensor * src1, const ggml_tensor * ids, ggml_tensor * dst, const ggml_cuda_mm_fusion_args_host * fusion = nullptr);
++    const ggml_tensor * src0, const ggml_tensor * src1, const ggml_tensor * ids, ggml_tensor * dst,
++    const ggml_cuda_mm_fusion_args_host * fusion = nullptr, bool batch_invariant = false);
+ 
+ void ggml_cuda_op_mul_mat_vec_q(
+     ggml_backend_cuda_context & ctx,
+diff --git a/gguf-py/gguf/constants.py b/gguf-py/gguf/constants.py
+index ade650373..88faaa164 100644
+--- a/gguf-py/gguf/constants.py
++++ b/gguf-py/gguf/constants.py
+@@ -3612,6 +3612,11 @@ MODEL_TENSORS: dict[MODEL_ARCH, list[MODEL_TENSOR]] = {
+         MODEL_TENSOR.MHC_FFN_POST,
+         MODEL_TENSOR.MHC_FFN_RES,
+         MODEL_TENSOR.MHC_FFN_ALPHA,
++        # Motif MTP has no hidden-state pre-norm. It uses only enorm,
++        # eh_proj, and a final/shared-head norm around a dense Motif block.
++        MODEL_TENSOR.NEXTN_EH_PROJ,
++        MODEL_TENSOR.NEXTN_ENORM,
++        MODEL_TENSOR.NEXTN_SHARED_HEAD_NORM,
+     ],
+     MODEL_ARCH.DEEPSEEK2: [
+         MODEL_TENSOR.TOKEN_EMBD,
+diff --git a/src/llama-context.cpp b/src/llama-context.cpp
+index 94c0a9a72..f2ebefd06 100644
+--- a/src/llama-context.cpp
++++ b/src/llama-context.cpp
+@@ -151,7 +151,8 @@ llama_context::llama_context(
+         cparams.ctx_other = params.ctx_other;
+     }
+ 
+-    if (model.arch == LLM_ARCH_EAGLE3 || model.arch == LLM_ARCH_DFLASH) {
++    if (model.arch == LLM_ARCH_EAGLE3 || model.arch == LLM_ARCH_DFLASH ||
++            (model.arch == LLM_ARCH_MOTIF3 && params.ctx_type == LLAMA_CONTEXT_TYPE_MTP)) {
+         if (model.tok_embd == nullptr || model.output == nullptr) {
+             if (params.ctx_other == nullptr) {
+                 throw std::runtime_error(model.arch_name() + " requires ctx_other to be set (this warning is normal during memory fitting)");
+diff --git a/src/llama-graph.cpp b/src/llama-graph.cpp
+index 4167dfdc5..1e8a43c6c 100644
+--- a/src/llama-graph.cpp
++++ b/src/llama-graph.cpp
+@@ -1487,8 +1487,12 @@ ggml_tensor * llm_graph_context::build_cvec(
+ ggml_tensor * llm_graph_context::build_lora_mm(
+           ggml_tensor * w,
+           ggml_tensor * cur,
+-          ggml_tensor * w_s) const {
++          ggml_tensor * w_s,
++          ggml_op_hint hint) const {
+     ggml_tensor * res = ggml_mul_mat(ctx0, w, cur);
++    if (hint != GGML_HINT_NONE) {
++        ggml_mul_mat_set_hint(res, hint);
++    }
+ 
+     if (w_s) {
+         res = ggml_mul(ctx0, res, w_s);
+diff --git a/src/llama-graph.h b/src/llama-graph.h
+index 94324c745..53163fc91 100644
+--- a/src/llama-graph.h
++++ b/src/llama-graph.h
+@@ -1019,7 +1019,8 @@ struct llm_graph_context {
+     ggml_tensor * build_lora_mm(
+               ggml_tensor * w,
+               ggml_tensor * cur,
+-              ggml_tensor * w_s = nullptr) const;
++              ggml_tensor * w_s = nullptr,
++              ggml_op_hint hint = GGML_HINT_NONE) const;
+ 
+     // do mat_mul_id, while optionally apply lora and per-expert scale
+     ggml_tensor * build_lora_mm_id(
+diff --git a/src/llama-model-loader.cpp b/src/llama-model-loader.cpp
+index 9b22cb05f..ec0d99a93 100644
+--- a/src/llama-model-loader.cpp
++++ b/src/llama-model-loader.cpp
+@@ -436,6 +436,7 @@ namespace GGUFMeta {
+     template bool llama_model_loader::get_key<float>      (enum llm_kv kid, float & result,       bool required);
+     template bool llama_model_loader::get_key<uint32_t>   (enum llm_kv kid, uint32_t & result,    bool required);
+     template bool llama_model_loader::get_key<std::string>(enum llm_kv kid, std::string & result, bool required);
++    template bool llama_model_loader::get_key<bool>(const std::string & key, bool & result, bool required);
+ 
+     template<>
+     bool llama_model_loader::get_key(enum llm_kv kid, enum llama_pooling_type & result, bool required) {
+diff --git a/src/llama-model.cpp b/src/llama-model.cpp
+index 77cf92e4d..fdbcc156a 100644
+--- a/src/llama-model.cpp
++++ b/src/llama-model.cpp
+@@ -2370,7 +2370,7 @@ llama_memory_i * llama_model::create_memory(const llama_memory_params & params,
+                     }
+ 
+                     if ((arch == LLM_ARCH_STEP35 || arch == LLM_ARCH_HY_V3 || arch == LLM_ARCH_GLM_DSA ||
+-                            arch == LLM_ARCH_MIMO2 || arch == LLM_ARCH_DEEPSEEK32) &&
++                            arch == LLM_ARCH_MIMO2 || arch == LLM_ARCH_DEEPSEEK32 || arch == LLM_ARCH_MOTIF3) &&
+                             hparams.n_layer_nextn > 0) {
+                         if (params.ctx_type == LLAMA_CONTEXT_TYPE_MTP) {
+                             filter = [&](uint32_t il) { return il >= hparams.n_layer(); };
+diff --git a/src/models/models.h b/src/models/models.h
+index f613a813f..88979fd80 100644
+--- a/src/models/models.h
++++ b/src/models/models.h
+@@ -446,6 +446,7 @@ struct llama_model_motif3 : public llama_model_base {
+     void load_arch_tensors(llama_model_loader & ml) override;
+ 
+     struct graph : public llm_graph_context {
++        explicit graph(const llm_graph_params & params);
+         graph(const llama_model & model, const llm_graph_params & params);
+ 
+         // mHC (Manifold-constrained Hyper-Connections), Motif-3 variant
+@@ -509,6 +510,11 @@ struct llama_model_motif3 : public llama_model_base {
+                 int il) const;
+     };
+ 
++    // Motif MTP uses no hidden pre-norm, no mHC/MoE, and SWA GDLA.
++    struct graph_mtp : public graph {
++        graph_mtp(const llama_model & model, const llm_graph_params & params);
++    };
++
+     std::unique_ptr<llm_graph_context> build_arch_graph(const llm_graph_params & params) const override;
+ };
+ 
+diff --git a/src/models/motif3.cpp b/src/models/motif3.cpp
+index dc319bf24..1d90a2a8f 100644
+--- a/src/models/motif3.cpp
++++ b/src/models/motif3.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include <cmath>
+ #include <stdexcept>
++#include <string>
+ 
+ // Motif-3
+ // Uses GDLA (Grouped Differential Latent Attention), sigmoid scoring, PolyNorm gated activations and mHC on every layer
+@@ -18,6 +19,15 @@ void llama_model_motif3::load_arch_hparams(llama_model_loader & ml) {
+     hparams.n_moe_layer_step = 1;
+     ml.get_key(LLM_KV_INTERLEAVE_MOE_LAYER_STEP,   hparams.n_moe_layer_step, false);
+ 
++    // block_count includes the MTP blocks appended after the target stack.
++    ml.get_key(LLM_KV_NEXTN_PREDICT_LAYERS, hparams.n_layer_nextn, false);
++    if (hparams.n_layer_nextn > 0 && hparams.n_layer_nextn >= hparams.n_layer_all) {
++        throw std::runtime_error("Motif-3: nextn_predict_layers must be smaller than block_count");
++    }
++    if (hparams.n_layer_nextn > 1) {
++        throw std::runtime_error("Motif-3 currently supports at most one MTP block");
++    }
++
+     if (hparams.n_expert > 0) {
+         ml.get_key(LLM_KV_EXPERT_FEED_FORWARD_LENGTH, hparams.n_ff_exp);
+         hparams.n_ff_shexp = hparams.n_ff_exp;
+@@ -48,12 +58,20 @@ void llama_model_motif3::load_arch_hparams(llama_model_loader & ml) {
+         uint32_t swa_period = 4;
+         ml.get_key(LLM_KV_ATTENTION_SLIDING_WINDOW_PATTERN, swa_period, false);
+         hparams.set_swa_pattern(swa_period, /*dense_first =*/ true);
++        // MTP blocks are always SWA, independent of the trunk pattern.
++        for (uint32_t il = hparams.n_layer(); il < hparams.n_layer_all; ++il) {
++            hparams.is_swa_impl[il] = true;
++        }
+         ml.get_key(LLM_KV_ROPE_FREQ_BASE_SWA, hparams.rope_freq_base_train_swa, false);
+         hparams.rope_freq_scale_train_swa = 1.0f;
+     } else {
+         hparams.swa_type = LLAMA_SWA_TYPE_NONE;
+     }
+ 
++    if (hparams.n_layer_nextn > 0 && hparams.swa_type == LLAMA_SWA_TYPE_NONE) {
++        throw std::runtime_error("Motif-3 MTP requires sliding-window attention metadata");
++    }
++
+     if (hparams.motif_n_noise_heads == 0) {
+         throw std::runtime_error("Motif-3: attention.noise_head_count must be > 0");
+     }
+@@ -102,9 +120,21 @@ void llama_model_motif3::load_arch_hparams(llama_model_loader & ml) {
+     }
+ }
+ 
+-void llama_model_motif3::load_arch_tensors(llama_model_loader &) {
++void llama_model_motif3::load_arch_tensors(llama_model_loader & ml) {
+     LLAMA_LOAD_LOCALS;
+ 
++    const bool mtp_only = hparams.n_layer_nextn > 0 && ml.get_tensor_meta("blk.0.attn_norm.weight") == nullptr;
++    bool mtp_shared_from_target = false;
++    ml.get_key("motif3.mtp.shared_tensors_from_target", mtp_shared_from_target, false);
++    if (mtp_shared_from_target && !mtp_only) {
++        throw std::runtime_error(
++                "Motif-3: mtp.shared_tensors_from_target is only valid for an MTP-only sidecar");
++    }
++    int mtp_flags = 0;
++    if (!ml.load_mtp) {
++        mtp_flags |= TENSOR_SKIP;
++    }
++
+     const int64_t q_lora_rank  = hparams.n_lora_q;
+     const int64_t kv_lora_rank = hparams.n_lora_kv;
+ 
+@@ -127,12 +157,24 @@ void llama_model_motif3::load_arch_tensors(llama_model_loader &) {
+     const int64_t hc      = hparams.motif_mhc_mult;
+     const int64_t hc_dim  = hc * n_embd;
+ 
+-    tok_embd = create_tensor(tn(LLM_TENSOR_TOKEN_EMBD, "weight"), {n_embd, n_vocab}, 0);
++    if (mtp_shared_from_target) {
++        for (const char * name : {"token_embd.weight", "output_norm.weight", "output.weight"}) {
++            if (ml.get_tensor_meta(name) != nullptr) {
++                throw std::runtime_error(std::string(
++                        "Motif-3 linked MTP sidecar must not duplicate target tensor '") + name + "'");
++            }
++        }
++        tok_embd   = nullptr;
++        output_norm = nullptr;
++        output      = nullptr;
++    } else {
++        tok_embd = create_tensor(tn(LLM_TENSOR_TOKEN_EMBD, "weight"), {n_embd, n_vocab}, 0);
+ 
+-    output_norm = create_tensor(tn(LLM_TENSOR_OUTPUT_NORM, "weight"), {n_embd}, 0);
+-    output      = create_tensor(tn(LLM_TENSOR_OUTPUT,      "weight"), {n_embd, n_vocab}, 0);
++        output_norm = create_tensor(tn(LLM_TENSOR_OUTPUT_NORM, "weight"), {n_embd}, 0);
++        output      = create_tensor(tn(LLM_TENSOR_OUTPUT,      "weight"), {n_embd, n_vocab}, 0);
++    }
+ 
+-    for (int i = 0; i < n_layer; ++i) {
++    if (!mtp_only) for (int i = 0; i < n_layer; ++i) {
+         auto & layer = layers[i];
+ 
+         layer.attn_norm = create_tensor(tn(LLM_TENSOR_ATTN_NORM, "weight", i), {n_embd}, 0);
+@@ -213,9 +255,47 @@ void llama_model_motif3::load_arch_tensors(llama_model_loader &) {
+             }
+         }
+     }
++
++    // MTP uses dense PolyNorm, SWA GDLA, no mHC, and no hidden pre-norm.
++    for (int i = n_layer; i < n_layer_all; ++i) {
++        auto & layer = layers[i];
++
++        const int64_t mtp_head_k = hparams.motif_mla_kv ? hparams.motif_n_embd_head_k : hparams.n_embd_head_k(i);
++        const int64_t mtp_head_v = hparams.motif_mla_kv ? hparams.motif_n_embd_head_v : hparams.n_embd_head_v(i);
++        const int64_t mtp_head_k_nope = mtp_head_k - n_embd_head_qk_rope;
++        const int64_t mtp_head_kv = hparams.motif_mla_kv ? hparams.motif_n_head_kv : hparams.n_head_kv(i);
++        GGML_ASSERT(mtp_head_k_nope >= 1);
++
++        layer.attn_norm = create_tensor(tn(LLM_TENSOR_ATTN_NORM, "weight", i), {n_embd}, mtp_flags);
++        layer.ffn_norm  = create_tensor(tn(LLM_TENSOR_FFN_NORM,  "weight", i), {n_embd}, mtp_flags);
++
++        layer.wq_a          = create_tensor(tn(LLM_TENSOR_ATTN_Q_A,      "weight", i), {n_embd, q_lora_rank}, mtp_flags);
++        layer.attn_q_a_norm = create_tensor(tn(LLM_TENSOR_ATTN_Q_A_NORM, "weight", i), {q_lora_rank}, mtp_flags);
++        layer.wq_b          = create_tensor(tn(LLM_TENSOR_ATTN_Q_B,      "weight", i), {q_lora_rank, n_head * mtp_head_k}, mtp_flags);
++        layer.wq_b_gate     = create_tensor(tn(LLM_TENSOR_ATTN_GATE,     "weight", i), {q_lora_rank, n_signal * mtp_head_v}, mtp_flags);
++
++        layer.wkv_a_mqa      = create_tensor(tn(LLM_TENSOR_ATTN_KV_A_MQA,  "weight", i), {n_embd, kv_lora_rank + n_embd_head_qk_rope}, mtp_flags);
++        layer.attn_kv_a_norm = create_tensor(tn(LLM_TENSOR_ATTN_KV_A_NORM, "weight", i), {kv_lora_rank}, mtp_flags);
++        layer.wkv_b          = create_tensor(tn(LLM_TENSOR_ATTN_KV_B,      "weight", i), {kv_lora_rank, mtp_head_kv * (mtp_head_k_nope + mtp_head_v)}, mtp_flags);
++        layer.attn_lambda    = create_tensor(tn(LLM_TENSOR_ATTN_LAMBDA,    "weight", i), {n_embd, n_signal}, mtp_flags);
++        layer.wo             = create_tensor(tn(LLM_TENSOR_ATTN_OUT,       "weight", i), {n_signal * mtp_head_v, n_embd}, mtp_flags);
++
++        layer.ffn_gate   = create_tensor(tn(LLM_TENSOR_FFN_GATE, "weight", i), {n_embd, n_ff}, mtp_flags);
++        layer.ffn_up     = create_tensor(tn(LLM_TENSOR_FFN_UP,   "weight", i), {n_embd, n_ff}, mtp_flags);
++        layer.ffn_down   = create_tensor(tn(LLM_TENSOR_FFN_DOWN, "weight", i), {n_ff, n_embd}, mtp_flags);
++        layer.ffn_poly_w = create_tensor(tn(LLM_TENSOR_FFN_POLY, "weight", i), {3}, mtp_flags);
++        layer.ffn_poly_b = create_tensor(tn(LLM_TENSOR_FFN_POLY, "bias",   i), {1}, mtp_flags);
++
++        layer.nextn.eh_proj          = create_tensor(tn(LLM_TENSOR_NEXTN_EH_PROJ,          "weight", i), {2 * n_embd, n_embd}, mtp_flags);
++        layer.nextn.enorm            = create_tensor(tn(LLM_TENSOR_NEXTN_ENORM,            "weight", i), {n_embd}, mtp_flags);
++        layer.nextn.shared_head_norm = create_tensor(tn(LLM_TENSOR_NEXTN_SHARED_HEAD_NORM, "weight", i), {n_embd}, mtp_flags);
++    }
+ }
+ 
+ std::unique_ptr<llm_graph_context> llama_model_motif3::build_arch_graph(const llm_graph_params & params) const {
++    if (params.gtype == LLM_GRAPH_TYPE_DECODER_MTP) {
++        return std::make_unique<graph_mtp>(*this, params);
++    }
+     return std::make_unique<graph>(*this, params);
+ }
+ 
+@@ -756,8 +836,12 @@ ggml_tensor * llama_model_motif3::graph::build_gdla_attn(
+ 
+ // graph
+ 
+-llama_model_motif3::graph::graph(const llama_model & model, const llm_graph_params & params) :
++llama_model_motif3::graph::graph(const llm_graph_params & params) :
+     llm_graph_context(params) {
++}
++
++llama_model_motif3::graph::graph(const llama_model & model, const llm_graph_params & params) :
++    graph(params) {
+ 
+     const int64_t hc = hparams.motif_mhc_mult;
+ 
+@@ -891,15 +975,138 @@ llama_model_motif3::graph::graph(const llama_model & model, const llm_graph_para
+         cur = x;
+     }
+ 
+-    if (inp_out_ids) {
++    // Unmasked NextN extraction needs one target hidden state per input token.
++    if (inp_out_ids && (!cparams.embeddings_nextn || cparams.embeddings_nextn_masked)) {
+         cur = ggml_get_rows(ctx0, cur, inp_out_ids);
+     }
+ 
++    // Training stores the MTP input only after reducing mHC and applying the
++    // target final norm. The inference draft consumes that tensor as-is.
+     cur = build_norm(cur, model.output_norm, nullptr, LLM_NORM_RMS, -1);
++
++    cb(cur, "h_nextn", -1);
++    res->t_h_nextn = cur;
++
++    if (inp_out_ids && cparams.embeddings_nextn && !cparams.embeddings_nextn_masked) {
++        cur = ggml_get_rows(ctx0, cur, inp_out_ids);
++    }
++
+     cb(cur, "result_norm", -1);
+     res->t_embd = cur;
+ 
+-    cur = ggml_mul_mat(ctx0, model.output, cur);
++    cur = build_lora_mm(model.output, cur, model.output_s, GGML_HINT_BATCH_INVARIANT);
++    cb(cur, "result_output", -1);
++    res->t_logits = cur;
++
++    ggml_build_forward_expand(gf, cur);
++}
++
++// Motif normalizes only the shifted token embedding before fusion.
++llama_model_motif3::graph_mtp::graph_mtp(const llama_model & model, const llm_graph_params & params) :
++    graph(params) {
++    GGML_ASSERT(hparams.n_layer_nextn == 1 && "Motif-3 currently supports exactly one MTP block");
++    GGML_ASSERT(cparams.nextn_layer_offset == 0 && "Motif-3 has only one MTP layer");
++
++    const int il = hparams.n_layer();
++    const auto & layer = model.layers[il];
++
++    GGML_ASSERT(layer.nextn.eh_proj          && "Motif-3 MTP is missing nextn.eh_proj");
++    GGML_ASSERT(layer.nextn.enorm            && "Motif-3 MTP is missing nextn.enorm");
++    GGML_ASSERT(layer.nextn.shared_head_norm && "Motif-3 MTP is missing final_layernorm");
++    GGML_ASSERT(layer.ffn_gate && layer.ffn_up && layer.ffn_down && "Motif-3 MTP requires a dense FFN");
++    GGML_ASSERT(hparams.is_swa(il) && "Motif-3 MTP must use sliding-window attention");
++
++    auto * tok_embd = model.tok_embd;
++    auto * output   = model.output;
++    auto * output_s = model.output_s;
++    if (tok_embd == nullptr || output == nullptr) {
++        GGML_ASSERT(tok_embd == nullptr && output == nullptr && model.output_norm == nullptr &&
++                "Motif-3 linked MTP sidecar must omit all shared target tensors together");
++        GGML_ASSERT(cparams.ctx_other != nullptr &&
++                "Motif-3 linked MTP sidecar requires the target context");
++        const auto * model_other = llama_get_model(cparams.ctx_other);
++        GGML_ASSERT(model_other != nullptr && model_other->arch == LLM_ARCH_MOTIF3 &&
++                "Motif-3 linked MTP sidecar requires a Motif-3 target model");
++        GGML_ASSERT(model_other->tok_embd != nullptr && model_other->output != nullptr &&
++                "Motif-3 linked MTP sidecar requires target embedding and output tensors");
++        GGML_ASSERT(model_other->tok_embd->ne[0] == hparams.n_embd &&
++                model_other->tok_embd->ne[1] == (int64_t) model.vocab.n_tokens() &&
++                model_other->output->ne[0] == hparams.n_embd &&
++                model_other->output->ne[1] == (int64_t) model.vocab.n_tokens() &&
++                "Motif-3 linked MTP target tensor dimensions do not match the sidecar");
++        tok_embd = model_other->tok_embd;
++        output   = model_other->output;
++        output_s = model_other->output_s;
++    }
++
++    auto inp = std::make_unique<llm_graph_input_embd_h>(hparams.n_embd);
++
++    inp->tokens = ggml_new_tensor_1d(ctx0, GGML_TYPE_I32, n_tokens);
++    ggml_set_input(inp->tokens);
++
++    inp->embd = ggml_new_tensor_2d(ctx0, GGML_TYPE_F32, hparams.n_embd_inp(), n_tokens);
++    ggml_set_input(inp->embd);
++
++    ggml_tensor * tok_embd_cur = ubatch.token
++        ? ggml_get_rows(ctx0, tok_embd, inp->tokens)
++        : inp->embd;
++    cb(tok_embd_cur, "mtp_tok_embd", il);
++
++    inp->h = ggml_new_tensor_2d(ctx0, GGML_TYPE_F32, hparams.n_embd, n_tokens);
++    ggml_set_input(inp->h);
++    ggml_set_name(inp->h, "mtp_h_input");
++
++    ggml_tensor * previous_hidden = inp->h;
++    res->add_input(std::move(inp));
++
++    ggml_tensor * inp_pos     = build_inp_pos();
++    ggml_tensor * inp_out_ids = build_inp_out_ids();
++    auto * inp_iswa = build_attn_inp_kv_iswa();
++
++    ggml_tensor * next_embd = build_norm(tok_embd_cur, layer.nextn.enorm, nullptr, LLM_NORM_RMS, il);
++    cb(next_embd, "mtp_enorm", il);
++
++    // Keep the trained [previous_hidden, normalized_next_embedding] order.
++    ggml_tensor * concat = ggml_concat(ctx0, previous_hidden, next_embd, 0);
++    cb(concat, "mtp_concat", il);
++
++    ggml_tensor * cur = build_lora_mm(layer.nextn.eh_proj, concat, layer.nextn.eh_proj_s);
++    cb(cur, "mtp_eh_proj", il);
++
++    ggml_tensor * attn_residual = cur;
++    cur = build_norm(cur, layer.attn_norm, nullptr, LLM_NORM_RMS, il);
++    cb(cur, "mtp_attn_norm", il);
++
++    const float kq_scale_swa = 1.0f / sqrtf(float(hparams.motif_mla_kv
++        ? hparams.motif_n_embd_head_k
++        : hparams.n_embd_head_k(il)));
++    cur = build_gdla_attn(model, nullptr, inp_iswa, cur, inp_pos,
++            kq_scale_swa, kq_scale_swa, il);
++    cb(cur, "mtp_attn_out", il);
++
++    ggml_tensor * ffn_residual = ggml_add(ctx0, cur, attn_residual);
++    cb(ffn_residual, "mtp_attn_residual", il);
++
++    cur = build_norm(ffn_residual, layer.ffn_norm, nullptr, LLM_NORM_RMS, il);
++    cb(cur, "mtp_ffn_norm", il);
++
++    cur = build_polynorm_mlp(cur,
++            layer.ffn_gate, layer.ffn_up, layer.ffn_down,
++            layer.ffn_poly_w, layer.ffn_poly_b, il);
++    cb(cur, "mtp_ffn_out", il);
++
++    cur = ggml_add(ctx0, cur, ffn_residual);
++    cb(cur, "mtp_post_ffn", il);
++
++    cur = build_norm(cur, layer.nextn.shared_head_norm, nullptr, LLM_NORM_RMS, -1);
++    cb(cur, "h_nextn", -1);
++    res->t_h_nextn = cur;
++
++    if (inp_out_ids) {
++        cur = ggml_get_rows(ctx0, cur, inp_out_ids);
++    }
++
++    cur = build_lora_mm(output, cur, output_s, GGML_HINT_BATCH_INVARIANT);
+     cb(cur, "result_output", -1);
+     res->t_logits = cur;
+ 
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index e517d2c63..0cea62949 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -196,6 +196,7 @@ if (NOT WIN32 OR NOT BUILD_SHARED_LIBS)
+     # llama_build_and_test(test-double-float.cpp) # SLOW
+ 
+     llama_build_and_test(test-llama-archs.cpp)
++    llama_build_and_test(test-motif3-mtp.cpp)
+ 
+     set(MODEL_DIR "${CMAKE_CURRENT_BINARY_DIR}/test-models/")
+     file(MAKE_DIRECTORY "${MODEL_DIR}")
+diff --git a/tests/test-backend-ops.cpp b/tests/test-backend-ops.cpp
+index 01ba0eaa7..ca5bf0e66 100644
+--- a/tests/test-backend-ops.cpp
++++ b/tests/test-backend-ops.cpp
+@@ -9920,6 +9920,18 @@ static std::vector<std::unique_ptr<test_case>> make_test_cases_eval() {
+         }
+     }
+ 
++    // Motif-3 GQA=5 speculative verification widths.  These specifically
++    // exercise the small-query one-column MMA dispatch used to keep target
++    // KV state invariant across decode and verification batches.
++    for (int nb : { 2, 4 }) {
++        test_cases.emplace_back(new test_flash_attn_ext(
++            192, 128, 4, {5, 1}, 512, nb, true, false, 0, 0,
++            GGML_PREC_F32, GGML_TYPE_F16, GGML_TYPE_F16));
++        test_cases.emplace_back(new test_flash_attn_ext(
++            576, 512, 1, {80, 1}, 512, nb, true, false, 0, 0,
++            GGML_PREC_F32, GGML_TYPE_F16, GGML_TYPE_F16));
++    }
++
+     // mixed quant and Q1_0 test cases
+     test_cases.emplace_back(new test_flash_attn_ext(64, 64, 4, {1, 1}, 128, 2, true, false, 0, 0, GGML_PREC_F32, GGML_TYPE_Q8_0, GGML_TYPE_Q4_0));
+     test_cases.emplace_back(new test_flash_attn_ext(64, 64, 4, {1, 1}, 128, 2, true, false, 0, 0, GGML_PREC_F32, GGML_TYPE_Q4_0, GGML_TYPE_F16));
+diff --git a/tests/test-motif3-mtp-conversion.py b/tests/test-motif3-mtp-conversion.py
+new file mode 100644
+index 000000000..58db33d65
+--- /dev/null
++++ b/tests/test-motif3-mtp-conversion.py
+@@ -0,0 +1,204 @@
++#!/usr/bin/env python3
++
++from __future__ import annotations
++
++import unittest
++from types import SimpleNamespace
++
++import torch
++
++from conversion.motif3 import Motif3Model
++from gguf import MODEL_ARCH, MODEL_TENSOR, MODEL_TENSORS, get_tensor_name_map
++
++
++class TestMotif3MtpConversion(unittest.TestCase):
++    def setUp(self):
++        self.old_mtp_only = Motif3Model.mtp_only
++        self.old_no_mtp = Motif3Model.no_mtp
++        self.old_n_main = Motif3Model._n_main_layers
++        self.old_n_mtp = Motif3Model._n_mtp_layers
++        Motif3Model.mtp_only = False
++        Motif3Model.no_mtp = False
++        Motif3Model._n_main_layers = 53
++        Motif3Model._n_mtp_layers = 1
++
++    def tearDown(self):
++        Motif3Model.mtp_only = self.old_mtp_only
++        Motif3Model.no_mtp = self.old_no_mtp
++        Motif3Model._n_main_layers = self.old_n_main
++        Motif3Model._n_mtp_layers = self.old_n_mtp
++
++    @staticmethod
++    def _generator():
++        return torch.ones(1)
++
++    def test_filter_remaps_official_mtp_names(self):
++        cases = {
++            "model.mtp_layers.0.embed_norm.weight":
++                "model.layers.53.nextn.enorm.weight",
++            "model.mtp_layers.0.input_proj.weight":
++                "model.layers.53.nextn.eh_proj.weight",
++            "model.mtp_layers.0.final_layernorm.weight":
++                "model.layers.53.nextn.shared_head_norm.weight",
++            "model.mtp_layers.0.self_attn.wq_a.weight":
++                "model.layers.53.self_attn.wq_a.weight",
++            "model.mtp_layers.0.mlp.gate_proj.weight":
++                "model.layers.53.mlp.gate_proj.weight",
++        }
++        for source, expected in cases.items():
++            with self.subTest(source=source):
++                mapped = Motif3Model.filter_tensors((source, self._generator))
++                self.assertIsNotNone(mapped)
++                self.assertEqual(mapped[0], expected)
++
++    def test_filter_rejects_undeclared_layer_and_unknown_private_tensor(self):
++        with self.assertRaisesRegex(ValueError, "undeclared MTP layer"):
++            Motif3Model.filter_tensors((
++                "model.mtp_layers.1.input_proj.weight", self._generator))
++        with self.assertRaisesRegex(ValueError, "unexpected Motif-3 MTP tensor"):
++            Motif3Model.filter_tensors((
++                "model.mtp_layers.0.unrecognized.weight", self._generator))
++
++    def test_export_mode_filters_are_fail_closed(self):
++        Motif3Model.mtp_only = True
++        self.assertIsNone(Motif3Model.filter_tensors((
++            "model.layers.0.input_layernorm.weight", self._generator)))
++        self.assertIsNone(Motif3Model.filter_tensors((
++            "model.embed_tokens.weight", self._generator)))
++        self.assertIsNone(Motif3Model.filter_tensors((
++            "model.norm.weight", self._generator)))
++        self.assertIsNone(Motif3Model.filter_tensors((
++            "lm_head.weight", self._generator)))
++        self.assertIsNotNone(Motif3Model.filter_tensors((
++            "model.mtp_layers.0.input_proj.weight", self._generator)))
++
++        Motif3Model.no_mtp = True
++        self.assertIsNone(Motif3Model.filter_tensors((
++            "model.mtp_layers.0.input_proj.weight", self._generator)))
++
++    def test_all_official_mtp_tensors_map_to_block_53(self):
++        model = object.__new__(Motif3Model)
++        model.block_count = 54
++        model._main_block_count = 53
++        model.tensor_map = get_tensor_name_map(MODEL_ARCH.MOTIF3, model.block_count)
++        model.hparams = {
++            "num_key_value_heads": 2,
++            "v_head_dim": 2,
++            "head_dim": 4,
++            "qk_rope_head_dim": 2,
++        }
++
++        sources = [
++            "model.layers.53.nextn.enorm.weight",
++            "model.layers.53.nextn.eh_proj.weight",
++            "model.layers.53.nextn.shared_head_norm.weight",
++            "model.layers.53.input_layernorm.weight",
++            "model.layers.53.post_attention_layernorm.weight",
++            "model.layers.53.self_attn.wq_a.weight",
++            "model.layers.53.self_attn.q_norm.weight",
++            "model.layers.53.self_attn.wq_b.weight",
++            "model.layers.53.self_attn.wq_b_gate.weight",
++            "model.layers.53.self_attn.wkv_a.weight",
++            "model.layers.53.self_attn.kv_norm.weight",
++            "model.layers.53.self_attn.wkv_b.weight",
++            "model.layers.53.self_attn.lambda_proj.weight",
++            "model.layers.53.self_attn.wo.weight",
++            "model.layers.53.mlp.gate_proj.weight",
++            "model.layers.53.mlp.up_proj.weight",
++            "model.layers.53.mlp.down_proj.weight",
++            "model.layers.53.mlp.act_fn.weight",
++            "model.layers.53.mlp.act_fn.bias",
++        ]
++
++        mapped = []
++        for source in sources:
++            tensor = torch.zeros((8, 3)) if source.endswith("wkv_b.weight") else torch.zeros(1)
++            outputs = list(model.modify_tensors(tensor, source, 53))
++            self.assertEqual(len(outputs), 1, source)
++            mapped.append(outputs[0][0])
++
++        self.assertEqual(len(mapped), 19)
++        self.assertEqual(len(set(mapped)), 19)
++        self.assertTrue(all(name.startswith("blk.53.") for name in mapped))
++        self.assertIn("blk.53.nextn.eh_proj.weight", mapped)
++        self.assertIn("blk.53.nextn.enorm.weight", mapped)
++        self.assertIn("blk.53.nextn.shared_head_norm.weight", mapped)
++        self.assertNotIn(MODEL_TENSOR.NEXTN_HNORM, MODEL_TENSORS[MODEL_ARCH.MOTIF3])
++
++    def test_only_trunk_wkv_b_emits_mla_cache_splits(self):
++        model = object.__new__(Motif3Model)
++        model.block_count = 54
++        model._main_block_count = 53
++        model.tensor_map = get_tensor_name_map(MODEL_ARCH.MOTIF3, model.block_count)
++        model.hparams = {
++            "num_key_value_heads": 2,
++            "v_head_dim": 2,
++            "head_dim": 4,
++            "qk_rope_head_dim": 2,
++        }
++        tensor = torch.zeros((8, 3))
++
++        trunk = list(model.modify_tensors(
++            tensor, "model.layers.52.self_attn.wkv_b.weight", 52))
++        mtp = list(model.modify_tensors(
++            tensor, "model.layers.53.self_attn.wkv_b.weight", 53))
++
++        self.assertEqual(len(trunk), 3)
++        self.assertEqual(len(mtp), 1)
++        self.assertEqual(mtp[0][0], "blk.53.attn_kv_b.weight")
++
++    @staticmethod
++    def _contract_model():
++        model = object.__new__(Motif3Model)
++        model._main_block_count = 53
++        model.hparams = {
++            "hidden_size": 4096,
++            "vocab_size": 220160,
++            "intermediate_size": 12288,
++            "num_attention_heads": 80,
++            "num_key_value_heads": 16,
++            "num_noise_heads": 16,
++            "head_dim": 192,
++            "v_head_dim": 128,
++            "qk_rope_head_dim": 64,
++            "q_lora_rank": 1024,
++            "kv_lora_rank": 512,
++        }
++        expected = model._expected_mtp_source_shapes()
++        model.model_tensors = {
++            name: (lambda shape=shape: SimpleNamespace(shape=shape))
++            for name, shape in expected.items()
++        }
++        model.mtp_only = True
++        return model, expected
++
++    def test_exact_source_name_and_shape_contract_passes(self):
++        model, expected = self._contract_model()
++        model._validate_mtp_source_contract()
++        self.assertEqual(len(expected), 19)
++        self.assertNotIn("model.embed_tokens.weight", expected)
++        self.assertNotIn("model.norm.weight", expected)
++        self.assertNotIn("lm_head.weight", expected)
++
++    def test_source_contract_rejects_missing_extra_and_wrong_shape(self):
++        model, expected = self._contract_model()
++        missing_name = next(iter(expected))
++        del model.model_tensors[missing_name]
++        with self.assertRaisesRegex(ValueError, "missing tensors"):
++            model._validate_mtp_source_contract()
++
++        model, _ = self._contract_model()
++        model.model_tensors["model.mtp_layers.0.extra.weight"] = (
++            lambda: SimpleNamespace(shape=(1,)))
++        with self.assertRaisesRegex(ValueError, "unexpected tensors"):
++            model._validate_mtp_source_contract()
++
++        model, _ = self._contract_model()
++        model.model_tensors["model.layers.53.nextn.eh_proj.weight"] = (
++            lambda: SimpleNamespace(shape=(4096, 4096)))
++        with self.assertRaisesRegex(ValueError, "shape contract failed"):
++            model._validate_mtp_source_contract()
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/test-motif3-mtp.cpp b/tests/test-motif3-mtp.cpp
+new file mode 100644
+index 000000000..8330d1f55
+--- /dev/null
++++ b/tests/test-motif3-mtp.cpp
+@@ -0,0 +1,362 @@
++#include "common.h"
++#include "ggml-backend.h"
++#include "ggml-cpp.h"
++#include "ggml.h"
++#include "gguf.h"
++#include "llama-cpp.h"
++#include "llama.h"
++#include "speculative.h"
++
++#include "../src/llama-arch.h"
++#include "../src/llama-ext.h"
++#include "../src/llama-model-saver.h"
++
++#include <cmath>
++#include <cstdlib>
++#include <cstring>
++#include <random>
++#include <string>
++#include <vector>
++
++static constexpr int32_t N_VOCAB = 128;
++static constexpr int32_t N_EMBD = 32;
++static constexpr float RMS_EPS = 1e-5f;
++static constexpr llama_token TEST_TOKEN = 3;
++
++enum class tensor_fixture {
++    random_mtp,
++    target_norm_contract,
++};
++
++static void set_tensor_data(ggml_tensor * tensor, void * user_data) {
++    const auto fixture = *static_cast<const tensor_fixture *>(user_data);
++
++    if (fixture == tensor_fixture::target_norm_contract) {
++        std::vector<float> data(ggml_nelements(tensor), 0.0f);
++
++        if (std::strcmp(tensor->name, "token_embd.weight") == 0) {
++            for (int32_t i = 0; i < N_EMBD; ++i) {
++                data[TEST_TOKEN * N_EMBD + i] = 0.01f * float(i + 1);
++            }
++        } else if (std::strcmp(tensor->name, "output_norm.weight") == 0) {
++            for (int32_t i = 0; i < N_EMBD; ++i) {
++                data[i] = 0.5f + 0.02f * float(i + 1);
++            }
++        } else if (std::strcmp(tensor->name, "output.weight") == 0) {
++            for (int32_t i = 0; i < N_EMBD; ++i) {
++                data[i * N_EMBD + i] = 1.0f;
++            }
++        }
++
++        ggml_backend_tensor_set(tensor, data.data(), 0, ggml_nbytes(tensor));
++        return;
++    }
++
++    std::seed_seq seed(tensor->name, tensor->name + std::strlen(tensor->name));
++    std::mt19937 gen(seed);
++    std::normal_distribution<float> dis(0.0f, 0.02f);
++
++    std::vector<float> data(ggml_nelements(tensor));
++    for (float & value : data) {
++        value = dis(gen);
++    }
++    ggml_backend_tensor_set(tensor, data.data(), 0, ggml_nbytes(tensor));
++}
++
++static gguf_context_ptr make_metadata(bool mtp_only, bool linked_mtp = false) {
++    gguf_context_ptr ctx(gguf_init_empty());
++    llama_model_saver ms(LLM_ARCH_MOTIF3, ctx.get());
++
++    constexpr uint32_t n_head = 4;
++    constexpr uint32_t n_ff = 64;
++
++    ms.add_kv(LLM_KV_GENERAL_ARCHITECTURE, llm_arch_name(LLM_ARCH_MOTIF3));
++    ms.add_kv(LLM_KV_VOCAB_SIZE, uint32_t(N_VOCAB));
++    ms.add_kv(LLM_KV_CONTEXT_LENGTH, uint32_t(32));
++    ms.add_kv(LLM_KV_EMBEDDING_LENGTH, uint32_t(N_EMBD));
++    ms.add_kv(LLM_KV_BLOCK_COUNT, uint32_t(2));
++    if (mtp_only) {
++        ms.add_kv(LLM_KV_NEXTN_PREDICT_LAYERS, uint32_t(1));
++    }
++    if (linked_mtp) {
++        gguf_set_val_bool(ctx.get(), "motif3.mtp.shared_tensors_from_target", true);
++    }
++    ms.add_kv(LLM_KV_FEED_FORWARD_LENGTH, n_ff);
++    ms.add_kv(LLM_KV_ATTENTION_HEAD_COUNT, n_head);
++    ms.add_kv(LLM_KV_ATTENTION_HEAD_COUNT_KV, n_head);
++    ms.add_kv(LLM_KV_ATTENTION_KEY_LENGTH, uint32_t(8));
++    ms.add_kv(LLM_KV_ATTENTION_VALUE_LENGTH, uint32_t(4));
++    ms.add_kv(LLM_KV_ROPE_DIMENSION_COUNT, uint32_t(4));
++    ms.add_kv(LLM_KV_ATTENTION_LAYERNORM_RMS_EPS, RMS_EPS);
++    ms.add_kv(LLM_KV_ATTENTION_Q_LORA_RANK, uint32_t(8));
++    ms.add_kv(LLM_KV_ATTENTION_KV_LORA_RANK, uint32_t(8));
++    ms.add_kv(LLM_KV_ATTENTION_NOISE_HEAD_COUNT, uint32_t(1));
++    ms.add_kv(LLM_KV_ATTENTION_SLIDING_WINDOW, uint32_t(5));
++    ms.add_kv(LLM_KV_ATTENTION_SLIDING_WINDOW_PATTERN, uint32_t(2));
++    ms.add_kv(LLM_KV_ROPE_FREQ_BASE, 10000.0f);
++    ms.add_kv(LLM_KV_ROPE_FREQ_BASE_SWA, 10000.0f);
++    ms.add_kv(LLM_KV_POLYNORM_EPS, 1e-6f);
++    ms.add_kv(LLM_KV_POLYNORM_OUTPUT_SCALE, 0.5f);
++    ms.add_kv(LLM_KV_POLYNORM_BIAS_CLAMP, 0.5f);
++    ms.add_kv(LLM_KV_POLYNORM_HIDDEN_CLAMP, 1e6f);
++    ms.add_kv(LLM_KV_POLYNORM_SIGMOID_WEIGHT, true);
++    ms.add_kv(LLM_KV_TOKENIZER_MODEL, "no_vocab");
++
++    // The virtual loader uses one of these tensors to select the fixture.
++    ggml_tensor probe = {};
++    probe.type = GGML_TYPE_F32;
++    probe.ne[0] = mtp_only ? 2 * N_EMBD : N_EMBD;
++    probe.ne[1] = mtp_only ? N_EMBD : 1;
++    probe.ne[2] = 1;
++    probe.ne[3] = 1;
++    ggml_set_name(&probe, mtp_only
++            ? "blk.1.nextn.eh_proj.weight"
++            : "blk.0.attn_norm.weight");
++    gguf_add_tensor(ctx.get(), &probe);
++
++    return ctx;
++}
++
++static llama_model_ptr load_fixture(
++        bool mtp_only,
++        tensor_fixture fixture,
++        bool linked_mtp = false) {
++    auto metadata = make_metadata(mtp_only, linked_mtp);
++    llama_model_params model_params = llama_model_default_params();
++    ggml_backend_dev_t devices[] = {
++        ggml_backend_dev_by_type(GGML_BACKEND_DEVICE_TYPE_CPU),
++        nullptr,
++    };
++    if (!devices[0]) {
++        return nullptr;
++    }
++    model_params.devices = devices;
++    model_params.n_gpu_layers = 0;
++    model_params.load_mtp = mtp_only;
++
++    return llama_model_ptr(llama_model_init_from_user(
++            metadata.get(), set_tensor_data, &fixture, model_params));
++}
++
++static int test_mtp_sidecar() {
++    llama_model_ptr target = load_fixture(false, tensor_fixture::random_mtp);
++    llama_model_ptr model  = load_fixture(true, tensor_fixture::random_mtp, true);
++    if (!target || !model) {
++        return 1;
++    }
++
++    llama_context_params target_params = llama_context_default_params();
++    target_params.n_ctx = 8;
++    target_params.n_batch = 4;
++    target_params.n_ubatch = 4;
++    target_params.n_seq_max = 1;
++    target_params.n_threads = 2;
++    target_params.n_threads_batch = 2;
++    llama_context_ptr target_ctx(llama_init_from_model(target.get(), target_params));
++    if (!target_ctx) {
++        return 2;
++    }
++
++    llama_context_params ctx_params = llama_context_default_params();
++    ctx_params.ctx_type = LLAMA_CONTEXT_TYPE_MTP;
++    ctx_params.ctx_other = target_ctx.get();
++    ctx_params.n_ctx = 8;
++    ctx_params.n_batch = 4;
++    ctx_params.n_ubatch = 4;
++    ctx_params.n_seq_max = 1;
++    ctx_params.n_threads = 2;
++    ctx_params.n_threads_batch = 2;
++
++    llama_context_ptr ctx(llama_init_from_model(model.get(), ctx_params));
++    if (!ctx) {
++        return 3;
++    }
++    llama_set_embeddings_nextn(ctx.get(), true, true);
++
++    llama_batch batch = llama_batch_init(1, N_EMBD, 1);
++    batch.token = static_cast<llama_token *>(std::malloc(sizeof(llama_token)));
++    if (!batch.token) {
++        llama_batch_free(batch);
++        return 4;
++    }
++
++    common_batch_add(batch, 1, 0, {0}, true);
++    for (int32_t i = 0; i < N_EMBD; ++i) {
++        batch.embd[i] = 0.01f * float(i + 1);
++    }
++
++    const int rc = llama_decode(ctx.get(), batch);
++    std::free(batch.token);
++    batch.token = nullptr;
++    llama_batch_free(batch);
++    if (rc != 0) {
++        return 5;
++    }
++
++    const float * logits = llama_get_logits_ith(ctx.get(), 0);
++    const float * hidden = llama_get_embeddings_nextn_ith(ctx.get(), 0);
++    if (!logits || !hidden) {
++        return 6;
++    }
++
++    for (int32_t i = 0; i < N_VOCAB; ++i) {
++        if (!std::isfinite(logits[i])) {
++            return 6;
++        }
++    }
++    for (int32_t i = 0; i < N_EMBD; ++i) {
++        if (!std::isfinite(hidden[i])) {
++            return 7;
++        }
++    }
++
++    return 0;
++}
++
++static int test_target_hidden_is_post_final_norm() {
++    llama_model_ptr model = load_fixture(false, tensor_fixture::target_norm_contract);
++    if (!model) {
++        return 1;
++    }
++
++    llama_context_params ctx_params = llama_context_default_params();
++    ctx_params.n_ctx = 8;
++    ctx_params.n_batch = 4;
++    ctx_params.n_ubatch = 4;
++    ctx_params.n_seq_max = 1;
++    ctx_params.n_threads = 2;
++    ctx_params.n_threads_batch = 2;
++
++    llama_context_ptr ctx(llama_init_from_model(model.get(), ctx_params));
++    if (!ctx) {
++        return 2;
++    }
++    llama_set_embeddings_nextn(ctx.get(), true, true);
++
++    llama_batch batch = llama_batch_init(1, 0, 1);
++    common_batch_add(batch, TEST_TOKEN, 0, {0}, true);
++    const int rc = llama_decode(ctx.get(), batch);
++    llama_batch_free(batch);
++    if (rc != 0) {
++        return 3;
++    }
++
++    const float * logits = llama_get_logits_ith(ctx.get(), 0);
++    const float * hidden = llama_get_embeddings_nextn_ith(ctx.get(), 0);
++    if (!logits || !hidden) {
++        return 4;
++    }
++
++    float mean_square = 0.0f;
++    for (int32_t i = 0; i < N_EMBD; ++i) {
++        const float raw = 0.01f * float(i + 1);
++        mean_square += raw * raw;
++    }
++    mean_square /= float(N_EMBD);
++    const float inv_rms = 1.0f / std::sqrt(mean_square + RMS_EPS);
++
++    for (int32_t i = 0; i < N_EMBD; ++i) {
++        const float raw = 0.01f * float(i + 1);
++        const float norm_weight = 0.5f + 0.02f * float(i + 1);
++        const float expected = raw * inv_rms * norm_weight;
++        if (std::fabs(hidden[i] - expected) > 2e-5f) {
++            return 5;
++        }
++        // The identity rows of output.weight prove h_nextn is the same
++        // post-final-norm representation consumed by the shared LM head.
++        if (std::fabs(logits[i] - hidden[i]) > 2e-5f) {
++            return 6;
++        }
++    }
++
++    return 0;
++}
++
++static int test_linked_mtp_requires_target_context() {
++    llama_model_ptr model = load_fixture(true, tensor_fixture::random_mtp, true);
++    if (!model) {
++        return 1;
++    }
++
++    llama_context_params ctx_params = llama_context_default_params();
++    ctx_params.ctx_type = LLAMA_CONTEXT_TYPE_MTP;
++    ctx_params.n_ctx = 8;
++    ctx_params.n_batch = 4;
++    ctx_params.n_ubatch = 4;
++    ctx_params.n_seq_max = 1;
++    ctx_params.n_threads = 2;
++    ctx_params.n_threads_batch = 2;
++
++    llama_context_ptr ctx(llama_init_from_model(model.get(), ctx_params));
++    return ctx ? 2 : 0;
++}
++
++static int test_mtp_driver_rejects_missing_vocab() {
++    llama_model_ptr target = load_fixture(false, tensor_fixture::random_mtp);
++    llama_model_ptr draft  = load_fixture(true,  tensor_fixture::random_mtp);
++    if (!target || !draft) {
++        return 1;
++    }
++
++    llama_context_params target_params = llama_context_default_params();
++    target_params.n_ctx = 8;
++    target_params.n_batch = 4;
++    target_params.n_ubatch = 4;
++    target_params.n_seq_max = 1;
++    target_params.n_threads = 2;
++    target_params.n_threads_batch = 2;
++    llama_context_ptr target_ctx(llama_init_from_model(target.get(), target_params));
++    if (!target_ctx) {
++        return 2;
++    }
++
++    llama_context_params draft_params = target_params;
++    draft_params.ctx_type = LLAMA_CONTEXT_TYPE_MTP;
++    draft_params.ctx_other = target_ctx.get();
++    llama_context_ptr draft_ctx(llama_init_from_model(draft.get(), draft_params));
++    if (!draft_ctx) {
++        return 3;
++    }
++
++    common_params_speculative params;
++    params.types = { COMMON_SPECULATIVE_TYPE_DRAFT_MTP };
++    params.draft.ctx_tgt = target_ctx.get();
++    params.draft.ctx_dft = draft_ctx.get();
++    try {
++        common_speculative_ptr spec(common_speculative_init(params, 1));
++        if (spec) {
++            return 4;
++        }
++    } catch (const std::runtime_error &) {
++        return 0;
++    }
++
++    // A null result without the explicit fail-closed error is not accepted.
++    return 4;
++}
++
++int main() {
++    common_init();
++
++    const int mtp_rc = test_mtp_sidecar();
++    if (mtp_rc != 0) {
++        return 10 + mtp_rc;
++    }
++
++    const int target_rc = test_target_hidden_is_post_final_norm();
++    if (target_rc != 0) {
++        return 20 + target_rc;
++    }
++
++    const int linked_guard_rc = test_linked_mtp_requires_target_context();
++    if (linked_guard_rc != 0) {
++        return 30 + linked_guard_rc;
++    }
++
++    const int driver_rc = test_mtp_driver_rejects_missing_vocab();
++    if (driver_rc != 0) {
++        return 40 + driver_rc;
++    }
++
++    return 0;
++}

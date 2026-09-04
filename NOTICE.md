@@ -38,6 +38,14 @@ Project release v1.1.0 also distributes the Motif-only tokenizer-exact patch
 to be applied to that pinned runtime commit. The patch is source code derived
 from llama.cpp and remains under llama.cpp's MIT License.
 
+Project release v1.2.0 additionally distributes the experimental Motif-3 MTP
+runtime and optional diagnostic patches, SHA-256
+`9568454b651e43dcfd784b37a21364fb6f2d6d3420ae308581acd377eb315629`
+and
+`a3da8979eea172ae650da6e87953c3327f6b786b3c067c80e077e28da3d1cd6c`.
+They are source changes derived from llama.cpp and remain under llama.cpp's
+MIT License. No MTP model weights are redistributed here.
+
 llama.cpp is distributed under the MIT License. No llama.cpp binary is
 redistributed in this bundle.
 

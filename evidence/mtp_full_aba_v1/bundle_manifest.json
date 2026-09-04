@@ -1,0 +1,12 @@
+{
+  "exclusions": [
+    "private receipt, raw prompts, token arrays, and server logs",
+    "local paths, process identifiers, GPU UUID, and endpoints",
+    "model weights, credentials, and private datasets"
+  ],
+  "files": {
+    "summary.public.json": "c673c4d0458b2505ed8d21e52d4138038733e8e2dec4a3f810f94f4f3111f3e3"
+  },
+  "purpose": "aggregate-only native-MTP greedy parity and A-B-A decode evidence",
+  "schema_version": "motif3-public-mtp-greedy-aba-bundle-v1"
+}

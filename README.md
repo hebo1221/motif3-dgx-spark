@@ -52,6 +52,20 @@ Those four speeds come from one clean public-build session with five
 repetitions per shape. The earlier three-session campaign landed in the same
 range; both sets are kept in [Results](docs/RESULTS.md).
 
+## Experimental follow-up: native MTP
+
+A separate native-MTP experiment now passes a full target/MTP/target A-B-A
+check on one DGX Spark: 5,120/5,120 greedy tokens matched in the MTP arm,
+5,120/5,120 matched again after returning to a fresh target-only process, and
+server-reported decode improved from a 14.5872 tok/s counterbalanced target
+mean to 17.5565 tok/s (**1.2036x**). Draft acceptance was 47.11%.
+
+This is a source-and-evidence release, not a replacement model upload. The
+512 MB sidecar is not redistributed, the public GGUF is unchanged, and the
+experiment's exact target is not byte-identical to the downloadable v1 GGUF.
+See [Experimental native MTP](docs/MTP_EXPERIMENTAL.md) for the patch series,
+sidecar recipe, public aggregate, and limitations.
+
 ## Two things to know first
 
 First, this does **not** run with stock upstream llama.cpp today. Motif-3 needs
@@ -110,7 +124,7 @@ git clone --branch motif3-dgx-spark-v1 --single-branch \
 
 git -C runtime checkout cc3f13b3f172978d7b3c215780d4cc98bb0e1c80
 
-git clone --branch v1.1.0 --depth 1 \
+git clone --branch v1.2.0 --depth 1 \
   https://github.com/hebo1221/motif3-dgx-spark.git release-files
 
 sha256sum release-files/patches/motif3-tokenizer-exact-v1.patch
@@ -247,7 +261,9 @@ v1.1.0 mechanism-specific suites, patch identity, and claim boundaries are in
 
 ## Boundaries I would not gloss over
 
-- The native MTP head is not in this GGUF, so there is no MTP speculative gain.
+- The native MTP head is not in this downloadable GGUF. Release v1.2.0 adds an
+  experimental sidecar runtime and evidence for a different exact target; its
+  1.2036x observation must not be relabeled as a result for this GGUF.
 - The parent advertises 256K context; this release does not establish retained
   256K retrieval or generation quality.
 - Tool calling is fragile at this bit rate. Schema or parser repair can improve
@@ -290,6 +306,7 @@ Configurations and raw results that disagree with mine are welcome.
 - [Results and limitations](docs/RESULTS.md)
 - [What the failed repair experiments taught me](docs/ENGINEERING_FINDINGS.md)
 - [Runtime details and troubleshooting](docs/RUNTIME.md)
+- [Experimental native MTP follow-up](docs/MTP_EXPERIMENTAL.md)
 - [Machine-readable metrics](evidence/public_metrics.json)
 
 ## Share your result
