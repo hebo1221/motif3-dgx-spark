@@ -1,12 +1,12 @@
 # Runtime notes
 
-## Use this commit, not stock llama.cpp
+## Use the pinned base and Motif tokenizer patch
 
 As of this release, upstream llama.cpp does not contain the complete path this
 GGUF needs. A stock checkout stops while reading the vocabulary with
 `unknown pre-tokenizer type: 'motif3'`.
 
-The runtime I tested is:
+The runtime used for the published server and speed measurements is:
 
 - repository: <https://github.com/hebo1221/llama.cpp>;
 - branch: `motif3-dgx-spark-v1`;
@@ -15,8 +15,13 @@ The runtime I tested is:
   [`cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`](https://github.com/hebo1221/llama.cpp/commit/cc3f13b3f172978d7b3c215780d4cc98bb0e1c80).
 
 That commit sits on top of the public Motif-3 model port and the GQA-5 Flash
-Attention merge used during the project. It adds the missing official Motif-3
-tokenizer behavior and its Unicode regression tests.
+Attention merge used during the project. Release v1.1.0 additionally publishes
+[`../patches/motif3-tokenizer-exact-v1.patch`](../patches/motif3-tokenizer-exact-v1.patch),
+SHA-256
+`5eba842cd63731e3ee39c60c43134ef59a3a64c9d28c2aa58c3073225c6545cf`.
+Apply it to the commit above for exact Motif token IDs. This patch affects
+tokenization only; the benchmark and server smoke-test rows below remain
+measurements of the unpatched v1.0.0 base.
 
 The related upstream work is still visible here:
 
@@ -31,6 +36,17 @@ git clone --branch motif3-dgx-spark-v1 --single-branch \
 
 git -C runtime checkout cc3f13b3f172978d7b3c215780d4cc98bb0e1c80
 
+git clone --branch v1.1.0 --depth 1 \
+  https://github.com/hebo1221/motif3-dgx-spark.git release-files
+
+sha256sum release-files/patches/motif3-tokenizer-exact-v1.patch
+git -C runtime apply --check --unidiff-zero \
+  ../release-files/patches/motif3-tokenizer-exact-v1.patch
+git -C runtime apply --unidiff-zero \
+  ../release-files/patches/motif3-tokenizer-exact-v1.patch
+
+git -C runtime diff --binary --no-ext-diff | sha256sum
+
 cmake -S runtime -B runtime/build \
   -DCMAKE_BUILD_TYPE=Release \
   -DGGML_CUDA=ON \
@@ -42,6 +58,11 @@ cmake -S runtime -B runtime/build \
 
 cmake --build runtime/build --target llama-server llama-bench -j 12
 ```
+
+The patch file should hash to
+`5eba842cd63731e3ee39c60c43134ef59a3a64c9d28c2aa58c3073225c6545cf`.
+The resulting normal Git diff should hash to
+`09abc52c2f7ff9f2cb3e9b8edd3af03684840969d0cdc7f24fd7aa63ca3207f3`.
 
 The verified build was a native aarch64 Release build on DGX Spark with CUDA
 13.0.88 and NVIDIA driver 580.126.09. `GGML_NATIVE=ON` means a binary built on
@@ -130,15 +151,23 @@ decode numbers.
 ## Tokenizer check
 
 The final GGUF embeds `tokenizer.ggml.pre=motif3`; no command-line override is
-needed. Using this exact runtime and the embedded metadata, token IDs matched
-the official tokenizer for:
+needed. Using the v1.1.0 patch on the pinned public-runtime base and the final
+GGUF, token IDs matched the official tokenizer for:
 
 - 61,548 calibration tokens;
 - 54,070 held-out tokens;
 - 318,951 tokens from 12,011 deterministic Unicode and formatting cases.
 
-That is strong evidence for the tested inputs, but not a mathematical proof for
-every Unicode string. The aggregate receipt is
+The same tokenizer source was tested more deeply across 591,984 generated
+cases plus the two corpora: all 4,164,390 official token IDs matched. This
+includes every Unicode 16 letter, mark, and number in boundary-sensitive
+contexts, all 160 added tokens across a whitespace matrix, random added-token
+compositions, and a separate `parse_special=false` suite.
+
+That is strong differential evidence, but not a mathematical proof for every
+possible Unicode string. The v1.1.0 receipt is
+[`../evidence/tokenizer_exact_v1.json`](../evidence/tokenizer_exact_v1.json),
+while the original aggregate receipt remains
 [`../evidence/tokenizer_parity.json`](../evidence/tokenizer_parity.json).
 The audit code itself is also included as
 [`../scripts/audit_tokenizer_parity.py`](../scripts/audit_tokenizer_parity.py);
@@ -164,7 +193,8 @@ separate:
 
 `unknown pre-tokenizer type: 'motif3'`
 : You built the wrong llama.cpp revision. Check that `git rev-parse HEAD` is
-  `cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`.
+  `cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`, then verify and apply the v1.1.0
+  tokenizer patch exactly as shown above.
 
 The server runs out of memory during load
 : Stop other GPU workloads, lower `-c`, keep `-np 1`, and confirm all paths

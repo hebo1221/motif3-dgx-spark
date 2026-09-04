@@ -54,11 +54,20 @@ the whole tensor payload uses 2.2805 effective bits per element.
 The final GGUF embeds `tokenizer.ggml.pre=motif3`. That matters: treating the
 vocabulary as ordinary GPT-2 BPE changes word-run and whitespace boundaries.
 
-The public runtime was checked without a command-line metadata override. It
-matched the official Motif tokenizer on 61,548 calibration tokens, 54,070
-held-out tokens, and 318,951 token IDs from a fixed 12,011-case fuzz set. The
-aggregate hashes and counts are in
-[`../evidence/tokenizer_parity.json`](../evidence/tokenizer_parity.json).
+The v1.1.0 Motif-only tokenizer patch was checked without a command-line
+metadata override. Applied to the pinned public-runtime base, it matched the
+official Motif tokenizer on 61,548 calibration tokens, 54,070 held-out tokens,
+and 318,951 token IDs from a fixed 12,011-case fuzz set using the final GGUF.
+
+Regex splitting and added-token selection were treated as separate mechanisms.
+A source-identical extended candidate covered every Unicode 16 letter, mark,
+and number in boundary-sensitive contexts, all 160 added tokens across a
+whitespace matrix, random compositions, and `parse_special=false`. Across
+591,984 generated cases plus the two corpora, all 4,164,390 official token IDs
+matched. The patch identity, hashes, and claim limits are in
+[`../evidence/tokenizer_exact_v1.json`](../evidence/tokenizer_exact_v1.json).
+This is tokenization evidence only; it does not change or improve the IQ2
+weights.
 
 ## A packaging blemish I am keeping explicit
 

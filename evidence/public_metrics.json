@@ -30,6 +30,7 @@
     "direct_bf16_iq2_structure_snapshot_sha256": "ac400ef1bd713ece368fe399c4620cddfac5ea1160fd71d28aa73b98f046c2d8",
     "ppl_kld_receipt_sha256": "2308f1edd64eaf8ef07630ff7ae8937e609166415d44cfd7b353e087992175bc",
     "task_and_performance_receipt_sha256": "09b8de33930e12d270e5f02a643e06fea5099b18cee6dc67a92399d218d2dccf",
+    "tokenizer_exact_v1_sha256": "9b8feaa938399b2d1a7da33989ba5185d627df9368b48feb83b3db081c2942c5",
     "tokenizer_parity_sha256": "954ce250c8d167af56804211b0bc9a23328ef652d1b5e6a6b5ef7c82c3ca3c2e"
   },
   "performance": {
@@ -72,12 +73,21 @@
     "branch": "motif3-dgx-spark-v1",
     "clean_public_commit": "cc3f13b3f172978d7b3c215780d4cc98bb0e1c80",
     "repository": "https://github.com/hebo1221/llama.cpp",
+    "recommended_tokenizer_patch": {
+      "base_commit": "cc3f13b3f172978d7b3c215780d4cc98bb0e1c80",
+      "path": "patches/motif3-tokenizer-exact-v1.patch",
+      "resulting_normal_diff_sha256": "09abc52c2f7ff9f2cb3e9b8edd3af03684840969d0cdc7f24fd7aa63ca3207f3",
+      "sha256": "5eba842cd63731e3ee39c60c43134ef59a3a64c9d28c2aa58c3073225c6545cf",
+      "token_id_correctness_only": true
+    },
     "stock_upstream_compatible": false,
     "tag": "motif3-dgx-spark-runtime-v1.0.0",
     "tokenizer_parity": {
       "corpus_token_ids_exact": 115618,
       "fuzz_case_count": 12011,
       "fuzz_token_ids_exact": 318951,
+      "extended_generated_cases": 591984,
+      "extended_token_ids_exact": 4164390,
       "pre_type_override_used": false,
       "status": "pass"
     }

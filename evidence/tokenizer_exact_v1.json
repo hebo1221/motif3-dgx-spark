@@ -1,0 +1,141 @@
+{
+  "schema_version": "motif3-public-tokenizer-exact-v1",
+  "status": "pass",
+  "verified_at": "2026-09-04T05:26:54Z",
+  "claim": "The Motif-only tokenizer patch reproduced the official Motif-3 token IDs on the named differential suites and on the final public GGUF with embedded tokenizer.ggml.pre=motif3.",
+  "claim_boundary": {
+    "token_id_correctness": true,
+    "iq2_model_quality_improvement": false,
+    "generation_quality_established": false,
+    "inference_speed_established": false,
+    "regex_splitting_and_added_token_selection_are_separate": true,
+    "first_implementation_is_motif_only": true
+  },
+  "distribution": {
+    "base_runtime": {
+      "repository": "https://github.com/hebo1221/llama.cpp",
+      "tag": "motif3-dgx-spark-runtime-v1.0.0",
+      "commit": "cc3f13b3f172978d7b3c215780d4cc98bb0e1c80"
+    },
+    "patch": {
+      "path": "patches/motif3-tokenizer-exact-v1.patch",
+      "size_bytes": 43623,
+      "sha256": "5eba842cd63731e3ee39c60c43134ef59a3a64c9d28c2aa58c3073225c6545cf",
+      "zero_context_diff": true,
+      "git_apply_requires_unidiff_zero": true,
+      "resulting_normal_diff_sha256": "09abc52c2f7ff9f2cb3e9b8edd3af03684840969d0cdc7f24fd7aa63ca3207f3",
+      "modified_files": 7,
+      "insertions": 647,
+      "deletions": 162,
+      "reverse_apply_check_on_tested_tree": true
+    },
+    "resulting_tokenizer_source_files": {
+      "candidate_reference_commit": "551c4261c3bea3c5b3805f4a8cf8ba082750315a",
+      "relevant_file_count": 8,
+      "byte_identical_to_extended_test_candidate": true,
+      "sha256": {
+        "conversion/motif3.py": "b8dbccbf3c999dede44618de9805683b52f19af2d8ed310158f0cfed950ccd27",
+        "scripts/gen-unicode-data.py": "f7d40c3203d4e9cb0da6e327a22cec64ec8e40077b36e902054f06ae3f4a44e7",
+        "src/llama-vocab.cpp": "906365745cb40e52028de8b1326fdd79b54ad6559f215ba9dba8178c1d4b55e7",
+        "src/llama-vocab.h": "3d4600f9b9791d9b26abc00f67dd3bd0787068ebdef8548c80cb0e9f96651e70",
+        "src/unicode-data.cpp": "a1bd649f4d53bdcdbd75fbc354589f51e5995eaa4fac6e632659ea8467418a3e",
+        "src/unicode-data.h": "35a7210f61c4d26ee52b50ea6f27dbf23cbb4ee36e962b5c4b0ee50a3a8283d9",
+        "src/unicode.cpp": "c014004aa0178c19db137ed5a9b2b96c077849dd36c638c9006acb2e57c6c5a8",
+        "tests/test-unicode.cpp": "a09fa1585b295d84720e9368b5033c344bd67068c6fe02972c69dcee5e881c83"
+      }
+    }
+  },
+  "official_tokenizer": {
+    "repository": "Motif-Technologies/Motif-3",
+    "source_commit": "883d5c441fe3bb994c7b57e60f49e26147f85512",
+    "tokenizer_json_size_bytes": 17548202,
+    "tokenizer_json_sha256": "956d8a693e0ede5283c803aba3fe1d4b46b202d9faac007f947c6f5b61ce7864",
+    "tokenizers_package_version": "0.21.4"
+  },
+  "release_build_verification": {
+    "llama_tokenize_sha256": "117f9776ad6ceb45e852cb952a4ecdd58f35b6d2c9d7fdaa4aed351a125a778d",
+    "build_type": "Release",
+    "cuda_enabled": false,
+    "model_payload_loaded": false,
+    "tokenizer_pre_override_used": false,
+    "existing_tokenizer_fixtures_passed": 15,
+    "motif_unicode_test_passed": true,
+    "tests_failed": 0
+  },
+  "final_gguf_verification": {
+    "filename": "motif3-direct-iq2xxs.gguf",
+    "size_bytes": 89720474560,
+    "sha256": "9d6f7aee57f0271223f51d69c63d8576a259809e9f05e2ac596512e940c80c5a",
+    "embedded_pre_type": "motif3",
+    "model_payload_loaded": false,
+    "corpora": {
+      "calibration": {
+        "source_size_bytes": 314949,
+        "source_sha256": "67719397cc2a4663cfa6e25fb4dab580a4db299c4bfc659b80af525f1a5bdcdc",
+        "official_token_count": 61548,
+        "runtime_token_count": 61548,
+        "token_ids_sha256": "1d8ceeb9a97aaf21679b652bf9efe3bdaaac1c08e24bb37fc0916f0e97dbee5e",
+        "exact_match": true
+      },
+      "heldout": {
+        "source_size_bytes": 292958,
+        "source_sha256": "db1a8338644a5e8fd10d41b16a5a0d86e8d46c5bbacc2d1b092e5d8215234ce1",
+        "official_token_count": 54070,
+        "runtime_token_count": 54070,
+        "token_ids_sha256": "a446524bff48e6f935f8737656b1d23555211573ec44af8b60b20b56a4c2737d",
+        "exact_match": true
+      }
+    },
+    "deterministic_fuzz": {
+      "seed": 85003111843379,
+      "case_count": 12011,
+      "official_token_count": 318951,
+      "runtime_token_count": 318951,
+      "token_ids_sha256": "345315baa62dd5c9471f0d8c2a47bb4b8d3f19f33196b024e4eaf6fe37b0eca0",
+      "exact_match": true
+    },
+    "aggregate_token_ids_compared": 434569,
+    "token_id_mismatches": 0
+  },
+  "extended_source_identical_verification": {
+    "generated_cases": 591984,
+    "official_token_ids_compared": 4164390,
+    "token_id_mismatches": 0,
+    "suites": {
+      "unicode_16_letters_and_marks": {
+        "case_count": 430587,
+        "token_count": 2579242,
+        "exact_match": true
+      },
+      "unicode_16_numbers": {
+        "case_count": 11466,
+        "token_count": 88999,
+        "exact_match": true
+      },
+      "all_160_added_tokens_whitespace_matrix": {
+        "case_count": 17920,
+        "token_count": 72743,
+        "exact_match": true
+      },
+      "random_added_token_compositions": {
+        "case_count": 100000,
+        "token_count": 757873,
+        "exact_match": true
+      },
+      "parse_special_false_added_token_compositions": {
+        "case_count": 20000,
+        "token_count": 230964,
+        "exact_match": true
+      }
+    },
+    "unicode_data_16_0_0_sha256": "ff58e5823bd095166564a006e47d111130813dcf8bf234ef79fa51a870edb48f",
+    "unicode_generator_output_exact": true,
+    "linear_scaling_observed_from_1_to_16_mib": true
+  },
+  "limitations": [
+    "This release distributes a patch against the pinned runtime commit; it does not claim that stock upstream llama.cpp contains the implementation.",
+    "The extended suites were run on a source-identical tokenizer candidate; the final public-runtime-base executable was independently checked on the two corpora, deterministic fuzz set, and 16 regression tests.",
+    "The performance numbers in this repository were measured before this tokenizer patch and are not re-labeled as measurements of the patched build.",
+    "This proves token ID parity only. It does not improve the IQ2 weights or establish downstream generation quality."
+  ]
+}

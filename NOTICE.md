@@ -32,6 +32,12 @@ The exact tested community runtime is published at:
 That commit adds Motif-3 tokenizer handling and regression coverage on top of
 the cited model port and GQA-5 work.
 
+Project release v1.1.0 also distributes the Motif-only tokenizer-exact patch
+`patches/motif3-tokenizer-exact-v1.patch`, SHA-256
+`5eba842cd63731e3ee39c60c43134ef59a3a64c9d28c2aa58c3073225c6545cf`,
+to be applied to that pinned runtime commit. The patch is source code derived
+from llama.cpp and remains under llama.cpp's MIT License.
+
 llama.cpp is distributed under the MIT License. No llama.cpp binary is
 redistributed in this bundle.
 

@@ -1,0 +1,917 @@
+diff --git a/conversion/motif3.py b/conversion/motif3.py
+index 5eb51f74f..4d61c810e 100644
+--- a/conversion/motif3.py
++++ b/conversion/motif3.py
+@@ -35,0 +36,12 @@ class Motif3Model(TextModel):
++    _MOTIF3_SPLIT_REGEX = (
++        r"[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]*"
++        r"[\p{Ll}\p{Lm}\p{Lo}\p{M}]+"
++        r"(?: [\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]*[\p{Ll}\p{Lm}\p{Lo}\p{M}]+)*"
++        r"(?i:'s|'t|'re|'ve|'m|'ll|'d)?|"
++        r"[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]+"
++        r"[\p{Ll}\p{Lm}\p{Lo}\p{M}]*"
++        r"(?: [\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]+[\p{Ll}\p{Lm}\p{Lo}\p{M}]*)*"
++        r"(?i:'s|'t|'re|'ve|'m|'ll|'d)?|"
++        r"\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n/]*|\s*[\r\n]+|\s+(?!\S)|\s+"
++    )
++
+@@ -62,0 +75,3 @@ class Motif3Model(TextModel):
++        if any(p == self._MOTIF3_SPLIT_REGEX for p in pats):
++            logger.info("pre-tokenizer: Split regex is the Motif-3 multi-word pattern -> using 'motif3'")
++            return "motif3"
+diff --git a/scripts/gen-unicode-data.py b/scripts/gen-unicode-data.py
+index 0fa78b22e..6235dad79 100644
+--- a/scripts/gen-unicode-data.py
++++ b/scripts/gen-unicode-data.py
+@@ -10 +10,6 @@ MAX_CODEPOINTS = 0x110000
+-UNICODE_DATA_URL = "https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt"
++UNICODE_DATA_VERSION = "15.1.0"
++UNICODE_DATA_URL = f"https://www.unicode.org/Public/{UNICODE_DATA_VERSION}/ucd/UnicodeData.txt"
++MOTIF3_UNICODE_DATA_VERSION = "16.0.0"
++MOTIF3_UNICODE_DATA_URL = (
++    f"https://www.unicode.org/Public/{MOTIF3_UNICODE_DATA_VERSION}/ucd/UnicodeData.txt"
++)
+@@ -14,2 +19,2 @@ UNICODE_DATA_URL = "https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.tx
+-def unicode_data_iter():
+-    res = requests.get(UNICODE_DATA_URL)
++def unicode_data_iter(url=UNICODE_DATA_URL):
++    res = requests.get(url)
+@@ -124 +129 @@ for (cpt, cpt_lower, cpt_upper, categ, bidir) in unicode_data_iter():
+-# whitespaces, see "<White_Space>" https://www.unicode.org/Public/UCD/latest/ucd/PropList.txt
++# whitespaces, see "<White_Space>" in the matching UCD PropList.txt
+@@ -136,0 +142,44 @@ table_nfd.sort()
++table_motif3_letter_supplement = []
++table_motif3_number_supplement = []
++table_motif3_mark_supplement = []
++table_motif3_lowercase_category = []
++table_motif3_uppercase_category = []
++
++for (cpt, _, _, categ, _) in unicode_data_iter(MOTIF3_UNICODE_DATA_URL):
++    flag = UNICODE_CATEGORY_TO_FLAG[categ]
++    if flag == CODEPOINT_FLAG_LETTER and not codepoint_flags[cpt] & CODEPOINT_FLAG_LETTER:
++        table_motif3_letter_supplement.append(cpt)
++    elif flag == CODEPOINT_FLAG_NUMBER and not codepoint_flags[cpt] & CODEPOINT_FLAG_NUMBER:
++        table_motif3_number_supplement.append(cpt)
++    elif flag == CODEPOINT_FLAG_MARK and not codepoint_flags[cpt] & CODEPOINT_FLAG_MARK:
++        table_motif3_mark_supplement.append(cpt)
++
++    if categ == "Ll":
++        table_motif3_lowercase_category.append(cpt)
++    elif categ in ("Lu", "Lt"):
++        table_motif3_uppercase_category.append(cpt)
++
++
++def group_codepoint_ranges(codepoints):
++    ranges = []
++    for codepoint in codepoints:
++        if ranges and codepoint == ranges[-1][1] + 1:
++            ranges[-1] = (ranges[-1][0], codepoint)
++        else:
++            ranges.append((codepoint, codepoint))
++    return ranges
++
++
++mapped_lowercase = {target for _, target in table_lowercase}
++mapped_uppercase = {target for _, target in table_uppercase}
++ranges_motif3_letter_supplement = group_codepoint_ranges(table_motif3_letter_supplement)
++ranges_motif3_number_supplement = group_codepoint_ranges(table_motif3_number_supplement)
++ranges_motif3_mark_supplement = group_codepoint_ranges(table_motif3_mark_supplement)
++ranges_motif3_lowercase_supplement = group_codepoint_ranges(
++    cpt for cpt in table_motif3_lowercase_category if cpt not in mapped_lowercase
++)
++ranges_motif3_uppercase_supplement = group_codepoint_ranges(
++    cpt for cpt in table_motif3_uppercase_category if cpt not in mapped_uppercase
++)
++
++
+@@ -173 +222,4 @@ out("""\
+-out("const std::vector<std::pair<uint32_t, uint16_t>> unicode_ranges_flags = {  // start, flags // last=next_start-1")
++out(
++    "const std::initializer_list<std::pair<uint32_t, uint16_t>> "
++    "unicode_ranges_flags = {  // start, flags // last=next_start-1"
++)
+@@ -183 +235,43 @@ out("};\n")
+-out("const std::unordered_map<uint32_t, uint32_t> unicode_map_lowercase = {")
++out(f"// Motif-3's pinned tokenizer uses Unicode {MOTIF3_UNICODE_DATA_VERSION} regex categories.")
++out(
++    "const std::initializer_list<std::pair<uint32_t, uint32_t>> "
++    "unicode_ranges_motif3_letter_supplement = {  // first, last"
++)
++for first, last in ranges_motif3_letter_supplement:
++    out("{0x%06X, 0x%06X}," % (first, last))
++out("};\n")
++
++out(
++    "const std::initializer_list<std::pair<uint32_t, uint32_t>> "
++    "unicode_ranges_motif3_number_supplement = {  // first, last"
++)
++for first, last in ranges_motif3_number_supplement:
++    out("{0x%06X, 0x%06X}," % (first, last))
++out("};\n")
++
++out(
++    "const std::initializer_list<std::pair<uint32_t, uint32_t>> "
++    "unicode_ranges_motif3_mark_supplement = {  // first, last"
++)
++for first, last in ranges_motif3_mark_supplement:
++    out("{0x%06X, 0x%06X}," % (first, last))
++out("};\n")
++
++out(
++    "const std::initializer_list<std::pair<uint32_t, uint32_t>> "
++    "unicode_ranges_motif3_lowercase_supplement = {  // first, last"
++)
++for first, last in ranges_motif3_lowercase_supplement:
++    out("{0x%06X, 0x%06X}," % (first, last))
++out("};\n")
++
++out(
++    "const std::initializer_list<std::pair<uint32_t, uint32_t>> "
++    "unicode_ranges_motif3_uppercase_supplement = {  // first, last"
++)
++for first, last in ranges_motif3_uppercase_supplement:
++    out("{0x%06X, 0x%06X}," % (first, last))
++out("};\n")
++
++out("// list is always in ascending order, to enable binary search")
++out("const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_map_lowercase = {")
+@@ -188 +282,2 @@ out("};\n")
+-out("const std::unordered_map<uint32_t, uint32_t> unicode_map_uppercase = {")
++out("// list is always in ascending order, to enable binary search")
++out("const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_map_uppercase = {")
+@@ -193 +288 @@ out("};\n")
+-out("const std::vector<range_nfd> unicode_ranges_nfd = {  // start, last, nfd")
++out("const std::initializer_list<range_nfd> unicode_ranges_nfd = {  // start, last, nfd")
+@@ -196 +291 @@ for triple in ranges_nfd:
+-out("};\n")
++out("};")
+diff --git a/src/llama-vocab.cpp b/src/llama-vocab.cpp
+index 0fd2f69da..8192e4cc2 100644
+--- a/src/llama-vocab.cpp
++++ b/src/llama-vocab.cpp
+@@ -435,0 +436,5 @@ struct llm_tokenizer_bpe : llm_tokenizer {
++            case LLAMA_VOCAB_PRE_TYPE_MOTIF3:
++                regex_exprs = {
++                    "[^\\r\\n\\p{L}\\p{N}]?[\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]*[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]+(?: [\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]*[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]+)*(?:'[sS]|'[tT]|'[rR][eE]|'[vV][eE]|'[mM]|'[lL][lL]|'[dD])?|[^\\r\\n\\p{L}\\p{N}]?[\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]+[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]*(?: [\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]+[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]*)*(?:'[sS]|'[tT]|'[rR][eE]|'[vV][eE]|'[mM]|'[lL][lL]|'[dD])?|\\p{N}{1,3}| ?[^\\s\\p{L}\\p{N}]+[\\r\\n/]*|\\s*[\\r\\n]+|\\s+(?!\\S)|\\s+",
++                };
++                break;
+@@ -453,10 +457,0 @@ struct llm_tokenizer_bpe : llm_tokenizer {
+-            case LLAMA_VOCAB_PRE_TYPE_MOTIF3:
+-                regex_exprs = {
+-                    // Motif-3 extends the o200k word alternatives with (?: <word>)*.
+-                    // This keeps runs of space-separated words in one pre-token so the
+-                    // model's multi-word vocabulary entries remain reachable.
+-                    // The inline case-insensitive contraction group from tokenizer.json
+-                    // is expanded because the llama.cpp regex backend does not accept it.
+-                    "[^\\r\\n\\p{L}\\p{N}]?[\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]*[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]+(?: [\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]*[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]+)*(?:'[sS]|'[tT]|'[rR][eE]|'[vV][eE]|'[mM]|'[lL][lL]|'[dD])?|[^\\r\\n\\p{L}\\p{N}]?[\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]+[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]*(?: [\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]+[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]*)*(?:'[sS]|'[tT]|'[rR][eE]|'[vV][eE]|'[mM]|'[lL][lL]|'[dD])?|\\p{N}{1,3}| ?[^\\s\\p{L}\\p{N}]+[\\r\\n/]*|\\s*[\\r\\n]+|\\s+(?!\\S)|\\s+",
+-                };
+-                break;
+@@ -1840,0 +1836 @@ struct llama_vocab::impl {
++    naive_trie cache_special_token_matcher;
+@@ -1884,0 +1881 @@ struct llama_vocab::impl {
++    void tokenizer_st_partition_motif3(std::forward_list<fragment_buffer_variant> & buffer, bool parse_special) const;
+@@ -2329,2 +2326,2 @@ void llama_vocab::impl::load(llama_model_loader & ml, const LLM_KV & kv) {
+-                    tokenizer_pre == "tiny_aya" ||
+-                    tokenizer_pre == "cohere2moe") {
++                tokenizer_pre == "tiny_aya" ||
++                tokenizer_pre == "cohere2moe") {
+@@ -2334 +2331 @@ void llama_vocab::impl::load(llama_model_loader & ml, const LLM_KV & kv) {
+-                    tokenizer_pre == "motif3") {
++                tokenizer_pre == "motif3") {
+@@ -2338 +2335 @@ void llama_vocab::impl::load(llama_model_loader & ml, const LLM_KV & kv) {
+-                    tokenizer_pre == "superbpe") {
++                tokenizer_pre == "superbpe") {
+@@ -3021,0 +3019,9 @@ void llama_vocab::impl::load(llama_model_loader & ml, const LLM_KV & kv) {
++        if (pre_type == LLAMA_VOCAB_PRE_TYPE_MOTIF3) {
++            for (const llama_token id : cache_special_tokens) {
++                const auto & text = id_to_token[id].text;
++                if (!text.empty()) {
++                    cache_special_token_matcher.insert(text.data(), text.size(), id);
++                }
++            }
++        }
++
+@@ -3083,8 +3088,0 @@ void llama_vocab::impl::load(llama_model_loader & ml, const LLM_KV & kv) {
+-            // Motif-3's official tokenizer defines 77 non-special added tokens
+-            // with lstrip=true: two control phrases plus fixed-width runs of
+-            // spaces, tabs, LF and CR. GGUF currently serializes only the broad
+-            // USER_DEFINED type, not AddedToken's per-token strip flags. Without
+-            // restoring this attribute, e.g. "x \n" becomes [x, space, LF]
+-            // instead of the official [x, LF]. Keep this narrow and content-
+-            // based so the four non-stripping user-defined markup tokens are
+-            // unaffected.
+@@ -3094,0 +3093 @@ void llama_vocab::impl::load(llama_model_loader & ml, const LLM_KV & kv) {
++
+@@ -3096,4 +3095,5 @@ void llama_vocab::impl::load(llama_model_loader & ml, const LLM_KV & kv) {
+-                const bool whitespace_only = !text.empty() && std::all_of(
+-                    text.begin(), text.end(), [] (unsigned char ch) { return std::isspace(ch); });
+-                const bool lstrip_phrase = text == "**NOW STOP THINKING**" || text == "**NOW CALL TOOL**";
+-                if (whitespace_only || lstrip_phrase) {
++                const bool repeated_whitespace = !text.empty() && text.size() <= 19 &&
++                    (text[0] == ' ' || text[0] == '\t' || text[0] == '\n' || text[0] == '\r') &&
++                    std::all_of(text.begin(), text.end(), [&] (char ch) { return ch == text[0]; }) &&
++                    (text[0] != ' ' || text.size() >= 2);
++                if (repeated_whitespace || text == "**NOW STOP THINKING**" || text == "**NOW CALL TOOL**") {
+@@ -3244,0 +3245,106 @@ void llama_vocab::impl::init_tokenizer(enum llama_vocab_type type) {
++void llama_vocab::impl::tokenizer_st_partition_motif3(std::forward_list<fragment_buffer_variant> & buffer, bool parse_special) const {
++    std::forward_list<fragment_buffer_variant> result;
++    auto tail = result.before_begin();
++
++    auto append_raw = [&] (const std::string & raw_text, size_t offset, size_t length) {
++        if (length > 0) {
++            tail = result.emplace_after(tail, raw_text, offset, length);
++        }
++    };
++
++    auto whitespace_start = [] (const std::string & raw_text, size_t start, size_t limit) {
++        while (start > limit) {
++            size_t cpt_start = start - 1;
++            while (cpt_start > limit && (static_cast<uint8_t>(raw_text[cpt_start]) & 0xC0) == 0x80) {
++                --cpt_start;
++            }
++
++            size_t next = cpt_start;
++            try {
++                const uint32_t cpt = unicode_cpt_from_utf8(raw_text, next);
++                if (next != start || !unicode_cpt_flags_from_cpt(cpt).is_whitespace) {
++                    break;
++                }
++            } catch (const std::invalid_argument &) {
++                break;
++            }
++            start = cpt_start;
++        }
++        return start;
++    };
++
++    auto whitespace_end = [] (const std::string & raw_text, size_t start, size_t limit) {
++        while (start < limit) {
++            size_t next = start;
++            try {
++                const uint32_t cpt = unicode_cpt_from_utf8(raw_text, next);
++                if (next > limit || !unicode_cpt_flags_from_cpt(cpt).is_whitespace) {
++                    break;
++                }
++            } catch (const std::invalid_argument &) {
++                break;
++            }
++            start = next;
++        }
++        return start;
++    };
++
++    for (const auto & fragment : buffer) {
++        if (fragment.type == FRAGMENT_BUFFER_VARIANT_TYPE_TOKEN) {
++            tail = result.emplace_after(tail, fragment.token);
++            continue;
++        }
++
++        const auto & raw_text = fragment.raw_text;
++        size_t cursor = fragment.offset;
++        const size_t end = fragment.offset + fragment.length;
++
++        while (cursor < end) {
++            llama_token match_id = LLAMA_TOKEN_NULL;
++            size_t match_start = end;
++            size_t match_end = end;
++
++            for (size_t pos = cursor; pos < end && match_id == LLAMA_TOKEN_NULL; ++pos) {
++                const naive_trie * node = cache_special_token_matcher.traverse(raw_text[pos]);
++                size_t next = pos + 1;
++
++                while (node != nullptr) {
++                    if (node->has_value) {
++                        const auto & data = vocab.get_token_data(node->value);
++                        if (parse_special || !(data.attr & (LLAMA_TOKEN_ATTR_CONTROL | LLAMA_TOKEN_ATTR_UNKNOWN))) {
++                            match_id = node->value;
++                            match_start = pos;
++                            match_end = next;
++                        }
++                    }
++                    if (next >= end) {
++                        break;
++                    }
++                    node = node->traverse(raw_text[next++]);
++                }
++            }
++
++            if (match_id == LLAMA_TOKEN_NULL) {
++                append_raw(raw_text, cursor, end - cursor);
++                break;
++            }
++
++            const auto attr = vocab.get_token_data(match_id).attr;
++            size_t token_start = match_start;
++            if (attr & LLAMA_TOKEN_ATTR_LSTRIP) {
++                token_start = whitespace_start(raw_text, token_start, cursor);
++            }
++
++            append_raw(raw_text, cursor, token_start - cursor);
++            tail = result.emplace_after(tail, match_id);
++
++            cursor = match_end;
++            if (attr & LLAMA_TOKEN_ATTR_RSTRIP) {
++                cursor = whitespace_end(raw_text, cursor, end);
++            }
++        }
++    }
++
++    buffer.swap(result);
++}
++
+@@ -3245,0 +3352,5 @@ void llama_vocab::impl::tokenizer_st_partition(std::forward_list<fragment_buffer
++    if (pre_type == LLAMA_VOCAB_PRE_TYPE_MOTIF3) {
++        tokenizer_st_partition_motif3(buffer, parse_special);
++        return;
++    }
++
+@@ -3295,14 +3406 @@ void llama_vocab::impl::tokenizer_st_partition(std::forward_list<fragment_buffer
+-                            // Motif-3 has explicit user-defined tokens for runs
+-                            // of TAB/LF/CR. Hugging Face's leftmost added-token
+-                            // partition preserves those tokens and only absorbs
+-                            // an otherwise-unmatched single ASCII space before
+-                            // the next added token. Consuming every isspace()
+-                            // byte here lets a later LF token erase an earlier CR
+-                            // in CRLF. Longer space-run tokens are partitioned
+-                            // first, so the spaces-only rule also reproduces the
+-                            // official one-space remainder behavior.
+-                            const bool motif3_spaces_only = pre_type == LLAMA_VOCAB_PRE_TYPE_MOTIF3;
+-                            while (left_reminder_length > 0 &&
+-                                    (motif3_spaces_only
+-                                        ? raw_text[left_reminder_offset + left_reminder_length - 1] == ' '
+-                                        : std::isspace((unsigned char) raw_text[left_reminder_offset + left_reminder_length - 1]))) {
++                            while (left_reminder_length > 0 && isspace(raw_text[left_reminder_offset + left_reminder_length - 1])) {
+@@ -3333 +3431 @@ void llama_vocab::impl::tokenizer_st_partition(std::forward_list<fragment_buffer
+-                            while (right_reminder_length > 0 && std::isspace((unsigned char) raw_text[right_reminder_offset])) {
++                            while (right_reminder_length > 0 && isspace(raw_text[right_reminder_offset])) {
+diff --git a/src/unicode-data.cpp b/src/unicode-data.cpp
+index 04dcd7fcf..d8fac45e7 100644
+--- a/src/unicode-data.cpp
++++ b/src/unicode-data.cpp
+@@ -2313,0 +2314,242 @@ const std::unordered_set<uint32_t> unicode_set_whitespace = {
++// Motif-3's pinned tokenizer uses Unicode 16.0.0 regex categories.
++const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_letter_supplement = {  // first, last
++{0x001C89, 0x001C8A},
++{0x00A7CB, 0x00A7CD},
++{0x00A7DA, 0x00A7DC},
++{0x0105C0, 0x0105F3},
++{0x010D4A, 0x010D65},
++{0x010D6F, 0x010D85},
++{0x010EC2, 0x010EC4},
++{0x011380, 0x011389},
++{0x01138B, 0x01138B},
++{0x01138E, 0x01138E},
++{0x011390, 0x0113B5},
++{0x0113B7, 0x0113B7},
++{0x0113D1, 0x0113D1},
++{0x0113D3, 0x0113D3},
++{0x011BC0, 0x011BE0},
++{0x013460, 0x0143FA},
++{0x016100, 0x01611D},
++{0x016D40, 0x016D6C},
++{0x018CFF, 0x018CFF},
++{0x01E5D0, 0x01E5ED},
++{0x01E5F0, 0x01E5F0},
++};
++
++const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_number_supplement = {  // first, last
++{0x010D40, 0x010D49},
++{0x0116D0, 0x0116E3},
++{0x011BF0, 0x011BF9},
++{0x016130, 0x016139},
++{0x016D70, 0x016D79},
++{0x01CCF0, 0x01CCF9},
++{0x01E5F1, 0x01E5FA},
++};
++
++const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_mark_supplement = {  // first, last
++{0x000897, 0x000897},
++{0x010D69, 0x010D6D},
++{0x010EFC, 0x010EFC},
++{0x0113B8, 0x0113C0},
++{0x0113C2, 0x0113C2},
++{0x0113C5, 0x0113C5},
++{0x0113C7, 0x0113CA},
++{0x0113CC, 0x0113D0},
++{0x0113D2, 0x0113D2},
++{0x0113E1, 0x0113E2},
++{0x011F5A, 0x011F5A},
++{0x01611E, 0x01612F},
++{0x01E5EE, 0x01E5EF},
++};
++
++const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_lowercase_supplement = {  // first, last
++{0x0000B5, 0x0000B5},
++{0x000131, 0x000131},
++{0x000138, 0x000138},
++{0x000149, 0x000149},
++{0x00017F, 0x00017F},
++{0x00018D, 0x00018D},
++{0x00019B, 0x00019B},
++{0x0001AA, 0x0001AB},
++{0x0001BA, 0x0001BA},
++{0x0001BE, 0x0001BE},
++{0x0001F0, 0x0001F0},
++{0x000221, 0x000221},
++{0x000234, 0x000239},
++{0x000255, 0x000255},
++{0x000258, 0x000258},
++{0x00025A, 0x00025A},
++{0x00025D, 0x00025F},
++{0x000262, 0x000262},
++{0x000264, 0x000264},
++{0x000267, 0x000267},
++{0x00026D, 0x00026E},
++{0x000270, 0x000270},
++{0x000273, 0x000274},
++{0x000276, 0x00027C},
++{0x00027E, 0x00027F},
++{0x000281, 0x000281},
++{0x000284, 0x000286},
++{0x00028D, 0x000291},
++{0x000293, 0x000293},
++{0x000295, 0x00029C},
++{0x00029F, 0x0002AF},
++{0x000390, 0x000390},
++{0x0003B0, 0x0003B0},
++{0x0003C2, 0x0003C2},
++{0x0003D0, 0x0003D1},
++{0x0003D5, 0x0003D6},
++{0x0003F0, 0x0003F1},
++{0x0003F5, 0x0003F5},
++{0x0003FC, 0x0003FC},
++{0x000560, 0x000560},
++{0x000587, 0x000588},
++{0x001C80, 0x001C88},
++{0x001C8A, 0x001C8A},
++{0x001D00, 0x001D2B},
++{0x001D6B, 0x001D77},
++{0x001D7A, 0x001D7C},
++{0x001D7E, 0x001D8D},
++{0x001D8F, 0x001D9A},
++{0x001E96, 0x001E9D},
++{0x001E9F, 0x001E9F},
++{0x001F50, 0x001F50},
++{0x001F52, 0x001F52},
++{0x001F54, 0x001F54},
++{0x001F56, 0x001F56},
++{0x001FB2, 0x001FB2},
++{0x001FB4, 0x001FB4},
++{0x001FB6, 0x001FB7},
++{0x001FBE, 0x001FBE},
++{0x001FC2, 0x001FC2},
++{0x001FC4, 0x001FC4},
++{0x001FC6, 0x001FC7},
++{0x001FD2, 0x001FD3},
++{0x001FD6, 0x001FD7},
++{0x001FE2, 0x001FE4},
++{0x001FE6, 0x001FE7},
++{0x001FF2, 0x001FF2},
++{0x001FF4, 0x001FF4},
++{0x001FF6, 0x001FF7},
++{0x00210A, 0x00210A},
++{0x00210E, 0x00210F},
++{0x002113, 0x002113},
++{0x00212F, 0x00212F},
++{0x002134, 0x002134},
++{0x002139, 0x002139},
++{0x00213C, 0x00213D},
++{0x002146, 0x002149},
++{0x002C71, 0x002C71},
++{0x002C74, 0x002C74},
++{0x002C77, 0x002C7B},
++{0x002CE4, 0x002CE4},
++{0x00A730, 0x00A731},
++{0x00A771, 0x00A778},
++{0x00A78E, 0x00A78E},
++{0x00A795, 0x00A795},
++{0x00A7AF, 0x00A7AF},
++{0x00A7CD, 0x00A7CD},
++{0x00A7D3, 0x00A7D3},
++{0x00A7D5, 0x00A7D5},
++{0x00A7DB, 0x00A7DB},
++{0x00A7FA, 0x00A7FA},
++{0x00AB30, 0x00AB52},
++{0x00AB54, 0x00AB5A},
++{0x00AB60, 0x00AB68},
++{0x00FB00, 0x00FB06},
++{0x00FB13, 0x00FB17},
++{0x010D70, 0x010D85},
++{0x01D41A, 0x01D433},
++{0x01D44E, 0x01D454},
++{0x01D456, 0x01D467},
++{0x01D482, 0x01D49B},
++{0x01D4B6, 0x01D4B9},
++{0x01D4BB, 0x01D4BB},
++{0x01D4BD, 0x01D4C3},
++{0x01D4C5, 0x01D4CF},
++{0x01D4EA, 0x01D503},
++{0x01D51E, 0x01D537},
++{0x01D552, 0x01D56B},
++{0x01D586, 0x01D59F},
++{0x01D5BA, 0x01D5D3},
++{0x01D5EE, 0x01D607},
++{0x01D622, 0x01D63B},
++{0x01D656, 0x01D66F},
++{0x01D68A, 0x01D6A5},
++{0x01D6C2, 0x01D6DA},
++{0x01D6DC, 0x01D6E1},
++{0x01D6FC, 0x01D714},
++{0x01D716, 0x01D71B},
++{0x01D736, 0x01D74E},
++{0x01D750, 0x01D755},
++{0x01D770, 0x01D788},
++{0x01D78A, 0x01D78F},
++{0x01D7AA, 0x01D7C2},
++{0x01D7C4, 0x01D7C9},
++{0x01D7CB, 0x01D7CB},
++{0x01DF00, 0x01DF09},
++{0x01DF0B, 0x01DF1E},
++{0x01DF25, 0x01DF2A},
++};
++
++const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_uppercase_supplement = {  // first, last
++{0x000130, 0x000130},
++{0x0001C5, 0x0001C5},
++{0x0001C8, 0x0001C8},
++{0x0001CB, 0x0001CB},
++{0x0001F2, 0x0001F2},
++{0x0003D2, 0x0003D4},
++{0x0003F4, 0x0003F4},
++{0x001C89, 0x001C89},
++{0x001E9E, 0x001E9E},
++{0x002102, 0x002102},
++{0x002107, 0x002107},
++{0x00210B, 0x00210D},
++{0x002110, 0x002112},
++{0x002115, 0x002115},
++{0x002119, 0x00211D},
++{0x002124, 0x002124},
++{0x002126, 0x002126},
++{0x002128, 0x002128},
++{0x00212A, 0x00212D},
++{0x002130, 0x002131},
++{0x002133, 0x002133},
++{0x00213E, 0x00213F},
++{0x002145, 0x002145},
++{0x00A7CB, 0x00A7CC},
++{0x00A7DA, 0x00A7DA},
++{0x00A7DC, 0x00A7DC},
++{0x010D50, 0x010D65},
++{0x01D400, 0x01D419},
++{0x01D434, 0x01D44D},
++{0x01D468, 0x01D481},
++{0x01D49C, 0x01D49C},
++{0x01D49E, 0x01D49F},
++{0x01D4A2, 0x01D4A2},
++{0x01D4A5, 0x01D4A6},
++{0x01D4A9, 0x01D4AC},
++{0x01D4AE, 0x01D4B5},
++{0x01D4D0, 0x01D4E9},
++{0x01D504, 0x01D505},
++{0x01D507, 0x01D50A},
++{0x01D50D, 0x01D514},
++{0x01D516, 0x01D51C},
++{0x01D538, 0x01D539},
++{0x01D53B, 0x01D53E},
++{0x01D540, 0x01D544},
++{0x01D546, 0x01D546},
++{0x01D54A, 0x01D550},
++{0x01D56C, 0x01D585},
++{0x01D5A0, 0x01D5B9},
++{0x01D5D4, 0x01D5ED},
++{0x01D608, 0x01D621},
++{0x01D63C, 0x01D655},
++{0x01D670, 0x01D689},
++{0x01D6A8, 0x01D6C0},
++{0x01D6E2, 0x01D6FA},
++{0x01D71C, 0x01D734},
++{0x01D756, 0x01D76E},
++{0x01D790, 0x01D7A8},
++{0x01D7CA, 0x01D7CA},
++};
++
+diff --git a/src/unicode-data.h b/src/unicode-data.h
+index f6973ebd2..5bdea0753 100644
+--- a/src/unicode-data.h
++++ b/src/unicode-data.h
+@@ -17,0 +18,5 @@ extern const std::unordered_set<uint32_t> unicode_set_whitespace;
++extern const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_letter_supplement;
++extern const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_number_supplement;
++extern const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_mark_supplement;
++extern const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_lowercase_supplement;
++extern const std::initializer_list<std::pair<uint32_t, uint32_t>> unicode_ranges_motif3_uppercase_supplement;
+diff --git a/src/unicode.cpp b/src/unicode.cpp
+index 539b9b4f4..d763ba77c 100644
+--- a/src/unicode.cpp
++++ b/src/unicode.cpp
+@@ -738,11 +738,9 @@ static std::vector<size_t> unicode_regex_split_custom_qwen35(const std::string &
+-// Motif-3 tokenizer regex:
+-// [^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]*[\p{Ll}\p{Lm}\p{Lo}\p{M}]+
+-//   (?: [\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]*[\p{Ll}\p{Lm}\p{Lo}\p{M}]+)* ...
+-// | [^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]+[\p{Ll}\p{Lm}\p{Lo}\p{M}]*
+-//   (?: [\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]+[\p{Ll}\p{Lm}\p{Lo}\p{M}]*)* ...
+-// | ...
+-//
+-// The generic collapsed-regex path deliberately maps Lu and Ll to the same
+-// byte class. That is fine for most tokenizers, but it changes Motif-3 word-run
+-// boundaries (for example, " and P" and " AIA Guide to"). Preserve the two
+-// overlapping Unicode classes explicitly here.
++static bool unicode_cpt_is_in_ranges(
++        uint32_t cpt,
++        const std::initializer_list<std::pair<uint32_t, uint32_t>> & ranges) {
++    const auto it = std::lower_bound(
++        ranges.begin(), ranges.end(), cpt,
++        [] (const auto & range, uint32_t value) { return range.second < value; });
++    return it != ranges.end() && it->first <= cpt;
++}
++
+@@ -763,2 +761,2 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _get_cpt = [&] (const size_t pos) -> uint32_t {
+-            return (offset_ini <= pos && pos < offset_end) ? cpts[pos] : OUT_OF_RANGE;
++        auto get_cpt = [&] (const size_t pos) -> uint32_t {
++            return offset_ini <= pos && pos < offset_end ? cpts[pos] : OUT_OF_RANGE;
+@@ -767,2 +765,2 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _get_flags = [&] (const size_t pos) -> unicode_cpt_flags {
+-            return (offset_ini <= pos && pos < offset_end) ? unicode_cpt_flags_from_cpt(cpts[pos]) : unicode_cpt_flags{};
++        auto get_flags = [&] (const size_t pos) -> unicode_cpt_flags {
++            return offset_ini <= pos && pos < offset_end ? unicode_cpt_flags_from_cpt(cpts[pos]) : unicode_cpt_flags{};
+@@ -771,3 +769,10 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _is_upper_word_cpt = [&] (const size_t pos) -> bool {
+-            const auto flags = _get_flags(pos);
+-            return flags.is_accent_mark || (flags.is_letter && !flags.is_lowercase);
++        auto is_upper_word_cpt = [&] (const size_t pos) -> bool {
++            const auto flags = get_flags(pos);
++            const uint32_t cpt = get_cpt(pos);
++            const bool is_letter = flags.is_letter ||
++                unicode_cpt_is_in_ranges(cpt, unicode_ranges_motif3_letter_supplement);
++            const bool is_mark = flags.is_accent_mark ||
++                unicode_cpt_is_in_ranges(cpt, unicode_ranges_motif3_mark_supplement);
++            const bool is_lowercase = is_letter && (
++                flags.is_lowercase || unicode_cpt_is_in_ranges(cpt, unicode_ranges_motif3_lowercase_supplement));
++            return is_mark || (is_letter && !is_lowercase);
+@@ -776,3 +781,10 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _is_lower_word_cpt = [&] (const size_t pos) -> bool {
+-            const auto flags = _get_flags(pos);
+-            return flags.is_accent_mark || (flags.is_letter && !flags.is_uppercase);
++        auto is_lower_word_cpt = [&] (const size_t pos) -> bool {
++            const auto flags = get_flags(pos);
++            const uint32_t cpt = get_cpt(pos);
++            const bool is_letter = flags.is_letter ||
++                unicode_cpt_is_in_ranges(cpt, unicode_ranges_motif3_letter_supplement);
++            const bool is_mark = flags.is_accent_mark ||
++                unicode_cpt_is_in_ranges(cpt, unicode_ranges_motif3_mark_supplement);
++            const bool is_uppercase = is_letter && (
++                flags.is_uppercase || unicode_cpt_is_in_ranges(cpt, unicode_ranges_motif3_uppercase_supplement));
++            return is_mark || (is_letter && !is_uppercase);
+@@ -781,4 +793,8 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _is_word_prefix = [&] (const size_t pos) -> bool {
+-            const uint32_t cpt = _get_cpt(pos);
+-            const auto flags = _get_flags(pos);
+-            return cpt != OUT_OF_RANGE && cpt != '\r' && cpt != '\n' && !flags.is_letter && !flags.is_number;
++        auto is_word_prefix = [&] (const size_t pos) -> bool {
++            const uint32_t cpt = get_cpt(pos);
++            const auto flags = get_flags(pos);
++            const bool is_letter = flags.is_letter ||
++                unicode_cpt_is_in_ranges(cpt, unicode_ranges_motif3_letter_supplement);
++            const bool is_number = flags.is_number ||
++                unicode_cpt_is_in_ranges(cpt, unicode_ranges_motif3_number_supplement);
++            return cpt != OUT_OF_RANGE && cpt != '\r' && cpt != '\n' && !is_letter && !is_number;
+@@ -787 +803 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _match_lower_word = [&] (const size_t begin) -> size_t {
++        auto match_lower_word = [&] (const size_t begin) -> size_t {
+@@ -789 +805 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            while (_is_upper_word_cpt(upper_end)) {
++            while (is_upper_word_cpt(upper_end)) {
+@@ -793,2 +808,0 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            // U* is greedy, so backtrack only as far as needed to make L+
+-            // succeed. Characters in Lm/Lo/M belong to both classes.
+@@ -796 +810 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            while (!_is_lower_word_cpt(lower_begin)) {
++            while (!is_lower_word_cpt(lower_begin)) {
+@@ -804 +818 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            while (_is_lower_word_cpt(end)) {
++            while (is_lower_word_cpt(end)) {
+@@ -810 +824 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _match_upper_word = [&] (const size_t begin) -> size_t {
++        auto match_upper_word = [&] (const size_t begin) -> size_t {
+@@ -812 +826 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            while (_is_upper_word_cpt(end)) {
++            while (is_upper_word_cpt(end)) {
+@@ -818 +832 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            while (_is_lower_word_cpt(end)) {
++            while (is_lower_word_cpt(end)) {
+@@ -824,2 +838,2 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _match_contraction = [&] (const size_t begin) -> size_t {
+-            if (_get_cpt(begin) != '\'' || begin + 1 >= offset_end) {
++        auto match_contraction = [&] (const size_t begin) -> size_t {
++            if (get_cpt(begin) != '\'' || begin + 1 >= offset_end) {
+@@ -828,2 +842,3 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            const uint32_t cpt1 = unicode_tolower(_get_cpt(begin + 1));
+-            if (cpt1 == 's' || cpt1 == 't' || cpt1 == 'm' || cpt1 == 'd') {
++
++            const uint32_t cpt1 = unicode_tolower(get_cpt(begin + 1));
++            if (cpt1 == 's' || cpt1 == 0x017F || cpt1 == 't' || cpt1 == 'm' || cpt1 == 'd') {
+@@ -833 +848 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                const uint32_t cpt2 = unicode_tolower(_get_cpt(begin + 2));
++                const uint32_t cpt2 = unicode_tolower(get_cpt(begin + 2));
+@@ -843 +858 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _match_word_run = [&] (const size_t begin, bool lower_tail) -> size_t {
++        auto match_word_run = [&] (const size_t begin, bool lower_tail) -> size_t {
+@@ -845 +860 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                return lower_tail ? _match_lower_word(pos) : _match_upper_word(pos);
++                return lower_tail ? match_lower_word(pos) : match_upper_word(pos);
+@@ -848,2 +862,0 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            // The optional prefix is greedy, but must backtrack if consuming it
+-            // prevents the required word from matching (notably for \p{M}).
+@@ -851,5 +864,2 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            if (_is_word_prefix(word_begin)) {
+-                const size_t prefixed_end = match_word(word_begin + 1);
+-                if (prefixed_end != word_begin + 1) {
+-                    word_begin++;
+-                }
++            if (is_word_prefix(word_begin) && match_word(word_begin + 1) != word_begin + 1) {
++                ++word_begin;
+@@ -863 +873 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            while (_get_cpt(end) == ' ') {
++            while (get_cpt(end) == ' ') {
+@@ -870 +880 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            return _match_contraction(end);
++            return match_contraction(end);
+@@ -874 +884 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        auto _add_token = [&] (const size_t end) {
++        auto add_token = [&] (const size_t end) {
+@@ -876,3 +886,2 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            const size_t len = end - prev_end;
+-            if (len > 0) {
+-                bpe_offsets.push_back(len);
++            if (end > prev_end) {
++                bpe_offsets.push_back(end - prev_end);
+@@ -883,3 +892,5 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-        for (size_t pos = offset_ini; pos < offset_end; ) {
+-            const uint32_t cpt = _get_cpt(pos);
+-            const auto flags = _get_flags(pos);
++        for (size_t pos = offset_ini; pos < offset_end;) {
++            const uint32_t cpt = get_cpt(pos);
++            const auto flags = get_flags(pos);
++            const bool is_number = flags.is_number ||
++                unicode_cpt_is_in_ranges(cpt, unicode_ranges_motif3_number_supplement);
+@@ -887,2 +898 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            // The two word-run alternatives are ordered and leftmost-first.
+-            size_t end = _match_word_run(pos, true);
++            size_t end = match_word_run(pos, true);
+@@ -890 +900 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                end = _match_word_run(pos, false);
++                end = match_word_run(pos, false);
+@@ -894 +904 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                _add_token(pos);
++                add_token(pos);
+@@ -898,2 +908 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            // regex: \p{N}{1,3}
+-            if (flags.is_number) {
++            if (is_number) {
+@@ -901 +910,2 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                while (_get_flags(pos).is_number && pos - ini < 3) {
++                while ((get_flags(pos).is_number || unicode_cpt_is_in_ranges(
++                            get_cpt(pos), unicode_ranges_motif3_number_supplement)) && pos - ini < 3) {
+@@ -904 +914 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                _add_token(pos);
++                add_token(pos);
+@@ -908,6 +918,14 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            // regex: <space>?[^\s\p{L}\p{N}]+[\r\n/]*
+-            auto flags2 = (cpt == ' ' ? _get_flags(pos + 1) : flags);
+-            if (!(flags2.is_whitespace | flags2.is_letter | flags2.is_number) && flags2.as_uint()) {
+-                pos += (cpt == ' ');
+-                while (!(flags2.is_whitespace | flags2.is_letter | flags2.is_number) && flags2.as_uint()) {
+-                    flags2 = _get_flags(++pos);
++            size_t punct_pos = pos + (cpt == ' ');
++            auto flags2 = get_flags(punct_pos);
++            auto is_other = [&] (size_t other_pos, const unicode_cpt_flags & other_flags) {
++                const uint32_t other_cpt = get_cpt(other_pos);
++                const bool other_letter = other_flags.is_letter ||
++                    unicode_cpt_is_in_ranges(other_cpt, unicode_ranges_motif3_letter_supplement);
++                const bool other_number = other_flags.is_number ||
++                    unicode_cpt_is_in_ranges(other_cpt, unicode_ranges_motif3_number_supplement);
++                return other_cpt != OUT_OF_RANGE && !other_flags.is_whitespace && !other_letter && !other_number;
++            };
++            if (is_other(punct_pos, flags2)) {
++                pos += cpt == ' ';
++                while (is_other(pos, flags2)) {
++                    flags2 = get_flags(++pos);
+@@ -915 +933 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                uint32_t cpt2 = _get_cpt(pos);
++                uint32_t cpt2 = get_cpt(pos);
+@@ -917 +935 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                    cpt2 = _get_cpt(++pos);
++                    cpt2 = get_cpt(++pos);
+@@ -919 +937 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                _add_token(pos);
++                add_token(pos);
+@@ -925,2 +943,2 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            while (_get_flags(pos + num_whitespaces).is_whitespace) {
+-                const uint32_t cpt2 = _get_cpt(pos + num_whitespaces);
++            while (get_flags(pos + num_whitespaces).is_whitespace) {
++                const uint32_t cpt2 = get_cpt(pos + num_whitespaces);
+@@ -933 +950,0 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            // regex: \s*[\r\n]+
+@@ -936 +953 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                _add_token(pos);
++                add_token(pos);
+@@ -940,2 +957 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            // regex: \s+(?!\S)
+-            if (num_whitespaces > 1 && _get_cpt(pos + num_whitespaces) != OUT_OF_RANGE) {
++            if (num_whitespaces > 1 && get_cpt(pos + num_whitespaces) != OUT_OF_RANGE) {
+@@ -943 +959 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                _add_token(pos);
++                add_token(pos);
+@@ -947 +962,0 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            // regex: \s+
+@@ -950 +965 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-                _add_token(pos);
++                add_token(pos);
+@@ -954,2 +969 @@ static std::vector<size_t> unicode_regex_split_custom_motif3(const std::string &
+-            // No regex alternative matched. Keep the input lossless.
+-            _add_token(++pos);
++            add_token(++pos);
+diff --git a/tests/test-unicode.cpp b/tests/test-unicode.cpp
+index 5b0ebb81a..162055796 100644
+--- a/tests/test-unicode.cpp
++++ b/tests/test-unicode.cpp
+@@ -3,0 +4 @@
++#include <initializer_list>
+@@ -4,0 +6 @@
++#include <utility>
+@@ -7 +9 @@
+-static int check_split(
++static bool check_split(
+@@ -13,7 +15,2 @@ static int check_split(
+-    if (actual != expected) {
+-        fprintf(stderr, "unexpected split for [%s]:", text.c_str());
+-        for (const auto & piece : actual) {
+-            fprintf(stderr, " [%s]", piece.c_str());
+-        }
+-        fprintf(stderr, "\n");
+-        return 1;
++    if (actual == expected) {
++        return true;
+@@ -21 +18,7 @@ static int check_split(
+-    return 0;
++
++    fprintf(stderr, "unexpected split for '%s':", text.c_str());
++    for (const auto & piece : actual) {
++        fprintf(stderr, " [%s]", piece.c_str());
++    }
++    fprintf(stderr, "\n");
++    return false;
+@@ -25 +28,5 @@ int main() {
+-    if (check_split(" ~foo", { "[~][A-Za-z]+| ?[\\p{S}]+|\\s+" }, { " ~", "foo" })) {
++    const std::vector<std::string> regex_exprs = {
++        "[~][A-Za-z]+| ?[\\p{S}]+|\\s+",
++    };
++    const std::vector<std::string> expected = { " ~", "foo" };
++    if (!check_split(" ~foo", regex_exprs, expected)) {
+@@ -29 +36 @@ int main() {
+-    const std::vector<std::string> motif3_regex = {
++    const std::vector<std::string> motif3_regex_exprs = {
+@@ -32,16 +39,25 @@ int main() {
+-
+-    if (check_split(" and P", motif3_regex, { " and", " P" })) {
+-        return 1;
+-    }
+-    if (check_split(" Guide to", motif3_regex, { " Guide to" })) {
+-        return 1;
+-    }
+-    if (check_split("The AIA Guide to New York City", motif3_regex, { "The", " AIA Guide", " to New York City" })) {
+-        return 1;
+-    }
+-    if (check_split("The state of the art is a moving target.", motif3_regex,
+-                    { "The state of the art is a moving target", "." })) {
+-        return 1;
+-    }
+-    if (check_split(" IT'S foo's", motif3_regex, { " IT'S", " foo's" })) {
+-        return 1;
++    const std::string garay_digit = "\xF0\x90\xB5\x80";
++    const std::string cyrillic_upper_tje = "\xE1\xB2\x89";
++    const std::string cyrillic_lower_tje = "\xE1\xB2\x8A";
++    const std::string tulu_tigalari_letter = "\xF0\x91\x8E\x80";
++    const std::string arabic_mark = "\xE0\xA2\x97";
++    const std::initializer_list<std::pair<std::string, std::vector<std::string>>> motif3_cases = {
++        { "The AIA Guide to New York City", { "The", " AIA Guide", " to New York City" } },
++        { "서울 AI 연구소 and PyTorch Tools", { "서울", " AI 연구소", " and Py", "Torch Tools" } },
++        { "!foo BAR Baz qux", { "!foo", " BAR Baz", " qux" } },
++        { "McDONALD'S can't", { "Mc", "DONALD'S", " can't" } },
++        { "foo'ſbar", { "foo'ſ", "bar" } },
++        { "Aǆ Bǅ", { "Aǆ", " Bǅ" } },
++        { "Aıa İa", { "Aıa İa" } },
++        { "abc  DEF  ghi", { "abc", " ", " DEF", " ", " ghi" } },
++        { "1234567", { "123", "456", "7" } },
++        { garay_digit + " " + garay_digit, { garay_digit, " ", garay_digit } },
++        { cyrillic_upper_tje + cyrillic_lower_tje, { cyrillic_upper_tje + cyrillic_lower_tje } },
++        { "A" + tulu_tigalari_letter + "a " + tulu_tigalari_letter + " A",
++          { "A" + tulu_tigalari_letter + "a " + tulu_tigalari_letter, " A" } },
++        { "A" + arabic_mark + "a", { "A" + arabic_mark + "a" } },
++    };
++    for (const auto & test : motif3_cases) {
++        if (!check_split(test.first, motif3_regex_exprs, test.second)) {
++            return 1;
++        }

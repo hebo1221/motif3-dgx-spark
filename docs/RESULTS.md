@@ -25,6 +25,18 @@ This is the result I would not hide behind the systems numbers: the model fits,
 but this quant did not stay close enough to the BF16 output distribution to
 pass either gate.
 
+## Tokenizer correctness update
+
+Release v1.1.0 adds a Motif-only tokenizer patch on top of the pinned runtime
+base. The final GGUF check matched all 434,569 official token IDs across the
+two corpora and deterministic fuzz set. Source-identical mechanism tests
+matched all 4,164,390 token IDs from 591,984 generated cases plus the two
+corpora, with 16/16 tokenizer regressions passing.
+
+This closes a prompt token-ID correctness gap. It does not alter the model
+weights, repair the failed BF16-to-IQ2 quality gate, or establish a new speed
+result. See [`../evidence/tokenizer_exact_v1.json`](../evidence/tokenizer_exact_v1.json).
+
 ## Diagnostic task results
 
 These are fixed internal diagnostic sets, not public leaderboard scores. They
@@ -46,12 +58,15 @@ rather than a publication-grade BF16 comparison.
 
 ## DGX Spark performance
 
-### Clean public-runtime run
+### Clean public-runtime base run
 
 After publishing the exact runtime commit, I rebuilt from that clean tree and
 ran five repetitions per shape. These are means across the five repetitions;
 the full arrays are in
 [`../evidence/clean_runtime_benchmark.jsonl`](../evidence/clean_runtime_benchmark.jsonl).
+
+These measurements predate the v1.1.0 tokenizer-exact patch and remain labeled
+as results from commit `cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`.
 
 | Shape | Mean tok/s | Repetition standard deviation |
 |---|---:|---:|

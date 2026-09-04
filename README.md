@@ -9,8 +9,8 @@ layers back to the CPU. This is the build that worked.
 
 The short version: the 314.7B core model fits in **83.56 GiB**, prompt
 processing reaches **316.71 tok/s**, and 128-token generation runs at
-**16.49 tok/s** on my Spark. The GGUF, the exact runtime commit, the chat
-template, and the benchmark rows are all public.
+**16.49 tok/s** on my Spark. The GGUF, pinned runtime base, tokenizer-exact
+patch, chat template, and benchmark rows are all public.
 
 **Download the model:**
 [jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)
@@ -23,9 +23,9 @@ DGX Spark 한 대의 128 GB 통합 메모리에 전부 올려 실제로 구동�
 316.71 tok/s, tg128 16.49 tok/s를 기록했습니다.
 
 이 작업의 핵심은 단순히 모델을 2비트로 줄인 데 있지 않습니다. 공식
-BF16 체크포인트에서 직접 만든 혼합 IQ2_XXS GGUF, 정확히 재현 가능한
-llama.cpp 커밋, 토크나이저 일치 검증, 원시 벤치마크와 체크섬을 한 묶음으로
-공개했습니다. 다운로드가 끝나면
+BF16 체크포인트에서 직접 만든 혼합 IQ2_XXS GGUF, 고정한 llama.cpp 기반
+커밋과 토크나이저 수정 패치, 토크나이저 일치 검증, 원시 벤치마크와
+체크섬을 한 묶음으로 공개했습니다. 다운로드가 끝나면
 [`scripts/verify_download.sh`](scripts/verify_download.sh)로 모델과 템플릿을
 읽기 전용으로 확인할 수 있습니다.
 
@@ -56,8 +56,12 @@ range; both sets are kept in [Results](docs/RESULTS.md).
 
 First, this does **not** run with stock upstream llama.cpp today. Motif-3 needs
 its model port, GQA-5 Flash Attention support, and its actual tokenizer rules.
-The exact tested runtime is public at
+The measured runtime base is public at
 [`cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`](https://github.com/hebo1221/llama.cpp/commit/cc3f13b3f172978d7b3c215780d4cc98bb0e1c80).
+Release v1.1.0 adds a hash-pinned
+[`Motif-only tokenizer patch`](patches/motif3-tokenizer-exact-v1.patch) on top
+of that commit. It fixes prompt token IDs; it does not change the GGUF weights
+or retroactively turn the published speed rows into patched-runtime results.
 
 Second, fitting the model is not the same as preserving BF16 quality. On a
 fixed 49,152-token held-out comparison, this quant measured 1.4115x perplexity
@@ -98,13 +102,24 @@ The expected model digest is:
 9d6f7aee57f0271223f51d69c63d8576a259809e9f05e2ac596512e940c80c5a
 ```
 
-### 3. Build the runtime I tested
+### 3. Build the runtime
 
 ```bash
 git clone --branch motif3-dgx-spark-v1 --single-branch \
   https://github.com/hebo1221/llama.cpp.git runtime
 
 git -C runtime checkout cc3f13b3f172978d7b3c215780d4cc98bb0e1c80
+
+git clone --branch v1.1.0 --depth 1 \
+  https://github.com/hebo1221/motif3-dgx-spark.git release-files
+
+sha256sum release-files/patches/motif3-tokenizer-exact-v1.patch
+git -C runtime apply --check --unidiff-zero \
+  ../release-files/patches/motif3-tokenizer-exact-v1.patch
+git -C runtime apply --unidiff-zero \
+  ../release-files/patches/motif3-tokenizer-exact-v1.patch
+
+git -C runtime diff --binary --no-ext-diff | sha256sum
 
 cmake -S runtime -B runtime/build \
   -DCMAKE_BUILD_TYPE=Release \
@@ -117,6 +132,13 @@ cmake -S runtime -B runtime/build \
 
 cmake --build runtime/build --target llama-server llama-bench -j 12
 ```
+
+The patch file should hash to
+`5eba842cd63731e3ee39c60c43134ef59a3a64c9d28c2aa58c3073225c6545cf`.
+The resulting normal Git diff should hash to
+`09abc52c2f7ff9f2cb3e9b8edd3af03684840969d0cdc7f24fd7aa63ca3207f3`.
+The patch is restricted to Motif tokenizer handling; other tokenizer families
+keep their existing paths.
 
 The UI is disabled on purpose. It keeps the build smaller and avoids pulling a
 separate web bundle that is unrelated to inference.
@@ -159,8 +181,9 @@ curl -fsS http://127.0.0.1:8080/v1/chat/completions \
   }'
 ```
 
-The clean-build smoke test returned `한국의 수도는 서울입니다.` and reported
-`b10498-cc3f13b3f` as the server build.
+The clean-build smoke test for the published performance baseline returned
+`한국의 수도는 서울입니다.` and reported `b10498-cc3f13b3f`. That smoke test and
+the speed rows predate the v1.1.0 tokenizer-exact patch.
 
 ## Re-run the benchmark
 
@@ -207,15 +230,20 @@ intermediate and no `--allow-requantize` step.
 - all 54 model layers loaded on the GPU;
 - the public runtime loaded this exact 89.72 GB artifact;
 - `/health`, `/slots`, and one real Chat Completions request completed;
-- the embedded Motif tokenizer matched the official tokenizer on 115,618
-  corpus token IDs and 318,951 deterministic fuzz token IDs;
+- the patched public-runtime base matched the official tokenizer on 115,618
+  corpus token IDs and 318,951 deterministic fuzz token IDs using the final
+  GGUF's embedded `motif3` metadata;
+- a source-identical extended candidate matched all 4,164,390 token IDs from
+  591,984 generated cases plus the two corpora;
 - 15 existing llama.cpp tokenizer fixtures plus the Motif Unicode regression
   test all passed;
 - the model file, source shards, template, tensor inventory, and public
   evidence files are hash-bound.
 
-The tokenizer comparison is published in
-[`evidence/tokenizer_parity.json`](evidence/tokenizer_parity.json).
+The original aggregate comparison remains in
+[`evidence/tokenizer_parity.json`](evidence/tokenizer_parity.json). The
+v1.1.0 mechanism-specific suites, patch identity, and claim boundaries are in
+[`evidence/tokenizer_exact_v1.json`](evidence/tokenizer_exact_v1.json).
 
 ## Boundaries I would not gloss over
 
@@ -232,6 +260,9 @@ The tokenizer comparison is published in
 - Two passive quantization-provenance fields retain local build paths. They do
   not affect inference; the current SHA binds those bytes, and any cleaned
   model revision will get a new digest rather than a silent replacement.
+- The tokenizer-exact patch changes prompt tokenization, not the IQ2 weights.
+  The published throughput rows were measured on the pinned v1.0.0 runtime
+  base and have not been re-labeled as v1.1.0 measurements.
 
 ## Open question: model behavior or deployment trade-off?
 
