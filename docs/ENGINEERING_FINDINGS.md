@@ -3,7 +3,9 @@
 Once the direct IQ2 file ran, the obvious question was whether a little more
 precision in the right place could buy back useful quality without giving up
 the single-Spark fit. I tried three different repair directions. None beat the
-plain direct quant overall, but each failure narrowed the next search.
+plain direct quant overall. The results explain why the release retained that
+baseline. This is a historical experiment report; the research phase is now
+[complete](PROJECT_STATUS.md).
 
 ## 1. The direct BF16 route remained the best baseline
 
@@ -31,7 +33,7 @@ That runtime correction is a useful result even though the 14.28 GB overlay
 was not selected for the default release: it made compact per-expert overlays
 technically viable for future kernel optimization.
 
-## 3. The tiny terminal correction was the most promising experiment
+## 3. The tiny terminal correction regressed tool use
 
 A 16.56 MB terminal logit-curvature adapter was the most efficient quality
 experiment:
@@ -41,9 +43,10 @@ experiment:
 - prefill change: less than 0.6%;
 - peak allocation: only +22 MiB.
 
-I did not make it the default because the tool tests regressed. Still, it was
-the clearest sign that a very small correction might recover useful quality if
-tool-control margins are included during training.
+I did not make it the default because the tool tests regressed. The small size
+made it an interesting candidate, but the measured trade-off did not justify
+shipping it. Recovering tool behavior through further training remained an
+untested hypothesis.
 
 ## 4. Restoring late weights mostly bought capacity, not quality
 
@@ -70,13 +73,18 @@ The practical architecture is therefore decomposed:
 4. apply a deterministic call, clarify, or respond rule;
 5. validate or conservatively repair JSON only after the policy decision.
 
-## Where I would go next
+## Decision at closeout
 
 The useful result is not that every experiment worked. It is that the 314.7B
 core really does run on one Spark, and the expensive repairs were easy to rule
 out once measured end to end.
 
-If I continue the quality work, I would not build another large generic-KL
-overlay. I would start from the 16.56 MB terminal correction and train it
-against Korean, general, and tool-control margins together, with runtime cost
-as an explicit constraint from the first run.
+None of these repairs was promoted to the default model. The project now
+preserves the artifact, source changes, and measured failures for reproduction.
+There is no further adapter-training commitment. A specific task with evidence
+of a recoverable error and an agreed cost limit would be a reason to reopen
+research; an untested repair idea alone is not.
+
+The [case study](CASE_STUDY.md) connects these decisions to the tokenizer, MTP,
+and document-agent work. The [project status](PROJECT_STATUS.md) records what
+remains worth maintaining.

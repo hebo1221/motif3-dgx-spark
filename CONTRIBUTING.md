@@ -3,6 +3,11 @@
 Thanks for taking the time to reproduce or improve this work. The most useful
 contributions are small, checkable, and clear about what changed.
 
+The research phase is complete. Maintenance focuses on reproduction defects,
+evidence corrections, and independent results; see
+[project status](docs/PROJECT_STATUS.md). Larger research proposals should
+include a concrete task, comparison, cost limit, and stopping criterion.
+
 ## Benchmark reports
 
 Please use the
@@ -46,6 +51,7 @@ Before opening a pull request, run:
 ```bash
 sha256sum -c SHA256SUMS
 python3 scripts/audit_tokenizer_parity.py --help
+python3 experiments/value-v2/verify_public.py
 ```
 
 If your change modifies a file listed in `SHA256SUMS`, update its digest in the

@@ -7,26 +7,43 @@ I wanted to know whether the final
 live entirely in a DGX Spark's 128 GB unified memory, without sending model
 layers back to the CPU. This is the build that worked.
 
-The short version: the 314.7B core model fits in **83.56 GiB**, prompt
+The 314.7B core model fits in **83.56 GiB**, prompt
 processing reaches **316.71 tok/s**, and 128-token generation runs at
 **16.49 tok/s** on my Spark. The GGUF, pinned runtime base, tokenizer-exact
 patch, chat template, and benchmark rows are all public.
 
+This is a systems engineering case study: fitting the model, correcting its
+runtime, and measuring the trade-offs. The quant missed the prespecified BF16
+quality-preservation gates; useful and incorrect model answers are both kept.
+
+**[Read the case study](docs/CASE_STUDY.md)** ·
+**[한국어 회고](docs/CASE_STUDY.ko.md)** ·
+**[Inspect recorded answers](docs/RECORDED_DEMO.md)** ·
+**[Run the model](#download-and-run)**
+
+**Status: research complete; maintenance only.** Reproduction fixes and
+independent results are welcome. See [project status](docs/PROJECT_STATUS.md)
+for the scope and the evidence that would justify more work.
+
 **Download the model:**
 [jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)
 
-## Experimental follow-up: reproducible probes and document-agent evidence
+## Inspect the work without a GPU
 
-[v1.3.0-rc.1](https://github.com/hebo1221/motif3-dgx-spark/releases/tag/v1.3.0-rc.1)
-adds a model-free Q8 batch-consistency probe, a two-file opt-in reference patch,
-and a bounded document agent with project matching and exact source passages.
-The release includes successful and failed answers, public provenance, and
-reproduction instructions. The simple reference path is slower; the agent
-still makes factual errors. This is an experimental source/evidence release,
-with no new GGUF upload or BF16-quality claim.
+The [recorded answer tour](docs/RECORDED_DEMO.md) shows a useful distinction
+and a completed answer that misreads its own evidence. No model download is
+needed. To check the published records locally, use Git and Python 3:
 
-See [the follow-up](experiments/value-v2/README.md) and
-[한국어 결과](experiments/value-v2/README.ko.md).
+```bash
+git clone --depth 1 https://github.com/hebo1221/motif3-dgx-spark.git
+cd motif3-dgx-spark
+python3 experiments/value-v2/verify_public.py
+```
+
+The verification runs offline after cloning. It checks file hashes and source
+passages in recorded reports, with **zero model requests**. It does not grade
+the answers. CUDA researchers can also reuse the
+[model-free Q8 numerical probe](experiments/value-v2/runtime/README.md).
 
 ## 한국어 요약
 
@@ -46,6 +63,11 @@ BF16 체크포인트에서 직접 만든 혼합 IQ2_XXS GGUF, 고정한 llama.cp
 품질을 보장하는 모델은 아닙니다. 사전에 정한 perplexity·KL 품질 유지
 기준은 통과하지 못했습니다. 로컬 연구와 시스템 실험에는 유용하지만,
 중요한 용도라면 자신의 데이터로 먼저 검증해 주세요.
+
+탐색 연구는 마무리했고, 재현 자료와 기술 회고를 유지합니다.
+[한국어 회고](docs/CASE_STUDY.ko.md)와 [실제 답변 둘러보기](docs/RECORDED_DEMO.md)는
+모델을 내려받지 않고 볼 수 있습니다. 추가 작업은 재현 문제나 구체적인
+사용 사례가 생겼을 때 범위를 정해 진행합니다.
 
 ## What worked
 
@@ -81,8 +103,9 @@ sidecar recipe, public aggregate, and limitations.
 
 ## Two things to know first
 
-First, this does **not** run with stock upstream llama.cpp today. Motif-3 needs
-its model port, GQA-5 Flash Attention support, and its actual tokenizer rules.
+First, this release was validated with a pinned community runtime. Compatibility
+with unmodified upstream llama.cpp is not established here. The measured build
+includes the Motif-3 model port, GQA-5 Flash Attention support, and tokenizer handling.
 The measured runtime base is public at
 [`cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`](https://github.com/hebo1221/llama.cpp/commit/cc3f13b3f172978d7b3c215780d4cc98bb0e1c80).
 Release v1.1.0 adds a hash-pinned
@@ -293,7 +316,7 @@ v1.1.0 mechanism-specific suites, patch identity, and claim boundaries are in
   The published throughput rows were measured on the pinned v1.0.0 runtime
   base and have not been re-labeled as v1.1.0 measurements.
 
-## Open question: model behavior or deployment trade-off?
+## Research conclusion and maintenance
 
 The held-out perplexity and KL comparison establishes that this 2.2805 bp/e
 artifact loses information relative to BF16. It does not establish how that
@@ -301,20 +324,34 @@ loss maps to downstream behavior: which failures are already present in the
 parent model, which appear only after quantization, or which tensor families
 account for most of the change.
 
-I opened [a focused collaboration discussion](https://github.com/hebo1221/motif3-dgx-spark/discussions/1)
-for three kinds of evidence:
+The active research phase is complete. The released model, tokenizer patch,
+numerical probes, and recorded agent failures remain available as a systems
+case study and a starting point for local experiments. There is no scheduled
+model-training or general-purpose agent roadmap.
 
-- paired task results from the official BF16 model or a traceable Q5 build;
-- expert-aware or layer-aware mixed-precision proposals that could still fit
-  safely in 128 GB;
-- independent DGX Spark throughput and memory reproductions.
+Reproducible defects, independent Spark measurements, or a concrete user task
+with a bounded evaluation can justify follow-up work. See
+[project status](docs/PROJECT_STATUS.md) and the existing
+[evidence discussion](https://github.com/hebo1221/motif3-dgx-spark/discussions/1).
+The missing MTP head in the downloadable file concerns speculative speed;
+it does not explain the measured BF16-to-IQ2 distribution shift.
 
-The absent MTP head is a separate speculative-speed limitation, not an
-explanation for the target model's measured BF16-to-IQ2 distribution shift.
-Configurations and raw results that disagree with mine are welcome.
+## Reusable experimental follow-up
+
+[v1.3.0-rc.1](https://github.com/hebo1221/motif3-dgx-spark/releases/tag/v1.3.0-rc.1)
+contains a model-free Q8 batch-consistency probe, a two-file opt-in reference
+patch, and a bounded document agent with project matching and exact source
+passages. The reference path is slower; the agent still makes factual errors.
+The release includes both outcomes and their public provenance.
+
+See [the follow-up](experiments/value-v2/README.md) and
+[한국어 결과](experiments/value-v2/README.ko.md).
 
 ## The longer version
 
+- [Engineering case study](docs/CASE_STUDY.md) · [한국어 회고](docs/CASE_STUDY.ko.md)
+- [Recorded answers and offline verification](docs/RECORDED_DEMO.md)
+- [Project status and completion criteria](docs/PROJECT_STATUS.md)
 - [How the file was made](docs/METHOD.md)
 - [Results and limitations](docs/RESULTS.md)
 - [What the failed repair experiments taught me](docs/ENGINEERING_FINDINGS.md)
