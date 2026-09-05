@@ -2,31 +2,31 @@
 
 ![Motif-3 315B on one DGX Spark: 83.56 GiB, 316.71 tok/s prompt processing, and 16.49 tok/s generation](assets/motif3-dgx-spark-result-card.png)
 
-I wanted to know whether the final
-[Motif-3](https://huggingface.co/Motif-Technologies/Motif-3) checkpoint could
-live entirely in a DGX Spark's 128 GB unified memory, without sending model
-layers back to the CPU. This is the build that worked.
+I put [Motif-3](https://huggingface.co/Motif-Technologies/Motif-3)'s 314.7B-parameter
+sparse-MoE core on one 128 GB DGX Spark. The mixed IQ2_XXS GGUF is **83.56 GiB**,
+and all 54 model layers load on the GPU. A pinned public build averaged
+**16.49 tok/s** for 128-token generation and **316.71 tok/s** for pp512, over
+five repetitions. Those speeds were measured before the tokenizer-exact patch;
+83.56 GiB is the file size.
 
-The 314.7B core model fits in **83.56 GiB**, prompt
-processing reaches **316.71 tok/s**, and 128-token generation runs at
-**16.49 tok/s** on my Spark. The GGUF, pinned runtime base, tokenizer-exact
-patch, chat template, and benchmark rows are all public.
+Getting it to load left other problems to check. The runtime needed fixes to
+match Motif's tokenizer. Later, a document-agent answer quoted **629.69 GB**
+from its source and still wrote **89.72 GB** in its conclusion. The quant also
+failed the BF16 quality-preservation gates set before evaluation.
 
-This is a systems engineering case study: fitting the model, correcting its
-runtime, and measuring the trade-offs. The quant missed the prespecified BF16
-quality-preservation gates; useful and incorrect model answers are both kept.
+The release includes the working model, patches, and records of those failures:
 
-**[Read the case study](docs/CASE_STUDY.md)** ·
-**[한국어 회고](docs/CASE_STUDY.ko.md)** ·
-**[Inspect recorded answers](docs/RECORDED_DEMO.md)** ·
-**[Run the model](#download-and-run)**
+- **Run it on a Spark:** [download the GGUF](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)
+  and follow the [pinned build instructions](#download-and-run).
+- **Reuse a check:** inspect the [Motif tokenizer patch](patches/motif3-tokenizer-exact-v1.patch)
+  or run the [Q8 numerical probe](experiments/value-v2/runtime/README.md),
+  which needs a CUDA build but no model weights.
+- **Read it without a GPU:** start with the [actual answers and their sources](docs/RECORDED_DEMO.md),
+  then the [case study](docs/CASE_STUDY.md) or [한국어 회고](docs/CASE_STUDY.ko.md).
 
-**Status: research complete; maintenance only.** Reproduction fixes and
-independent results are welcome. See [project status](docs/PROJECT_STATUS.md)
-for the scope and the evidence that would justify more work.
-
-**Download the model:**
-[jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)
+Built on Motif Technologies' model, llama.cpp, Chrono's Motif port, and the
+cited GQA-5 work. Development and analysis were assisted by Codex. See
+[attribution](NOTICE.md).
 
 ## Inspect the work without a GPU
 
@@ -47,27 +47,19 @@ the answers. CUDA researchers can also reuse the
 
 ## 한국어 요약
 
-한마디로, 3,147억 파라미터 규모의 sparse MoE인 Motif-3 핵심 모델을
-DGX Spark 한 대의 128 GB 통합 메모리에 전부 올려 실제로 구동한
-작업입니다. 최종 GGUF는 83.56 GiB이고, 공개한 동일 빌드에서 pp512
-316.71 tok/s, tg128 16.49 tok/s를 기록했습니다.
+Motif-3의 3,147억 파라미터 sparse MoE 핵심 모델을 128 GB DGX Spark 한 대에
+올렸습니다. 공식 BF16에서 직접 양자화한 혼합 IQ2_XXS 파일은 83.56 GiB입니다.
+고정한 공개 빌드에서 생성 속도는 다섯 번 평균 16.49 tok/s였고, 이 수치는
+토크나이저 수정 전의 측정값입니다.
 
-이 작업의 핵심은 단순히 모델을 2비트로 줄인 데 있지 않습니다. 공식
-BF16 체크포인트에서 직접 만든 혼합 IQ2_XXS GGUF, 고정한 llama.cpp 기반
-커밋과 토크나이저 수정 패치, 토크나이저 일치 검증, 원시 벤치마크와
-체크섬을 한 묶음으로 공개했습니다. 다운로드가 끝나면
-[`scripts/verify_download.sh`](scripts/verify_download.sh)로 모델과 템플릿을
-읽기 전용으로 확인할 수 있습니다.
+돌아가는 것을 확인한 뒤에는 입력을 나누는 규칙과 실제 답변을 살폈습니다.
+토크나이저를 고쳤고, 모델이 근거를 인용하면서도 숫자를 틀리는 답변도 남겼습니다.
+BF16 품질 유지 기준은 통과하지 못했습니다.
 
-다만 이것은 **단일 Spark 구동 가능성에 대한 성공 사례**이지, BF16과 같은
-품질을 보장하는 모델은 아닙니다. 사전에 정한 perplexity·KL 품질 유지
-기준은 통과하지 못했습니다. 로컬 연구와 시스템 실험에는 유용하지만,
-중요한 용도라면 자신의 데이터로 먼저 검증해 주세요.
-
-탐색 연구는 마무리했고, 재현 자료와 기술 회고를 유지합니다.
-[한국어 회고](docs/CASE_STUDY.ko.md)와 [실제 답변 둘러보기](docs/RECORDED_DEMO.md)는
-모델을 내려받지 않고 볼 수 있습니다. 추가 작업은 재현 문제나 구체적인
-사용 사례가 생겼을 때 범위를 정해 진행합니다.
+Spark가 있으면 [실행 절차](#download-and-run)를 따라 해볼 수 있습니다.
+장비 없이 작업을 살펴보려면 [한국어 회고](docs/CASE_STUDY.ko.md)와
+[실제 답변·원문](docs/RECORDED_DEMO.md)을 보면 됩니다. 위 검증 명령은 공개된
+파일과 원문 연결을 확인하며, 새로 모델을 실행하거나 정답을 채점하지 않습니다.
 
 ## What worked
 

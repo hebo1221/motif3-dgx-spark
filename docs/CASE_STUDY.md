@@ -4,16 +4,19 @@
 
 **83.56 GiB · 16.49 tokens/s generation · one 128 GB DGX Spark.**
 
-The engineering question was concrete: could the final Motif-3 core run with
-all layers on a single Spark, and could someone else inspect how that result
-was obtained? The released mixed-precision GGUF answers the first question.
-Pinned source, patches, checksums, measurements, and recorded failures make
-the second question reviewable.
+The first goal was to run Motif-3's 314.7B-parameter sparse-MoE core on one
+128 GB Spark. The mixed-precision GGUF fits, with all 54 layers on the GPU.
+The speeds above come from the pinned runtime before the tokenizer-exact patch;
+83.56 GiB is the model file size.
 
-The project also reached a limit: this quant failed its BF16 quality-retention
-gates, and a bounded document agent still produced wrong conclusions. The
-research phase is complete. The useful contribution is the working artifact
-and the methods for finding where correctness breaks.
+Getting it to load left more to investigate. The tokenizer needed corrections,
+batched verification could change selected tokens, and a document agent could
+quote the right passage while giving the wrong number. The quant also failed
+its BF16 quality-retention gates.
+
+This is a record of those problems and the code used to check them. To try the
+model, use the [pinned build](../README.md#download-and-run). To inspect an answer
+first, open the [recorded examples](RECORDED_DEMO.md).
 
 ## 1. Make the memory budget real
 
@@ -118,4 +121,5 @@ that can be inspected without trusting the headline.
 
 For a quick review, start with [recorded answers](RECORDED_DEMO.md). For a
 reproduction, use the [pinned build and download instructions](../README.md#download-and-run).
-Further work follows the [maintenance and reopening criteria](PROJECT_STATUS.md).
+The research phase is complete. Reproduction fixes and independent results
+follow the [maintenance and reopening criteria](PROJECT_STATUS.md).
