@@ -1,0 +1,236 @@
+{
+  "status": "pass",
+  "recorded_utc": "2026-09-05T09:51:48.242766+00:00",
+  "checks": {
+    "all_recorded_libraries_unchanged": true,
+    "base_ggml_source_unchanged": true,
+    "base_cuda_library_unchanged": true,
+    "minimal_candidate_source_unchanged": true,
+    "minimal_candidate_library_unchanged": true,
+    "client_v2_unchanged": true,
+    "client_v3_unchanged": true,
+    "client_v4_unchanged": true,
+    "workflows_unchanged": true,
+    "client_v1_unchanged": true,
+    "motif_target_sidecar_identity_unchanged": true,
+    "qwen_identity_unchanged": true,
+    "qwen_matches_full_hash_this_stage": true,
+    "all_owned_servers_stopped": true,
+    "no_telemetry_errors": true,
+    "gpu_compute_processes_empty": true,
+    "port_8825_closed": true,
+    "existing_default_still_qwen": true
+  },
+  "details": {
+    "library_hashes": {
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/llama-server": "633a9a4ba57aa2f3792419c27f20dabfe8ad699a96a39e968b06cf2f210455bd",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libllama-server-impl.so": "1731416738b8ec5e33909d9757f34f8915843cc3ca6a1bc1dc1a68691a82ec2c",
+      "/usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+      "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+      "/usr/lib/aarch64-linux-gnu/libc.so.6": "fe5966a43e068ad7cb389c3affa069f4ee6f296e07d7ccc0398a23cfde4f0b7e",
+      "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1": "393384096ffa869e1be20d2f91fdf08dfadb9f3e531dfe724085d8501d3f85d9",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libllama-common.so.0.1.2": "4a385c57b61cec1bd8bbe1f1ec751db6508b3673c22a83c67b64e5683ad16b75",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libmtmd.so.0.1.2": "24b31a58e7879e6ec289135c08ee90ff07cf018a73a1c225339a2eb19d126624",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libllama.so.0.1.2": "a8531f14a733b35342c61a1b1e602494d1a27a762375df7773aeb0edf8181a07",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml.so.0.20.2": "f4b63b2caf8f54ee772c0f9d67972ff75e068bfe6cf6520d6f9bc322daf7aa61",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml-base.so.0.20.2": "dd87a49af45c36387b764dd7c405e9c4e1a2b2c734b1c4502acb574a69fcd623",
+      "/usr/lib/aarch64-linux-gnu/libm.so.6": "d5b262e559d38769e4959f036a1cc2c4009fa60b4ec836a7a19ca8554aebf5a5",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml-cpu.so.0.20.2": "5057508863de7312edbd43a0090e3296eb39f0436a8bdb84ba0fe6b194268b98",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml-cuda.so.0.20.2": "87f85b4f88bb8fdf0cd24ca2eca136535d822986dc23c70e1f22197fbc499874",
+      "/usr/lib/aarch64-linux-gnu/libgomp.so.1.0.0": "33c8bcb7d33228fe5101bfeb201bcaff4563d4ecf09497229b9deba522ebaf3d",
+      "/usr/local/cuda-13.0/targets/sbsa-linux/lib/libcudart.so.13.0.96": "7bdba2b5b08cbdc85203c41cc94598adedb1bcfea7cb574ca693ac73599e4e63",
+      "/usr/local/cuda-13.0/targets/sbsa-linux/lib/libcublas.so.13.1.1.3": "4e346a7b60a01552bd9bf4bbc6c862e11eb851559c3da3572293345de6aaed75",
+      "/usr/lib/aarch64-linux-gnu/libcuda.so.580.126.09": "477f19f28a791edb73f8e4c6ee27b7e2dd13300a7dabacd6f40e3eee3916d14f",
+      "/usr/lib/aarch64-linux-gnu/libdl.so.2": "97387fb55ccfc0cc109dfe99b81de2b7bbaac723d1c215107dc69a068c4b1fae",
+      "/usr/lib/aarch64-linux-gnu/libpthread.so.0": "97b288827c0ab29659dfcdcfab6c2e9e1225c19fc5abfe106d8a53c2c7b34402",
+      "/usr/lib/aarch64-linux-gnu/librt.so.1": "4b38331a53bc2bd10c1ecf4f02a71c913c40bad13f5fbf93bee5a0e1f25dd493",
+      "/usr/local/cuda-13.0/targets/sbsa-linux/lib/libcublasLt.so.13.1.1.3": "930418840b747413584867cb7167dd5911dcf4184135589e0334527e9abbac9f",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/llama-server": "633a9a4ba57aa2f3792419c27f20dabfe8ad699a96a39e968b06cf2f210455bd",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libllama-server-impl.so": "1731416738b8ec5e33909d9757f34f8915843cc3ca6a1bc1dc1a68691a82ec2c",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libllama-common.so.0.1.2": "19d90ae71ca9e646f939d1020aa5841a5ef54b7b2f96627bfeeb524f6bbeba57",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libmtmd.so.0.1.2": "24b31a58e7879e6ec289135c08ee90ff07cf018a73a1c225339a2eb19d126624",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libllama.so.0.1.2": "a8531f14a733b35342c61a1b1e602494d1a27a762375df7773aeb0edf8181a07",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml.so.0.20.2": "f4b63b2caf8f54ee772c0f9d67972ff75e068bfe6cf6520d6f9bc322daf7aa61",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml-base.so.0.20.2": "dd87a49af45c36387b764dd7c405e9c4e1a2b2c734b1c4502acb574a69fcd623",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml-cpu.so.0.20.2": "5057508863de7312edbd43a0090e3296eb39f0436a8bdb84ba0fe6b194268b98",
+      "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml-cuda.so.0.20.2": "87f85b4f88bb8fdf0cd24ca2eca136535d822986dc23c70e1f22197fbc499874",
+      "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cpu.so.0.20.2": "2210e61d8369cbe0ad2f12e22226240ada4694f246a4c02f696116a8ab9ecdba",
+      "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libmtmd.so.0.1.2": "df093d9a157149b86deedd373c06c4fe6cc1ed5c4a192c1cf3276827db84ce54",
+      "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libllama.so.0.1.2": "ec7b49e9f2dac728a597c0725f62551233d2d758248b3a32bc5c6c64354a9a5a",
+      "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cuda.so.0.20.2": "a3152cf887434ca873350d22f2598b153bca5e8aa7e8d1c24492a7c74e368b38",
+      "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-base.so.0.20.2": "4d8b9b464ab19256aeb846a4c7c9bbe85e96d1a56baa03861e8cb4531feaa5af",
+      "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml.so.0.20.2": "7179ba958f8a0cb1cf26a3ff8be9d35bee813631ceef2712b256af1606c38a55",
+      "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libllama-server-impl.so": "92bb54d7eb7e6e0b747047b56a7ed26fa3d70474fd3fb8229ae48a309aaa5cf9",
+      "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libllama-common.so.0.1.2": "d256daf764a6610dc2c8328761eca4de513e115e76a2e2b8095988e13c1164a3",
+      "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate-v2/runtime/bin/libggml-cuda.so.0.20.2": "0e54fd0d0411ae48a048f1516f7628b7aad5c3cd13094ffe86cb2a76116dd0d7"
+    },
+    "motif_binding": {
+      "schema_version": "motif3-integrated-target-sidecar-binding-v1",
+      "status": "pass",
+      "recorded_utc": "2026-09-05T02:56:39Z",
+      "target": {
+        "path": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "size_bytes": 89720474560,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "9d6f7aee57f0271223f51d69c63d8576a259809e9f05e2ac596512e940c80c5a"
+      },
+      "sidecar": {
+        "path": "/opt/motif-work/forget-batch/motif3-mtp-r883d5c44/conversion-result/motif3-mtp-linked-bf16-r883d5c44.gguf",
+        "size_bytes": 512363040,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "d813251f1b7e8158399352af6e44c92df2445cd807fda1a869d2247279806f81"
+      },
+      "checker": {
+        "path": "/opt/motif-work/motif3-quant/release/motif3-dgx-spark-public-v1/github/scripts/check_motif3_mtp_sidecar.py",
+        "sha256": "c4b3ab04d48766adf5e85a3a190a6a9e30fc00c9ee0d720def0df72408f7e940"
+      },
+      "sidecar_original_conversion_receipt": {
+        "path": "/opt/motif-work/forget-batch/motif3-mtp-r883d5c44/conversion-result/conversion-receipt.json",
+        "sha256": "0835584a4c927910d8c0a281a3d48ce6d924b9d4ef4fdf7ce6b24cccfaf85999",
+        "note": "Original conversion was checked against H0v2. This is a new compatibility binding; no new conversion is claimed."
+      },
+      "structure": {
+        "valid": true,
+        "gguf_version": 3,
+        "architecture": "motif3",
+        "block_count": 54,
+        "nextn_predict_layers": 1,
+        "tensor_count": 19,
+        "tensor_types": {
+          "blk.53.attn_gate.weight": "BF16",
+          "blk.53.attn_kv_a_mqa.weight": "BF16",
+          "blk.53.attn_kv_a_norm.weight": "F32",
+          "blk.53.attn_kv_b.weight": "BF16",
+          "blk.53.attn_lambda.weight": "F32",
+          "blk.53.attn_norm.weight": "F32",
+          "blk.53.attn_output.weight": "BF16",
+          "blk.53.attn_q_a.weight": "BF16",
+          "blk.53.attn_q_a_norm.weight": "F32",
+          "blk.53.attn_q_b.weight": "BF16",
+          "blk.53.ffn_down.weight": "BF16",
+          "blk.53.ffn_gate.weight": "BF16",
+          "blk.53.ffn_norm.weight": "F32",
+          "blk.53.ffn_poly.bias": "F32",
+          "blk.53.ffn_poly.weight": "F32",
+          "blk.53.ffn_up.weight": "BF16",
+          "blk.53.nextn.eh_proj.weight": "BF16",
+          "blk.53.nextn.enorm.weight": "F32",
+          "blk.53.nextn.shared_head_norm.weight": "F32"
+        },
+        "exact_tensor_set": true,
+        "exact_tensor_shapes": true,
+        "exact_tensor_types": true,
+        "exact_runtime_metadata": true,
+        "tokenizer_token_count": 220160,
+        "tokenizer_tokens_sha256": "625b5cf96262560e194c7a5a2510c3ad8dedb023501547a44019cb7b619d6214",
+        "tokenizer_token_types_sha256": "55990046fa79cc8513f60fd756fa02ca0403ba27de0d8d25723501a058aa1e43",
+        "tokenizer_merges_count": 219773,
+        "tokenizer_merges_sha256": "15edc5a53a4feac78ab1cde3cc3409ba483827efcf93bf59c781d802ca24e76d",
+        "shared_tensors_from_target": true,
+        "tensor_payload_read": false,
+        "path": "/opt/motif-work/forget-batch/motif3-mtp-r883d5c44/conversion-result/motif3-mtp-linked-bf16-r883d5c44.gguf",
+        "size_bytes": 512363040,
+        "sha256": "d813251f1b7e8158399352af6e44c92df2445cd807fda1a869d2247279806f81",
+        "sha256_status": "computed",
+        "target_pair": {
+          "valid": true,
+          "target_block_count": 53,
+          "runtime_metadata_exact": true,
+          "tokenizer_arrays_exact": true,
+          "shared_tensors_from_target": true,
+          "target_shared_tensor_shapes_exact": true,
+          "tokenizer_array_sha256": {
+            "tokenizer.ggml.tokens": "625b5cf96262560e194c7a5a2510c3ad8dedb023501547a44019cb7b619d6214",
+            "tokenizer.ggml.token_type": "55990046fa79cc8513f60fd756fa02ca0403ba27de0d8d25723501a058aa1e43",
+            "tokenizer.ggml.merges": "15edc5a53a4feac78ab1cde3cc3409ba483827efcf93bf59c781d802ca24e76d"
+          },
+          "tensor_payload_read": false,
+          "path": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+          "size_bytes": 89720474560,
+          "sha256": null,
+          "sha256_status": "not_computed_by_sidecar_checker"
+        },
+        "sidecar_structure_gate_ready": true
+      },
+      "files_stable_during_check": true,
+      "limitations": [
+        "Structural compatibility and file integrity only; generation equivalence and speed are evaluated separately."
+      ]
+    },
+    "qwen_full_hash_receipt": {
+      "path": "/opt/model-archive/motif3-agent-baselines-v1/qwen3-8b-q8/Qwen3-8B-Q8_0.gguf",
+      "size_bytes": 8709518112,
+      "mtime_ns": "REDACTED",
+      "sha256": "408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6"
+    },
+    "lifecycles": {
+      "qwen-development-v1": {
+        "pid": "REDACTED",
+        "owned_process_stopped": true,
+        "process_exit_code": 0,
+        "telemetry_errors": [],
+        "min_mem_available_mib": 105515.60546875
+      },
+      "qwen-development-v2": {
+        "pid": "REDACTED",
+        "owned_process_stopped": true,
+        "process_exit_code": 0,
+        "telemetry_errors": [],
+        "min_mem_available_mib": 106019.65625
+      },
+      "motif-development-v2": {
+        "pid": "REDACTED",
+        "owned_process_stopped": true,
+        "process_exit_code": 0,
+        "telemetry_errors": [],
+        "min_mem_available_mib": 29569.01953125
+      },
+      "qwen-known-recheck-v3": {
+        "pid": "REDACTED",
+        "owned_process_stopped": true,
+        "process_exit_code": 0,
+        "telemetry_errors": [],
+        "min_mem_available_mib": 108679.4921875
+      },
+      "qwen-confirmation-v3": {
+        "pid": "REDACTED",
+        "owned_process_stopped": true,
+        "process_exit_code": 0,
+        "telemetry_errors": [],
+        "min_mem_available_mib": 101016.82421875
+      },
+      "motif-confirmation-v3": {
+        "pid": "REDACTED",
+        "owned_process_stopped": true,
+        "process_exit_code": 0,
+        "telemetry_errors": [],
+        "min_mem_available_mib": 29309.08984375
+      },
+      "motif-repair-recheck-v4": {
+        "pid": "REDACTED",
+        "owned_process_stopped": true,
+        "process_exit_code": 0,
+        "telemetry_errors": [],
+        "min_mem_available_mib": 30980.765625
+      },
+      "qwen-repair-recheck-v4": {
+        "pid": "REDACTED",
+        "owned_process_stopped": true,
+        "process_exit_code": 0,
+        "telemetry_errors": [],
+        "min_mem_available_mib": 107300.39453125
+      }
+    },
+    "gpu_compute_processes": "",
+    "disk_free_bytes": {
+      "/opt/motif-work": 2874007552,
+      "/opt/model-archive": 10444603392
+    },
+    "mem_available_kib": 124159352
+  },
+  "model_identity_note": "Motif stat identity checked against the existing full-hash binding. Qwen was fully hashed in this stage before the numerical probe and its identity checked again here."
+}

@@ -1,0 +1,190 @@
+{
+  "status": "completed",
+  "run_order": [
+    "baseline-before",
+    "motif-runtime",
+    "baseline-restored"
+  ],
+  "models_changed": false,
+  "cases": [
+    {
+      "id": "browser-request",
+      "positions": 48,
+      "baseline_restored_exact": true,
+      "candidate_sequential_exact_to_baseline": true,
+      "arms": {
+        "baseline": [
+          {
+            "width": 2,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 4,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 8,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          }
+        ],
+        "motif-runtime": [
+          {
+            "width": 2,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 4,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 8,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          }
+        ],
+        "restored": [
+          {
+            "width": 2,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 4,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 8,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          }
+        ]
+      }
+    },
+    {
+      "id": "incident-recovery",
+      "positions": 48,
+      "baseline_restored_exact": true,
+      "candidate_sequential_exact_to_baseline": true,
+      "arms": {
+        "baseline": [
+          {
+            "width": 2,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 4,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 8,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          }
+        ],
+        "motif-runtime": [
+          {
+            "width": 2,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 4,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 8,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          }
+        ],
+        "restored": [
+          {
+            "width": 2,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 4,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 8,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          }
+        ]
+      }
+    },
+    {
+      "id": "tool-decision",
+      "positions": 48,
+      "baseline_restored_exact": true,
+      "candidate_sequential_exact_to_baseline": true,
+      "arms": {
+        "baseline": [
+          {
+            "width": 2,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 4,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 8,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          }
+        ],
+        "motif-runtime": [
+          {
+            "width": 2,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 4,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 8,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          }
+        ],
+        "restored": [
+          {
+            "width": 2,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 4,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          },
+          {
+            "width": 8,
+            "different_argmax_rows": 0,
+            "different_logit_rows": 48
+          }
+        ]
+      }
+    }
+  ],
+  "scope": "One Qwen3-8B Q8_0 artifact on one GB10. Fixed token replay, not MTP or task accuracy.",
+  "gpu_final": ""
+}

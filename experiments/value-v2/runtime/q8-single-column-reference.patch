@@ -1,0 +1,38 @@
+--- a/ggml/include/ggml.h
++++ b/ggml/include/ggml.h
+@@ -443,6 +443,7 @@
+     enum ggml_op_hint {
+         GGML_HINT_NONE             = 0,
+         GGML_HINT_SRC0_IS_HADAMARD = 1,
++        GGML_HINT_BATCH_INVARIANT  = 2,
+     };
+ 
+     // model file types
+--- a/ggml/src/ggml-cuda/ggml-cuda.cu
++++ b/ggml/src/ggml-cuda/ggml-cuda.cu
+@@ -1832,6 +1832,25 @@
+ 
+     const int cc        = ggml_cuda_info().devices[ctx.device].cc;
+     const int warp_size = ggml_cuda_info().devices[ctx.device].warp_size;
++
++    // Keep the one-column arithmetic for this explicitly requested Q8 path.
++    if (hint == GGML_HINT_BATCH_INVARIANT && cc == GGML_CUDA_CC_DGX_SPARK &&
++            src0->type == GGML_TYPE_Q8_0 && ne11 > 1 && ne11 <= 4 &&
++            ne12 == 1 && ne13 == 1 && ne2 == 1 && ne3 == 1 &&
++            ggml_cuda_should_use_mmvq(src0->type, cc, 1)) {
++        for (int64_t column = 0; column < ne11; ++column) {
++            ggml_tensor input_column = *src1;
++            input_column.data = static_cast<char *>(src1->data) + column * nb11;
++            input_column.ne[1] = 1;
++
++            ggml_tensor output_column = *dst;
++            output_column.data = static_cast<char *>(dst->data) + column * nb1;
++            output_column.ne[1] = 1;
++
++            ggml_cuda_mul_mat(ctx, src0, &input_column, &output_column);
++        }
++        return;
++    }
+ 
+     if (ggml_cuda_should_use_mmvf(src0->type, cc, src0->ne, src0->nb, ne11)) {
+         // The custom F16 vector kernel can be used over batched cuBLAS GEMM.

@@ -1,0 +1,32 @@
+{
+  "motif-agent-current": {
+    "source": "/work/project/outputs/motif3-agent-readiness-v1/README.ko.md",
+    "source_sha256": "57a8e523f182a0b672c3a558b15058d66e82436eb112f4de7fef66cf822bcce8",
+    "document_sha256": "57a8e523f182a0b672c3a558b15058d66e82436eb112f4de7fef66cf822bcce8",
+    "transformation": "none"
+  },
+  "motif-runtime": {
+    "source": "/work/project/outputs/motif3-integrated-runtime-v1/README.ko.md",
+    "source_sha256": "19959a2a6263e5f564bb74d7c380071f92530aacd7de1f876729d5c4e457f50a",
+    "document_sha256": "19959a2a6263e5f564bb74d7c380071f92530aacd7de1f876729d5c4e457f50a",
+    "transformation": "none"
+  },
+  "motif-historical-review": {
+    "source": "/work/project/outputs/motif3-session-review-2026-09-05.md",
+    "source_sha256": "ac8d67afa5334a10a1f936d34bc8a505fec55c98bd7a4ae6efafd1c6d3f579ba",
+    "document_sha256": "ac8d67afa5334a10a1f936d34bc8a505fec55c98bd7a4ae6efafd1c6d3f579ba",
+    "transformation": "none"
+  },
+  "motif-evaluation-method": {
+    "source": "/work/project/outputs/motif3-agent-readiness-v1/EVALUATION.md",
+    "source_sha256": "9b908c7f5b6980b6b758182a9ead74dbb5798d41486cf02bb8be2835ec735bc1",
+    "document_sha256": "9b908c7f5b6980b6b758182a9ead74dbb5798d41486cf02bb8be2835ec735bc1",
+    "transformation": "none"
+  },
+  "motif-client-usage": {
+    "source": "/work/project/outputs/motif3-agent-readiness-v1/USAGE.ko.md",
+    "source_sha256": "7bab8e362af7d2f510e11874550405179d0660c5a596d6b6388795853ae523cc",
+    "document_sha256": "7bab8e362af7d2f510e11874550405179d0660c5a596d6b6388795853ae523cc",
+    "transformation": "none"
+  }
+}

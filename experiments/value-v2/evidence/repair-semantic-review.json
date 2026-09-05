@@ -1,0 +1,73 @@
+{
+  "scope": "Known cases after the v3 confirmation was already seen. Assistant review; not a fresh independent benchmark.",
+  "client_freeze_sha256": "89bb3b91d49fc36e47cbf2b8850ba7b9f67b03b15ecd8dc2f12bb642b3274608",
+  "cases": [
+    {
+      "backend": "motif",
+      "case_id": "confirm-comparison",
+      "grade": "FAIL",
+      "reason": "미완성 보고서가 거절된 뒤 같은 보고서를 그대로 반복해 중단했다. 마지막 단계 보완이 이 실제 재실행의 실패를 해결하지는 못했다.",
+      "protocol_status": "failed",
+      "answer": null,
+      "elapsed_seconds": 144.6679346798919,
+      "response_file": "evidence/motif-repair-recheck-v4/confirm-comparison.json",
+      "response_sha256": "6addb0d303dba76bc7a65339038e792190d1ca109387ccfcb69363b01aa0764b"
+    },
+    {
+      "backend": "motif",
+      "case_id": "known-target-020",
+      "grade": "PASS",
+      "reason": "지정된 heldout-020에서 K39271을 답하고 정확한 원문을 인용했다. 이미 본 실패의 수정 확인이며 과거 99/100 점수를 바꾸지 않는다.",
+      "protocol_status": "answer_produced",
+      "answer": "HELDOUT-020 프로젝트의 확인 코드는 K39271입니다.",
+      "elapsed_seconds": 19.910033906809986,
+      "response_file": "evidence/motif-repair-recheck-v4/known-target-020.json",
+      "response_sha256": "3be3f5d56ee0172db1b2eb7c77097d9f2074d2f26b7eab7f669bdf111daa9a73"
+    },
+    {
+      "backend": "motif",
+      "case_id": "known-completion",
+      "grade": "FAIL",
+      "reason": "두 문서를 인용하고 문장은 끝났지만 BF16 원본을 89.72 GB로 잘못 썼다. 실제 629.69 GB BF16 시도는 motif-agent-current에 있는데 motif-runtime으로 잘못 귀속했다. 끝맺음 통과와 사실 정확성은 다르다.",
+      "protocol_status": "answer_produced",
+      "answer": "motif-runtime과 motif-agent-current를 모두 검토한 결과, 네이티브 도구 호출은 두 문서에서 모두 수정 단계로 기술된다. motif-runtime에서는 공개 direct IQ2 모델에 최종 토크나이저와 MTP를 통합했으나, 네이티브 강제 도구 호출은 여전히 FAIL 상태이며, 생성 접두부와 required 호출 문법 문제만 분리 검증한 단계다. motif-agent-current에서는 도구 호출 파서를 고치고 Qwen3-8B Q8_0과 비교해 100문항에서 99건·100건을 맞혔으나, 원본 BF16 품질 보존은 입증하지 않았다고 명시한다. 원본 BF16 품질 보존은 motif-runtime에서 89.72 GB BF16 원본의 제한 검사 결과 300초 안에 서버가 준비되지 않았고 0건의 추론 요청만 수행돼, 이번 작업에서 IQ2가 원본 품질을 보존한다거나 개선했다고 말할 수 없다고 결론짓는다. 따라서 네이티브 도구 호출 수정은 motif-runtime과 motif-agent-current 모두에서 진행 중이나, 원본 BF16 품질 보존은 입증되지 않았다.",
+      "elapsed_seconds": 68.7064636067953,
+      "response_file": "evidence/motif-repair-recheck-v4/known-completion.json",
+      "response_sha256": "bd8809b575f4c9ea02a9b43944e07afac8339ed1166b37a0110745afb3b7e1d8"
+    },
+    {
+      "backend": "qwen",
+      "case_id": "confirm-comparison",
+      "grade": "PARTIAL",
+      "reason": "모든 실제 업무 우위는 부정했지만 기본 모델과 구체적인 합성 형식·재사용 한계 설명이 빠졌다. 이전 확인 답변과 같다.",
+      "protocol_status": "answer_produced",
+      "answer": "Qwen은 특정 조건에서 더 빠르지만, 모든 실제 업무에서 우수하다는 결론은 내릴 수 없습니다. Motif와 Qwen의 평가 방법과 한계를 고려해야 합니다.",
+      "elapsed_seconds": 14.448048682883382,
+      "response_file": "evidence/qwen-repair-recheck-v4/confirm-comparison.json",
+      "response_sha256": "e3cc6ac049d0c974be4ffaea91344fe1994e9b29dfd481b4dc04996df017a588"
+    },
+    {
+      "backend": "qwen",
+      "case_id": "known-target-020",
+      "grade": "PASS",
+      "reason": "지정된 heldout-020에서 K39271을 답하고 정확한 원문을 인용했다. 알려진 문항이다.",
+      "protocol_status": "answer_produced",
+      "answer": "HELDOUT-020 프로젝트의 확인 코드는 K39271입니다.",
+      "elapsed_seconds": 6.712869859999046,
+      "response_file": "evidence/qwen-repair-recheck-v4/known-target-020.json",
+      "response_sha256": "a35ec9a142a7117988b786e6eb646f81ab1015ac29e618c9587c2047e618f4eb"
+    },
+    {
+      "backend": "qwen",
+      "case_id": "known-completion",
+      "grade": "PARTIAL",
+      "reason": "현재 단계에서 호출이 수정됐고 BF16 품질 보존은 미검증이라고 완결된 문장으로 답했다. 파서·접두부가 어느 단계에서 어떻게 바뀌었는지는 설명이 부족하다.",
+      "protocol_status": "answer_produced",
+      "answer": "네이티브 도구 호출은 Motif-agent-current에서 수정되어 로컬 문서 검색·열람·계산을 통해 인용과 함께 답하는 실행기를 만들었으며, 원본 BF16 품질 보존은 입증되지 않았습니다. ",
+      "elapsed_seconds": 14.898635810008273,
+      "response_file": "evidence/qwen-repair-recheck-v4/known-completion.json",
+      "response_sha256": "4bb713ddac58bc8fd168153951105519276ce5f711008731632452cccdb73d67"
+    }
+  ],
+  "conclusion": "Both configurations fixed the subject error in this known case. Motif repeated an unfinished report in another case and made a factual error despite a complete sentence. Do not claim general recovery or autonomous readiness."
+}

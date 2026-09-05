@@ -1,0 +1,14 @@
+{
+  "basis": "Post-confirmation correction: reserve the final tool step for finish_report; do not change the failed v3 score.",
+  "files": {
+    "agent.py": "accd15fc4449d05eb47ca838896cde896f194000adbc9e6bb280c89179c739d2",
+    "campaign_support.py": "5115c9fcd233d4571f74172cbaa27c0fb1bcddce7768ef24a374a21a720a32ce",
+    "document_contract.py": "679b9a43b242b49e05c4530c7fa2b141aeccf291822a376102b8d98eb234d0d9",
+    "index_documents.py": "32ec9f30afad28ac462e37adf4f54bf887f4f4de8b90c09306643bd76b155c7a",
+    "motif3-agent.jinja": "45a26ffea74ba9b166a3e6f0ae6b1b7ea6876d66f7b74243b50b57d4ccdc3e30",
+    "qwen3-agent.jinja": "7c1d9947dedcb325bbfe60df2a6105bbe1f9346656a92b7e9499167bb22794fa",
+    "render_report.py": "76a34309e6f3ee0f42dad9408618d7c011d5bd8c3deadba16d8aaa2800c23286",
+    "run_local.py": "fbb5ed7e7632c91687e2d496d9d0ee282118044b687b28cb07c756b14ce98cf4",
+    "test_agent.py": "18acb281a1758d6d9c654053a52a88e57af69dc6de3cb0ee612e0589603e3861"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "command": [
+    "g++",
+    "-std=c++17",
+    "-O2",
+    "-I/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/include",
+    "-I/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/ggml/include",
+    "-I/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/vendor",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/batch_probe.cpp",
+    "-L/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin",
+    "-Wl,-rpath,/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin",
+    "-lllama",
+    "-lggml",
+    "-lggml-base",
+    "-o",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/batch-probe"
+  ],
+  "exit_code": 0,
+  "source_sha256": "51866d058700dda5862b5a46d65b9760d1d863cf999a439715866850f4cd92fb",
+  "binary_sha256": "6996e389ab858ea9ead12ce9d5614c526fc38c3f361c50267152a75d32d112b7",
+  "self_test": {
+    "exit_code": 0,
+    "stdout": "{\"status\":\"pass\",\"checks\":6}\n",
+    "stderr": ""
+  }
+}

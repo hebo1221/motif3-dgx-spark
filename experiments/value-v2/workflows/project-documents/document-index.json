@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "subjects": {
+    "motif3": [
+      "Motif",
+      "Motif-3",
+      "모티프"
+    ],
+    "qwen": [
+      "Qwen",
+      "Qwen3-8B"
+    ]
+  },
+  "documents": {
+    "motif-agent-current": {
+      "subject": "motif3",
+      "sha256": "8777f961e10e2cdec88ca924420e726c7bf9a15f6b90bbcc4a3f4c69f2e460be"
+    },
+    "motif-runtime": {
+      "subject": "motif3",
+      "sha256": "87dbf42f106bd66501a2aef307b9cbbb7d0c70e448cbf89a9def6ac75efb60e2"
+    },
+    "motif-historical-review": {
+      "subject": "motif3",
+      "sha256": "33c62b8c08d3dfd3374d2d8460703097c5e464fc1255d9c3b7eddba8ae77f468"
+    },
+    "motif-evaluation-method": {
+      "subject": "motif3",
+      "sha256": "9b908c7f5b6980b6b758182a9ead74dbb5798d41486cf02bb8be2835ec735bc1"
+    },
+    "motif-client-usage": {
+      "subject": "motif3",
+      "sha256": "843713c3683057740e3b361d419e966df9d853579bccb12941a1dac22b057f48"
+    }
+  }
+}

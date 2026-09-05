@@ -1,0 +1,118 @@
+{
+  "status": "pass",
+  "model_requests": 0,
+  "network_requests": 0,
+  "method": "Replay of recorded model responses. This does not establish new model accuracy.",
+  "unchanged_completed_tasks": 17,
+  "expected_final_step_branches": 1,
+  "cases": [
+    {
+      "source": "evidence/qwen-confirmation-v3/confirm-comparison.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "5b3387a27e6c937e6a52c809773b336f05f4a9ff11b4467eafe1071bab055ea3"
+    },
+    {
+      "source": "evidence/qwen-confirmation-v3/confirm-observation.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "cc3aadd26a8f2e35d2005146c5055b2fef7624fa3292f9a72fd4e9ea56bd7a49"
+    },
+    {
+      "source": "evidence/qwen-confirmation-v3/confirm-optimization.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "b67f2570936577e09b51f160871441be3a36d8bde8b60c50313ff3ec17e1aecb"
+    },
+    {
+      "source": "evidence/qwen-confirmation-v3/confirm-parity.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "00cbd8c22743d2d0ecd727395183186431410edbf9818530316e09bcae0df5c5"
+    },
+    {
+      "source": "evidence/qwen-confirmation-v3/confirm-release.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "208a910c04f3e5ae3d6cb38299f69b67e4c1a3a58e6288eb5b6015f8a333ad56"
+    },
+    {
+      "source": "evidence/qwen-confirmation-v3/confirm-run-scope.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "99feef0d1b0e1f37734d66224a91dfda0c99b263f4f87a95ed2a3a8021cfc81b"
+    },
+    {
+      "source": "evidence/qwen-confirmation-v3/confirm-startup.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "4261b0e57b7e7d919e1350504966ec24e5d0cf11dc768cc539631e5ff3bb81b7"
+    },
+    {
+      "source": "evidence/qwen-confirmation-v3/confirm-version.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "ca6fce8db27535dd4b011f54444bcbc8aacbb0c60cbe3ce721b5fa7c38d1be63"
+    },
+    {
+      "source": "evidence/motif-confirmation-v3/confirm-comparison.json",
+      "prefix_requests_exact": 7,
+      "changed_step": 8,
+      "change": "Only finish_report remains available; no recorded old response used past this branch"
+    },
+    {
+      "source": "evidence/motif-confirmation-v3/confirm-observation.json",
+      "requests_exact": 5,
+      "report_and_execution_exact": true,
+      "source_sha256": "6285e2d6517bda235bc5fc9497427e230ea348307d9891b39550cbfe6a8b4c2a"
+    },
+    {
+      "source": "evidence/motif-confirmation-v3/confirm-optimization.json",
+      "requests_exact": 5,
+      "report_and_execution_exact": true,
+      "source_sha256": "775a234e24a078d622897076ec344bdeaf6602039d56a3ec7db7a1444b71104f"
+    },
+    {
+      "source": "evidence/motif-confirmation-v3/confirm-parity.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "bd04e6d98c4b105741658dc4b4ee83d84d50b1b23551705b14edf08c9c71b5de"
+    },
+    {
+      "source": "evidence/motif-confirmation-v3/confirm-release.json",
+      "requests_exact": 5,
+      "report_and_execution_exact": true,
+      "source_sha256": "c50385fc44ad55b2add36a37967423539460b3f7aceb6b88402b5c520a130744"
+    },
+    {
+      "source": "evidence/motif-confirmation-v3/confirm-run-scope.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "591fa6a70ea008a8c9181a64786568777d7cb39c928b7e2f70eee25857b923a3"
+    },
+    {
+      "source": "evidence/motif-confirmation-v3/confirm-startup.json",
+      "requests_exact": 5,
+      "report_and_execution_exact": true,
+      "source_sha256": "0096813c50e391eb62d88c2a137121b243cc55f48b5d937a898c5466a1e2ad2a"
+    },
+    {
+      "source": "evidence/motif-confirmation-v3/confirm-version.json",
+      "requests_exact": 6,
+      "report_and_execution_exact": true,
+      "source_sha256": "528a745aba762593d6760a947a5005fe90a059e584260c310adb1c3fe584cbd9"
+    },
+    {
+      "source": "evidence/qwen-known-recheck-v3/known-completion.json",
+      "requests_exact": 4,
+      "report_and_execution_exact": true,
+      "source_sha256": "caadad9e861ef0402a67658fb8e4a2f4729a1865732b4d3c6f145788e397c767"
+    },
+    {
+      "source": "evidence/qwen-known-recheck-v3/known-target-020.json",
+      "requests_exact": 3,
+      "report_and_execution_exact": true,
+      "source_sha256": "de517a33b1edeb1134557018cfb9b1f1672aedf24039c7b9caee38b156b3b146"
+    }
+  ]
+}

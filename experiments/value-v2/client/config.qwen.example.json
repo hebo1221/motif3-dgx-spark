@@ -1,0 +1,9 @@
+{
+  "backend": "qwen",
+  "integrated_binary": "/absolute/path/to/qwen-agent-runtime/bin/llama-server",
+  "target": "/absolute/path/to/Qwen3-8B-Q8_0.gguf",
+  "binding": "/absolute/path/to/qwen-full-hash-receipt.json",
+  "ctx_size": 22016,
+  "port": 8825,
+  "gpu_uuid": ""
+}

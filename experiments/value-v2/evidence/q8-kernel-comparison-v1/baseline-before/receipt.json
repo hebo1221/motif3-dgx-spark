@@ -1,0 +1,35 @@
+{
+  "status": "completed",
+  "binary_sha256": "9dad85f089fcdb4a5468f3b029955b7aef6888687773e460282ca4632e101e3e",
+  "library_hashes_before": {
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cpu.so.0.20.2": "2210e61d8369cbe0ad2f12e22226240ada4694f246a4c02f696116a8ab9ecdba",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libmtmd.so.0.1.2": "df093d9a157149b86deedd373c06c4fe6cc1ed5c4a192c1cf3276827db84ce54",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libllama.so.0.1.2": "ec7b49e9f2dac728a597c0725f62551233d2d758248b3a32bc5c6c64354a9a5a",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cuda.so.0.20.2": "a3152cf887434ca873350d22f2598b153bca5e8aa7e8d1c24492a7c74e368b38",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-base.so.0.20.2": "4d8b9b464ab19256aeb846a4c7c9bbe85e96d1a56baa03861e8cb4531feaa5af",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml.so.0.20.2": "7179ba958f8a0cb1cf26a3ff8be9d35bee813631ceef2712b256af1606c38a55",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libllama-server-impl.so": "92bb54d7eb7e6e0b747047b56a7ed26fa3d70474fd3fb8229ae48a309aaa5cf9",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libllama-common.so.0.1.2": "d256daf764a6610dc2c8328761eca4de513e115e76a2e2b8095988e13c1164a3"
+  },
+  "command": [
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/q8-kernel-probe-v3",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/q8-kernel-comparison-v1/baseline-before/result.json"
+  ],
+  "pid": "REDACTED",
+  "exit_code": 0,
+  "elapsed_seconds": 1.148511233041063,
+  "process_stopped": true,
+  "gpu_after": "",
+  "library_hashes_after": {
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cpu.so.0.20.2": "2210e61d8369cbe0ad2f12e22226240ada4694f246a4c02f696116a8ab9ecdba",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libmtmd.so.0.1.2": "df093d9a157149b86deedd373c06c4fe6cc1ed5c4a192c1cf3276827db84ce54",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libllama.so.0.1.2": "ec7b49e9f2dac728a597c0725f62551233d2d758248b3a32bc5c6c64354a9a5a",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cuda.so.0.20.2": "a3152cf887434ca873350d22f2598b153bca5e8aa7e8d1c24492a7c74e368b38",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-base.so.0.20.2": "4d8b9b464ab19256aeb846a4c7c9bbe85e96d1a56baa03861e8cb4531feaa5af",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml.so.0.20.2": "7179ba958f8a0cb1cf26a3ff8be9d35bee813631ceef2712b256af1606c38a55",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libllama-server-impl.so": "92bb54d7eb7e6e0b747047b56a7ed26fa3d70474fd3fb8229ae48a309aaa5cf9",
+    "/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libllama-common.so.0.1.2": "d256daf764a6610dc2c8328761eca4de513e115e76a2e2b8095988e13c1164a3"
+  },
+  "libraries_unchanged": true
+}

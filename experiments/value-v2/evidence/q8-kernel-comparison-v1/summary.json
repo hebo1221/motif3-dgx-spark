@@ -1,0 +1,592 @@
+{
+  "status": "completed",
+  "cases": [
+    {
+      "k": 2048,
+      "m": 4096,
+      "widths": [
+        {
+          "width": 2,
+          "baseline_restore_exact": true,
+          "minimal_default_unchanged": true,
+          "arms": {
+            "baseline-before": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 5825,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 14.65192
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 5825,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 14.16484
+              }
+            },
+            "existing-motif-kernel": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 5825,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 15.05324
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 24.20676
+              }
+            },
+            "minimal-reference": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 5825,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 14.615440000000001
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 40.141239999999996
+              }
+            },
+            "baseline-restored": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 5825,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 15.05192
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 5825,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 14.63976
+              }
+            }
+          }
+        },
+        {
+          "width": 4,
+          "baseline_restore_exact": true,
+          "minimal_default_unchanged": true,
+          "arms": {
+            "baseline-before": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 11615,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 18.33268
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 11615,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 17.64208
+              }
+            },
+            "existing-motif-kernel": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 11615,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 19.00084
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 39.5358
+              }
+            },
+            "minimal-reference": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 11615,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 17.77136
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 73.15716
+              }
+            },
+            "baseline-restored": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 11615,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 19.17236
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 11615,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 19.4322
+              }
+            }
+          }
+        },
+        {
+          "width": 8,
+          "baseline_restore_exact": true,
+          "minimal_default_unchanged": true,
+          "arms": {
+            "baseline-before": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23081,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 24.19332
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23081,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 24.23428
+              }
+            },
+            "existing-motif-kernel": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23081,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 24.746280000000002
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23081,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 24.32516
+              }
+            },
+            "minimal-reference": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23081,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 24.3162
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23081,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 23.56672
+              }
+            },
+            "baseline-restored": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23081,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 26.434639999999998
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23081,
+                "max_abs_difference": 7.62939453125e-06,
+                "compute_microseconds": 26.77064
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "k": 4096,
+      "m": 4096,
+      "widths": [
+        {
+          "width": 2,
+          "baseline_restore_exact": true,
+          "minimal_default_unchanged": true,
+          "arms": {
+            "baseline-before": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 5962,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 19.7516
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 5962,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 19.43028
+              }
+            },
+            "existing-motif-kernel": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 5962,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 20.4012
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 32.55064
+              }
+            },
+            "minimal-reference": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 5962,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 21.6966
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 55.55544
+              }
+            },
+            "baseline-restored": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 5962,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 21.371480000000002
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 5962,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 20.507440000000003
+              }
+            }
+          }
+        },
+        {
+          "width": 4,
+          "baseline_restore_exact": true,
+          "minimal_default_unchanged": true,
+          "arms": {
+            "baseline-before": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 11859,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 25.77348
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 11859,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 25.773519999999998
+              }
+            },
+            "existing-motif-kernel": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 11859,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 27.17772
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 55.41204
+              }
+            },
+            "minimal-reference": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 11859,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 26.18884
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 133.60048
+              }
+            },
+            "baseline-restored": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 11859,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 28.13516
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 11859,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 27.143159999999998
+              }
+            }
+          }
+        },
+        {
+          "width": 8,
+          "baseline_restore_exact": true,
+          "minimal_default_unchanged": true,
+          "arms": {
+            "baseline-before": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23993,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 37.267559999999996
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23993,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 38.7006
+              }
+            },
+            "existing-motif-kernel": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23993,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 50.76172
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23993,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 39.18508
+              }
+            },
+            "minimal-reference": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23993,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 39.44296
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23993,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 38.196239999999996
+              }
+            },
+            "baseline-restored": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23993,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 40.03756
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23993,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 39.97168
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "k": 4096,
+      "m": 16384,
+      "widths": [
+        {
+          "width": 2,
+          "baseline_restore_exact": true,
+          "minimal_default_unchanged": true,
+          "arms": {
+            "baseline-before": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23846,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 283.5124
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23846,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 280.78976
+              }
+            },
+            "existing-motif-kernel": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23846,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 280.48384
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 285.09516
+              }
+            },
+            "minimal-reference": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23846,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 282.06276
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 545.5527999999999
+              }
+            },
+            "baseline-restored": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 23846,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 289.05364000000003
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 23846,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 287.48944
+              }
+            }
+          }
+        },
+        {
+          "width": 4,
+          "baseline_restore_exact": true,
+          "minimal_default_unchanged": true,
+          "arms": {
+            "baseline-before": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 47534,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 285.69804
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 47534,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 283.2756
+              }
+            },
+            "existing-motif-kernel": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 47534,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 300.60212
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 310.27088
+              }
+            },
+            "minimal-reference": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 47534,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 301.97880000000004
+              },
+              "invariant_hint": {
+                "bitwise_equal": true,
+                "different_values": 0,
+                "max_abs_difference": 0.0,
+                "compute_microseconds": 1121.78416
+              }
+            },
+            "baseline-restored": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 47534,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 290.36568
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 47534,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 289.79540000000003
+              }
+            }
+          }
+        },
+        {
+          "width": 8,
+          "baseline_restore_exact": true,
+          "minimal_default_unchanged": true,
+          "arms": {
+            "baseline-before": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 96094,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 288.1922
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 96094,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 286.98384
+              }
+            },
+            "existing-motif-kernel": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 96094,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 286.73616000000004
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 96094,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 305.85412
+              }
+            },
+            "minimal-reference": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 96094,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 291.81084
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 96094,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 286.54412
+              }
+            },
+            "baseline-restored": {
+              "ordinary": {
+                "bitwise_equal": false,
+                "different_values": 96094,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 293.81984
+              },
+              "invariant_hint": {
+                "bitwise_equal": false,
+                "different_values": 96094,
+                "max_abs_difference": 1.52587890625e-05,
+                "compute_microseconds": 331.08104
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "scope": "Three synthetic Q8_0 matrix shapes on GB10, distinct inputs in each column. Optional hint tested; no model or MTP claim.",
+  "gpu_final": ""
+}

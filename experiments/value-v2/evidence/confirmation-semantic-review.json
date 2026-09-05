@@ -1,0 +1,477 @@
+{
+  "reviewer": "assistant in the same task; not blind or independent human review",
+  "method": "Frozen per-case criteria; post-hoc manual PASS/PARTIAL/FAIL aggregation. Missing required explanation is PARTIAL; material wrong claims or no answer are FAIL.",
+  "criteria_sha256": "061e46a8310cc76b4613e4cff07681bfc76810da81f51c482d12dd2ec1280a44",
+  "source_freeze_sha256": "a88c68dc496fe8030d03ac25e59937059d351efa128d6bca80569c00755c3fae",
+  "client_freeze_sha256": "37f8c8ad0586edbb622b6d04607c612c41fb991df382aa118c3947dbf96113e7",
+  "cases": [
+    {
+      "model_configuration": "motif",
+      "case_id": "confirm-release",
+      "grade": "PASS",
+      "criteria": [
+        {
+          "criterion": "원본 품질 보존과 범용 코딩 완성 주장을 모두 승인하지 않는다.",
+          "coverage": "pass"
+        },
+        {
+          "criterion": "제한된 로컬 문서 보조 또는 검증된 실험 범위로 대체 문구를 좁힌다.",
+          "coverage": "pass"
+        }
+      ],
+      "reason": "원본 품질·범용 완성 주장을 함께 부정하고 문서 보조 파일럿으로 대체 문구를 좁혔다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/motif-confirmation-v3/confirm-release.json",
+      "response_sha256": "c50385fc44ad55b2add36a37967423539460b3f7aceb6b88402b5c520a130744",
+      "task_seconds": 68.09719211398624,
+      "report_repairs": 0,
+      "answer": "문구 “원본 품질을 유지하는 범용 코딩 에이전트가 완성됐다”는 두 문서 모두에서 근거가 부족합니다. motif-agent-current는 “범용 에이전트, 자동 업무 완료 보증, IQ2의 원본 품질 보존은 입증하지 않았다”고 명시하며, motif-runtime도 “품질 개선 미검증” 판정을 내립니다. 근거에 맞는 대체 문구는 “문서 보조 파일럿 준비 완료: 네이티브 도구 호출 문제 수정, 로컬 문서 검색·열람·계산·인용, Qwen3-8B Q8_0 비교(더 빠름), 원본 품질 보존은 미검증”입니다."
+    },
+    {
+      "model_configuration": "motif",
+      "case_id": "confirm-parity",
+      "grade": "PASS",
+      "criteria": [
+        {
+          "criterion": "같은 통합 IQ2 런타임의 MTP 꺼짐·켜짐·복구 비교라고 답한다.",
+          "coverage": "pass"
+        },
+        {
+          "criterion": "BF16 원본 품질 일치를 뜻하지 않는다고 답한다.",
+          "coverage": "pass"
+        }
+      ],
+      "reason": "같은 통합 런타임의 가속 꺼짐·켜짐·복구와 target-only 대조를 설명하고 BF16 원본 품질 일치를 명확히 부정했다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [
+        "본문이 motif-agent-current L5를 지목한 부분은 실제로 L52의 내용이다. 구조화된 근거에는 올바른 L50–52도 포함돼 있다."
+      ],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/motif-confirmation-v3/confirm-parity.json",
+      "response_sha256": "bd04e6d98c4b105741658dc4b4ee83d84d50b1b23551705b14edf08c9c71b5de",
+      "task_seconds": 72.6441813299898,
+      "report_repairs": 0,
+      "answer": "motif-runtime과 motif-agent-current를 함께 검토한 결과, 5,560개 토큰 일치는 BF16 원본과 IQ2의 품질 일치를 뜻하지 않습니다. motif-runtime L5에 따르면 11개 요청의 출력 토큰 5,560개가 가속 꺼짐·켜짐·복구 실행에서 모두 일치한 것은 '통합 추론과 지정 성능 기준 PASS'이며, 품질 개선 미검증입니다. 비교 대상은 '같은 통합 런타임의 target-only'이며, 토크나이저 패치만 넣은 동일 기반 대조본과 비교 시 두 답변의 표현이 달라 완전 동일 출력이나 기존 품질 점수 승계를 주장하지 않습니다. motif-agent-current L5에서도 Qwen 비교는 고정밀 대조를 대신하지 않으며, IQ2가 원본 품질을 보존한다거나 개선했다고 말할 수 없다고 명시합니다. 따라서 5,560개 토큰 일치는 동일 런타임 내 실행 재현성만 확인한 것이며, BF16 원본과 IQ2의 품질 일치를 의미하지 않습니다."
+    },
+    {
+      "model_configuration": "motif",
+      "case_id": "confirm-version",
+      "grade": "PARTIAL",
+      "criteria": [
+        {
+          "criterion": "템플릿·도구 호출 파서와 시험 조건이 달라졌다고 설명한다.",
+          "coverage": "partial"
+        },
+        {
+          "criterion": "서로 다른 시험의 점수를 가중치 지능 향상의 직접 증거로 사용하지 않는다.",
+          "coverage": "pass"
+        }
+      ],
+      "reason": "검증 단계와 조건이 달라 지능 향상으로 직접 비교할 수 없다고 답했다. 40/40을 가능하게 한 템플릿·파서 수정은 충분히 설명하지 않고 100문항 비교로 비중이 옮겨갔다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/motif-confirmation-v3/confirm-version.json",
+      "response_sha256": "528a745aba762593d6760a947a5005fe90a059e584260c310adb1c3fe584cbd9",
+      "task_seconds": 132.63643437507562,
+      "report_repairs": 1,
+      "answer": "두 문서는 같은 날(2026-09-05)에 작성되었으나 서로 다른 검증 단계를 다룹니다. motif-historical-review는 Motif-3 2bit 양자화 작업의 전체 검토와 다음 방향을 정리한 문서로, 현재 확보한 성과와 후속 실험 계획을 기술합니다. motif-agent-current는 문서 보조 파일럿 준비 검증 문서로, 네이티브 도구 호출 문제 수정과 로컬 문서 검색·열람·계산 실행기 구축, 그리고 Qwen3-8B Q8_0과의 100문항 비교를 기술합니다. 두 점수를 모델 지능 향상으로 직접 비교할 수 없습니다. motif-agent-current의 100문항 비교는 '모델과 템플릿이 다른 두 실행 구성의 비교이며, 양자화 비트 수만 바꾼 비교가 아니다'라고 명시되어 있고, Motif의 원본 품질 보존은 아직 보류 상태이며 Qwen 비교는 고정밀 대조를 대신하지 않습니다. 또한 Qwen의 100/100은 처음 보는 독립 시험 결과가 아니며, 100문항은 실제 사용자 업무를 대표하지 않는 합성 사례입니다. 따라서 두 점수를 모델 지능 향상으로 직접 비교하는 것은 부적절합니다."
+    },
+    {
+      "model_configuration": "motif",
+      "case_id": "confirm-comparison",
+      "grade": "FAIL",
+      "criteria": [
+        {
+          "criterion": "현재 문서 보조 기본값으로 Qwen을 제안한다.",
+          "coverage": "unanswered"
+        },
+        {
+          "criterion": "네 가지 합성 형식의 변형이며 일반 업무 전체 우위를 증명하지 못한다고 말한다.",
+          "coverage": "unanswered"
+        },
+        {
+          "criterion": "Qwen의 수정 후 동일 문항 재사용 한계를 반영한다.",
+          "coverage": "unanswered"
+        }
+      ],
+      "reason": "필요한 두 문서를 읽은 뒤에도 추가 검색·열람을 계속했고 8단계를 모두 소모해 답변을 만들지 못했다. 사실 오판과 구별한 실행 실패다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [],
+      "protocol_answer_produced": false,
+      "exact_source_spans_reverified": false,
+      "required_citation_coverage": false,
+      "response_file": "evidence/motif-confirmation-v3/confirm-comparison.json",
+      "response_sha256": "ea23092a2f84e2b25c5251d4e5df83ef90ce13cf7cc42cc0ff9caf721ad8913e",
+      "task_seconds": 199.58381130709313,
+      "report_repairs": null,
+      "answer": null
+    },
+    {
+      "model_configuration": "motif",
+      "case_id": "confirm-startup",
+      "grade": "PASS",
+      "criteria": [
+        {
+          "criterion": "업무 시간 합계에 서버 준비 시간이 포함되지 않았다고 답한다.",
+          "coverage": "pass"
+        },
+        {
+          "criterion": "파일 캐시를 통제한 냉시작 비교가 아니라고 설명한다.",
+          "coverage": "pass"
+        }
+      ],
+      "reason": "업무 시간에 모델 준비가 포함되지 않으며 냉시작 비교 자료로 부적절하다고 답했다. 준비 시간과 작업 시간을 구분하는 실제 원문도 제시했다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [
+        "본문 첫 문장의 L16은 시간 표이며 제외 조건은 L24다. 구조화된 근거에 L24가 포함돼 있다."
+      ],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/motif-confirmation-v3/confirm-startup.json",
+      "response_sha256": "0096813c50e391eb62d88c2a137121b243cc55f48b5d937a898c5466a1e2ad2a",
+      "task_seconds": 70.17790005914867,
+      "report_repairs": 0,
+      "answer": "motif-agent-current L16에 따르면 전체 업무 시간은 서버 준비 후 실제 검색·열람·계산·답변에 걸린 합계이며, 서버 준비 시간은 별도 기록되었다. 따라서 33.4분과 10.1분에는 서버 준비 시간이 포함되지 않는다. motif-agent-current L24도 “서버 준비 시간은 별도 기록했고... 냉시작 비교로 해석하지 않았다”고 명시한다. 냉시작 성능 비교 자료로 쓰기에는 부적절하며, 준비 시간 비교는 별도 기록이 필요하다. motif-evaluation-method L113-119도 “모델 스타트업은 별도로 보고”하며, 작업 벽 시간은 에이전트 루프 시작 시점부터 실제 작업만 포함한다고 설명한다."
+    },
+    {
+      "model_configuration": "motif",
+      "case_id": "confirm-optimization",
+      "grade": "PARTIAL",
+      "criteria": [
+        {
+          "criterion": "입력 처리가 약 70%였으므로 반복 문맥 재사용을 조사 대상으로 제안한다.",
+          "coverage": "pass"
+        },
+        {
+          "criterion": "MTP 생성 가속과 캐시 효과를 구분하며 캐시 이득을 미검증으로 남긴다.",
+          "coverage": "partial"
+        }
+      ],
+      "reason": "입력 처리 70%와 캐시 별도 검증 방향은 맞다. MTP가 이미 단축됐다고 한 뒤 아직 측정하지 않은 효과라고 이어져, 측정한 MTP와 미측정 캐시의 경계가 모호하다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/motif-confirmation-v3/confirm-optimization.json",
+      "response_sha256": "775a234e24a078d622897076ec344bdeaf6602039d56a3ec7db7a1444b71104f",
+      "task_seconds": 67.3150201169774,
+      "report_repairs": 0,
+      "answer": "속도 개선을 먼저 조사할 곳은 **입력 처리**입니다. motif-agent-current 문서(L58)에 “이번 Motif 100문항에서 서버 처리 시간의 약 70%가 입력 처리였다”고 명시되어 있어, 입력 처리 개선이 생성 가속보다 우선적 효과를 낼 가능성이 있습니다. 생성 가속은 이미 MTP 통합으로 일부 단축된 상태이며, 아직 측정하지 않은 효과이므로 확정하지 않았습니다. 입력 처리 개선은 캐시를 켰을 때의 효과와 정확성을 별도 검증해야 하므로, 먼저 조사해야 합니다."
+    },
+    {
+      "model_configuration": "motif",
+      "case_id": "confirm-run-scope",
+      "grade": "PARTIAL",
+      "criteria": [
+        {
+          "criterion": "지정 폴더 Markdown 읽기와 제한 산술 계산 범위를 설명한다.",
+          "coverage": "partial"
+        },
+        {
+          "criterion": "외부 명령·파일 쓰기·외부 웹 도구를 실행한다고 주장하지 않는다.",
+          "coverage": "pass"
+        },
+        {
+          "criterion": "대상·근거·완성도 등 사람의 판단이 남음을 설명한다.",
+          "coverage": "pass"
+        }
+      ],
+      "reason": "금지된 도구와 사람의 확인 필요성을 구체적으로 설명했다. 본문에서는 Markdown·제한 산술 범위를 빠뜨렸다. 해당 형식 제한은 함께 붙인 원문 구절에 존재한다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [
+        "6단계·180초·320자는 질문이 가리킨 과거 문서 스냅샷의 값으로 맞다. 최종 v4 실행기의 현재 한도와 혼동하면 안 된다."
+      ],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/motif-confirmation-v3/confirm-run-scope.json",
+      "response_sha256": "591fa6a70ea008a8c9181a64786568777d7cb39c928b7e2f70eee25857b923a3",
+      "task_seconds": 69.91002291301265,
+      "report_repairs": 0,
+      "answer": "문서 에이전트는 로컬 문서 검색·열람·계산·인용 보고만 수행하며, 파일 수정·명령 실행·인터넷 검색·메시지 발송 도구는 제공하지 않습니다. 최대 여섯 차례 도구 선택, 업무당 180초, 한 모델 요청 60초, 최종 보고서 320자·인용 네 개 제한입니다. 현재 Qwen3-8B Q8_0 기본 설정과 Motif IQ2+MTP 실험 설정을 모두 실행할 수 있으며, 실행기는 업무 하나당 모델 서버를 띄우고 종료합니다. 사람의 확인이 필요한 이유는: (1) 사실 정확성은 별도 평가 결과이며 자동 보증이 아님, (2) 원본 품질 보존은 미검증, (3) 질문·문서 대상 일치와 실제 업무 자료 보강이 필요, (4) 캐시 효과·속도는 별도 검증 필요, (5) 100문항은 합성 사례로 실제 사용자 업무를 대표하지 않음, (6) BF16 원본은 300초 내 준비 실패로 품질 비교 보류. 현재 문서 에이전트는 문서 보조 파일럿으로서 사람이 인용과 대상을 확인하는 방식으로 사용해야 합니다."
+    },
+    {
+      "model_configuration": "motif",
+      "case_id": "confirm-observation",
+      "grade": "PASS",
+      "criteria": [
+        {
+          "criterion": "Motif 99/100, Qwen 100/100을 올바르게 구분한다.",
+          "coverage": "pass"
+        },
+        {
+          "criterion": "Qwen의 25건 중간 읽기 오류는 복구됐다고 설명한다.",
+          "coverage": "pass"
+        },
+        {
+          "criterion": "중간 오류 없음만으로 최종 정확도 우위를 주장하지 않는다.",
+          "coverage": "pass"
+        }
+      ],
+      "reason": "Motif 99/100, Qwen 100/100과 Qwen 중간 오류 25건의 회복을 구분하고 잘못된 우위 주장을 부정했다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/motif-confirmation-v3/confirm-observation.json",
+      "response_sha256": "6285e2d6517bda235bc5fc9497427e230ea348307d9891b39550cbfe6a8b4c2a",
+      "task_seconds": 67.42428383394144,
+      "report_repairs": 0,
+      "answer": "주어진 두 문서 모두 “중간 오류가 없어서 Motif가 더 정확했다”는 주장을 뒷받침하지 않습니다. 오히려 Qwen이 100/100, Motif가 99/100으로 Qwen이 더 정확했고, Motif의 중간 도구 오류 0건도 Qwen의 25건보다 적지만 Qwen은 모두 회복 후 정답이었습니다. 또한 두 문서 모두 “중간 오류가 없어서 더 정확했다”는 비교는 하지 않으며, Motif의 원본 품질 보존은 미검증이라고 명시합니다. 따라서 해당 주장은 근거가 부족합니다."
+    },
+    {
+      "model_configuration": "qwen",
+      "case_id": "confirm-release",
+      "grade": "FAIL",
+      "criteria": [
+        {
+          "criterion": "원본 품질 보존과 범용 코딩 완성 주장을 모두 승인하지 않는다.",
+          "coverage": "partial"
+        },
+        {
+          "criterion": "제한된 로컬 문서 보조 또는 검증된 실험 범위로 대체 문구를 좁힌다.",
+          "coverage": "fail"
+        }
+      ],
+      "reason": "원본 품질 보존은 부정했지만 대체 문구를 범용 코딩 에이전트의 성능·실행 입증으로 제시했다. 검증된 문서 보조 범위로 좁히지 않았다.",
+      "material_wrong_or_unsupported_conclusion": true,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/qwen-confirmation-v3/confirm-release.json",
+      "response_sha256": "208a910c04f3e5ae3d6cb38299f69b67e4c1a3a58e6288eb5b6015f8a333ad56",
+      "task_seconds": 18.489998512202874,
+      "report_repairs": 0,
+      "answer": "문구 '원본 품질을 유지하는 범용 코딩 에이전트가 완성됐다'는 근거가 부족합니다. 'motif-agent-current' 문서에서 'IQ2의 원본 품질 보존은 입증하지 않았다'고 명시되어 있으며, 'motif-runtime' 문서에서도 '품질 개선 미검증'이라고 언급되어 있습니다. 대체 문구로 '범용 코딩 에이전트의 원본 품질 보존은 검증되지 않았으나, 성능 향상과 실행 가능성은 입증되었다'라고 제안합니다."
+    },
+    {
+      "model_configuration": "qwen",
+      "case_id": "confirm-parity",
+      "grade": "FAIL",
+      "criteria": [
+        {
+          "criterion": "같은 통합 IQ2 런타임의 MTP 꺼짐·켜짐·복구 비교라고 답한다.",
+          "coverage": "fail"
+        },
+        {
+          "criterion": "BF16 원본 품질 일치를 뜻하지 않는다고 답한다.",
+          "coverage": "fail"
+        }
+      ],
+      "reason": "5,560개 토큰 일치를 Motif IQ2와 Qwen Q8_0 간 동일 출력으로 잘못 설명했다. 같은 IQ2 런타임의 가속 전후 비교와 BF16 미검증을 구분하지 못했다.",
+      "material_wrong_or_unsupported_conclusion": true,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/qwen-confirmation-v3/confirm-parity.json",
+      "response_sha256": "00cbd8c22743d2d0ecd727395183186431410edbf9818530316e09bcae0df5c5",
+      "task_seconds": 18.800464966101572,
+      "report_repairs": 0,
+      "answer": "5,560개 토큰 일치는 Motif의 IQ2 모델과 Qwen3-8B Q8_0 모델이 동일한 토큰 생성을 성공적으로 수행했음을 의미합니다. 이는 두 모델이 동일한 입력에 대해 동일한 출력을 생성했음을 나타냅니다. 비교 대상은 11개의 요청에서의 출력 토큰 5,560개이며, 이는 가속 꺼짐·켜짐·복구 실행에서 모두 일치했습니다. 이는 모델의 성능과 일관성을 검증하는 데 사용되었습니다."
+    },
+    {
+      "model_configuration": "qwen",
+      "case_id": "confirm-version",
+      "grade": "FAIL",
+      "criteria": [
+        {
+          "criterion": "템플릿·도구 호출 파서와 시험 조건이 달라졌다고 설명한다.",
+          "coverage": "fail"
+        },
+        {
+          "criterion": "서로 다른 시험의 점수를 가중치 지능 향상의 직접 증거로 사용하지 않는다.",
+          "coverage": "pass"
+        }
+      ],
+      "reason": "직접 지능 비교는 부정했으나 40/40 네이티브 진단을 Qwen 100문항과 섞었다. 이전 검토 문서에 없던 Motif 99/100·Qwen 100/100 결과를 그 문서의 내용으로 잘못 귀속했다.",
+      "material_wrong_or_unsupported_conclusion": true,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/qwen-confirmation-v3/confirm-version.json",
+      "response_sha256": "ca6fce8db27535dd4b011f54444bcbc8aacbb0c60cbe3ce721b5fa7c38d1be63",
+      "task_seconds": 21.69273633393459,
+      "report_repairs": 0,
+      "answer": "두 문서에서 네이티브 진단 40/40은 Motif-agent-current에서 도구 호출 문제를 수정하고, Qwen3-8B Q8_0 모델을 사용하여 100문항 중 100개를 정확히 처리했다는 점에서 성공을 보여준다. 반면, motif-historical-review에서는 2bit 양자화 검증에서 IQ2의 정확도가 99/100이었고, Qwen의 정확도가 100/100이었지만, 처리 시간이 더 짧았다. 두 점수를 모델 지능 향상으로 직접 비교할 수는 없으며, 각각의 성과와 한계가 다르다."
+    },
+    {
+      "model_configuration": "qwen",
+      "case_id": "confirm-comparison",
+      "grade": "PARTIAL",
+      "criteria": [
+        {
+          "criterion": "현재 문서 보조 기본값으로 Qwen을 제안한다.",
+          "coverage": "missing"
+        },
+        {
+          "criterion": "네 가지 합성 형식의 변형이며 일반 업무 전체 우위를 증명하지 못한다고 말한다.",
+          "coverage": "partial"
+        },
+        {
+          "criterion": "Qwen의 수정 후 동일 문항 재사용 한계를 반영한다.",
+          "coverage": "missing"
+        }
+      ],
+      "reason": "모든 실제 업무의 우위는 부정했다. 현재 기본 모델, 네 가지 합성 형식, Qwen 수정 후 같은 문항 재사용 한계는 답변에서 설명하지 않았다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/qwen-confirmation-v3/confirm-comparison.json",
+      "response_sha256": "5b3387a27e6c937e6a52c809773b336f05f4a9ff11b4467eafe1071bab055ea3",
+      "task_seconds": 14.806978158885613,
+      "report_repairs": 0,
+      "answer": "Qwen은 특정 조건에서 더 빠르지만, 모든 실제 업무에서 우수하다는 결론은 내릴 수 없습니다. Motif와 Qwen의 평가 방법과 한계를 고려해야 합니다."
+    },
+    {
+      "model_configuration": "qwen",
+      "case_id": "confirm-startup",
+      "grade": "FAIL",
+      "criteria": [
+        {
+          "criterion": "업무 시간 합계에 서버 준비 시간이 포함되지 않았다고 답한다.",
+          "coverage": "partial"
+        },
+        {
+          "criterion": "파일 캐시를 통제한 냉시작 비교가 아니라고 설명한다.",
+          "coverage": "fail"
+        }
+      ],
+      "reason": "냉시작으로 해석하지 않았다고 쓰고도 마지막에 냉시작 비교에 사용할 수 있다고 결론냈다. 파일 캐시 미통제 조건도 설명하지 않았다.",
+      "material_wrong_or_unsupported_conclusion": true,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/qwen-confirmation-v3/confirm-startup.json",
+      "response_sha256": "4261b0e57b7e7d919e1350504966ec24e5d0cf11dc768cc539631e5ff3bb81b7",
+      "task_seconds": 15.241297771921381,
+      "report_repairs": 0,
+      "answer": "33.4분과 10.1분에는 서버 준비 시간이 별도로 기록되었으며, 냉시작 성능 비교로 해석되지 않았습니다. 이 자료는 냉시작 성능을 비교하는 데 사용할 수 있습니다."
+    },
+    {
+      "model_configuration": "qwen",
+      "case_id": "confirm-optimization",
+      "grade": "PARTIAL",
+      "criteria": [
+        {
+          "criterion": "입력 처리가 약 70%였으므로 반복 문맥 재사용을 조사 대상으로 제안한다.",
+          "coverage": "pass"
+        },
+        {
+          "criterion": "MTP 생성 가속과 캐시 효과를 구분하며 캐시 이득을 미검증으로 남긴다.",
+          "coverage": "partial"
+        }
+      ],
+      "reason": "입력 처리 70%와 캐시 효과 미검증은 맞게 설명했다. 이미 측정한 MTP 생성 가속과 미측정 캐시의 차이를 구체적으로 설명하지 않았다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/qwen-confirmation-v3/confirm-optimization.json",
+      "response_sha256": "b67f2570936577e09b51f160871441be3a36d8bde8b60c50313ff3ec17e1aecb",
+      "task_seconds": 16.575749858981,
+      "report_repairs": 0,
+      "answer": "입력 처리와 생성 가속의 우선순위는 입력 처리에서 시작하는 것이 좋습니다. Motif의 100문항 검증에서 서버 처리 시간의 약 70%가 입력 처리에 소요되었으며, 캐시 사용 시의 효과와 정확성은 별도 검증이 필요합니다. 생성 가속은 입력 처리 후에 조사하는 것이 적절합니다."
+    },
+    {
+      "model_configuration": "qwen",
+      "case_id": "confirm-run-scope",
+      "grade": "PARTIAL",
+      "criteria": [
+        {
+          "criterion": "지정 폴더 Markdown 읽기와 제한 산술 계산 범위를 설명한다.",
+          "coverage": "partial"
+        },
+        {
+          "criterion": "외부 명령·파일 쓰기·외부 웹 도구를 실행한다고 주장하지 않는다.",
+          "coverage": "pass"
+        },
+        {
+          "criterion": "대상·근거·완성도 등 사람의 판단이 남음을 설명한다.",
+          "coverage": "pass"
+        }
+      ],
+      "reason": "로컬 조회·계산과 대상 확인 필요성은 설명했다. 지정 폴더의 Markdown과 제한 산술이라는 구체적인 허용 범위를 답변에서 빠뜨렸다.",
+      "material_wrong_or_unsupported_conclusion": false,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/qwen-confirmation-v3/confirm-run-scope.json",
+      "response_sha256": "99feef0d1b0e1f37734d66224a91dfda0c99b263f4f87a95ed2a3a8021cfc81b",
+      "task_seconds": 16.46704262215644,
+      "report_repairs": 0,
+      "answer": "현재 문서 에이전트는 Qwen3-8B Q8_0 모델을 사용하여 로컬 문서를 검색·열람·계산할 수 있으며, 인용과 함께 답을 생성합니다. 하지만 사람의 확인이 필요한 이유는 질문 대상과 문서 대상이 일치하지 않을 수 있으며, 원본 품질 보존 여부는 아직 검증되지 않았기 때문입니다."
+    },
+    {
+      "model_configuration": "qwen",
+      "case_id": "confirm-observation",
+      "grade": "FAIL",
+      "criteria": [
+        {
+          "criterion": "Motif 99/100, Qwen 100/100을 올바르게 구분한다.",
+          "coverage": "missing"
+        },
+        {
+          "criterion": "Qwen의 25건 중간 읽기 오류는 복구됐다고 설명한다.",
+          "coverage": "partial"
+        },
+        {
+          "criterion": "중간 오류 없음만으로 최종 정확도 우위를 주장하지 않는다.",
+          "coverage": "fail"
+        }
+      ],
+      "reason": "첫 문장에서 중간 오류가 없어 Motif가 더 정확했다는 주장을 받아들였다. 실제 99/100 대 100/100을 설명하지 않았고 Qwen 회복 사례만 덧붙였다.",
+      "material_wrong_or_unsupported_conclusion": true,
+      "source_notes": [],
+      "protocol_answer_produced": true,
+      "exact_source_spans_reverified": true,
+      "required_citation_coverage": true,
+      "response_file": "evidence/qwen-confirmation-v3/confirm-observation.json",
+      "response_sha256": "cc3aadd26a8f2e35d2005146c5055b2fef7624fa3292f9a72fd4e9ea56bd7a49",
+      "task_seconds": 15.948093740968034,
+      "report_repairs": 0,
+      "answer": "Motif가 더 정확했다는 주장은 중간 오류가 없었기 때문입니다. 그러나 Qwen은 처리 시간이 더 짧았고, 중간 오류가 발생했지만 모두 회복 후 정답을 냈습니다. 이는 처리 속도와 오류 회복 능력의 차이를 보여줍니다."
+    }
+  ],
+  "models": {
+    "motif": {
+      "cases": 8,
+      "protocol_answers": 7,
+      "PASS": 4,
+      "PARTIAL": 3,
+      "FAIL": 1,
+      "material_wrong_or_unsupported_conclusions": 0,
+      "task_seconds_total": 747.788846049225,
+      "task_seconds_median": 70.04396148608066
+    },
+    "qwen": {
+      "cases": 8,
+      "protocol_answers": 8,
+      "PASS": 0,
+      "PARTIAL": 3,
+      "FAIL": 5,
+      "material_wrong_or_unsupported_conclusions": 5,
+      "task_seconds_total": 138.0223619651515,
+      "task_seconds_median": 16.52139624056872
+    }
+  }
+}

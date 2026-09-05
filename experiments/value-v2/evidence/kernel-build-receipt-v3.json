@@ -1,0 +1,21 @@
+{
+  "command": [
+    "g++",
+    "-std=c++17",
+    "-O2",
+    "-I/opt/motif-work/motif3-integrated-runtime-v1/ggml/include",
+    "-I/opt/motif-work/motif3-integrated-runtime-v1/vendor",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/q8_kernel_probe_v3.cpp",
+    "-L/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin",
+    "-Wl,-rpath,/opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin",
+    "-lggml",
+    "-lggml-base",
+    "-o",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/q8-kernel-probe-v3"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "",
+  "source_sha256": "b038aa39f5a4ebd0d888a9a69e06da26a0d2e858d359dd8469009d1899fbd7ad",
+  "binary_sha256": "9dad85f089fcdb4a5468f3b029955b7aef6888687773e460282ca4632e101e3e"
+}

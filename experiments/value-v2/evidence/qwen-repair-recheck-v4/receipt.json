@@ -1,0 +1,235 @@
+{
+  "status": "completed",
+  "backend": "qwen",
+  "split": "post_confirmation_recheck",
+  "freeze_sha256": "a88c68dc496fe8030d03ac25e59937059d351efa128d6bca80569c00755c3fae",
+  "client_freeze_sha256": "89bb3b91d49fc36e47cbf2b8850ba7b9f67b03b15ecd8dc2f12bb642b3274608",
+  "runtime": {
+    "path": "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/llama-server",
+    "size_bytes": 72488,
+    "mtime_ns": "REDACTED",
+    "inode": "REDACTED",
+    "device": "REDACTED",
+    "sha256": "633a9a4ba57aa2f3792419c27f20dabfe8ad699a96a39e968b06cf2f210455bd",
+    "linked_libraries": [
+      {
+        "path": "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libllama-server-impl.so",
+        "size_bytes": 3936600,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "1731416738b8ec5e33909d9757f34f8915843cc3ca6a1bc1dc1a68691a82ec2c"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33",
+        "size_bytes": 2633224,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1",
+        "size_bytes": 133696,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/libc.so.6",
+        "size_bytes": 1722920,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "fe5966a43e068ad7cb389c3affa069f4ee6f296e07d7ccc0398a23cfde4f0b7e"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+        "size_bytes": 203968,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "393384096ffa869e1be20d2f91fdf08dfadb9f3e531dfe724085d8501d3f85d9"
+      },
+      {
+        "path": "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libllama-common.so.0.1.2",
+        "size_bytes": 5422832,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "4a385c57b61cec1bd8bbe1f1ec751db6508b3673c22a83c67b64e5683ad16b75"
+      },
+      {
+        "path": "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libmtmd.so.0.1.2",
+        "size_bytes": 1756920,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "24b31a58e7879e6ec289135c08ee90ff07cf018a73a1c225339a2eb19d126624"
+      },
+      {
+        "path": "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libllama.so.0.1.2",
+        "size_bytes": 4240064,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "a8531f14a733b35342c61a1b1e602494d1a27a762375df7773aeb0edf8181a07"
+      },
+      {
+        "path": "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml.so.0.20.2",
+        "size_bytes": 77880,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "f4b63b2caf8f54ee772c0f9d67972ff75e068bfe6cf6520d6f9bc322daf7aa61"
+      },
+      {
+        "path": "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml-base.so.0.20.2",
+        "size_bytes": 873608,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "dd87a49af45c36387b764dd7c405e9c4e1a2b2c734b1c4502acb574a69fcd623"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/libm.so.6",
+        "size_bytes": 591800,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "d5b262e559d38769e4959f036a1cc2c4009fa60b4ec836a7a19ca8554aebf5a5"
+      },
+      {
+        "path": "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml-cpu.so.0.20.2",
+        "size_bytes": 929080,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "5057508863de7312edbd43a0090e3296eb39f0436a8bdb84ba0fe6b194268b98"
+      },
+      {
+        "path": "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml-cuda.so.0.20.2",
+        "size_bytes": 63399896,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "87f85b4f88bb8fdf0cd24ca2eca136535d822986dc23c70e1f22197fbc499874"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/libgomp.so.1.0.0",
+        "size_bytes": 397088,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "33c8bcb7d33228fe5101bfeb201bcaff4563d4ecf09497229b9deba522ebaf3d"
+      },
+      {
+        "path": "/usr/local/cuda-13.0/targets/sbsa-linux/lib/libcudart.so.13.0.96",
+        "size_bytes": 707752,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "7bdba2b5b08cbdc85203c41cc94598adedb1bcfea7cb574ca693ac73599e4e63"
+      },
+      {
+        "path": "/usr/local/cuda-13.0/targets/sbsa-linux/lib/libcublas.so.13.1.1.3",
+        "size_bytes": 61910216,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "4e346a7b60a01552bd9bf4bbc6c862e11eb851559c3da3572293345de6aaed75"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/libcuda.so.580.126.09",
+        "size_bytes": 96460544,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "477f19f28a791edb73f8e4c6ee27b7e2dd13300a7dabacd6f40e3eee3916d14f"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/libdl.so.2",
+        "size_bytes": 67440,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "97387fb55ccfc0cc109dfe99b81de2b7bbaac723d1c215107dc69a068c4b1fae"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/libpthread.so.0",
+        "size_bytes": 67440,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "97b288827c0ab29659dfcdcfab6c2e9e1225c19fc5abfe106d8a53c2c7b34402"
+      },
+      {
+        "path": "/usr/lib/aarch64-linux-gnu/librt.so.1",
+        "size_bytes": 67512,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "4b38331a53bc2bd10c1ecf4f02a71c913c40bad13f5fbf93bee5a0e1f25dd493"
+      },
+      {
+        "path": "/usr/local/cuda-13.0/targets/sbsa-linux/lib/libcublasLt.so.13.1.1.3",
+        "size_bytes": 629945952,
+        "mtime_ns": "REDACTED",
+        "inode": "REDACTED",
+        "device": "REDACTED",
+        "sha256": "930418840b747413584867cb7167dd5911dcf4184135589e0334527e9abbac9f"
+      }
+    ],
+    "ldd": "\tlinux-vdso.so.1 (0x0000e288163ff000)\n\tlibllama-server-impl.so => /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libllama-server-impl.so (0x0000e28816060000)\n\tlibstdc++.so.6 => /lib/aarch64-linux-gnu/libstdc++.so.6 (0x0000e28815dd0000)\n\tlibgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000e28815d90000)\n\tlibc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000e28815bd0000)\n\t/lib/ld-linux-aarch64.so.1 (0x0000e288163b0000)\n\tlibllama-common.so.0 => /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libllama-common.so.0 (0x0000e28815790000)\n\tlibmtmd.so.0 => /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libmtmd.so.0 (0x0000e288155f0000)\n\tlibllama.so.0 => /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libllama.so.0 (0x0000e28815280000)\n\tlibggml.so.0 => /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml.so.0 (0x0000e28815250000)\n\tlibggml-base.so.0 => /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml-base.so.0 (0x0000e28815170000)\n\tlibm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000e288150c0000)\n\tlibggml-cpu.so.0 => /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml-cpu.so.0 (0x0000e28814f50000)\n\tlibggml-cuda.so.0 => /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/qwen-parser-diagnostic-v2/runtime/bin/libggml-cuda.so.0 (0x0000e28811c30000)\n\tlibgomp.so.1 => /lib/aarch64-linux-gnu/libgomp.so.1 (0x0000e28811bb0000)\n\tlibcudart.so.13 => /usr/local/cuda/targets/sbsa-linux/lib/libcudart.so.13 (0x0000e28811af0000)\n\tlibcublas.so.13 => /usr/local/cuda/targets/sbsa-linux/lib/libcublas.so.13 (0x0000e2880dfb0000)\n\tlibcuda.so.1 => /lib/aarch64-linux-gnu/libcuda.so.1 (0x0000e28808320000)\n\tlibdl.so.2 => /lib/aarch64-linux-gnu/libdl.so.2 (0x0000e288082f0000)\n\tlibpthread.so.0 => /lib/aarch64-linux-gnu/libpthread.so.0 (0x0000e288082c0000)\n\tlibrt.so.1 => /lib/aarch64-linux-gnu/librt.so.1 (0x0000e28808290000)\n\tlibcublasLt.so.13 => /usr/local/cuda/targets/sbsa-linux/lib/libcublasLt.so.13 (0x0000e287dd590000)\n"
+  },
+  "cases": [
+    {
+      "id": "confirm-comparison",
+      "status": "answer_produced",
+      "answer": "Qwen은 특정 조건에서 더 빠르지만, 모든 실제 업무에서 우수하다는 결론은 내릴 수 없습니다. Motif와 Qwen의 평가 방법과 한계를 고려해야 합니다.",
+      "citations": [
+        "motif-agent-current",
+        "motif-evaluation-method"
+      ],
+      "required_citation_coverage": true,
+      "seconds": 14.448048682883382,
+      "report_repairs": 0,
+      "error": null
+    },
+    {
+      "id": "known-target-020",
+      "status": "answer_produced",
+      "answer": "HELDOUT-020 프로젝트의 확인 코드는 K39271입니다.",
+      "citations": [
+        "heldout-020"
+      ],
+      "required_citation_coverage": true,
+      "seconds": 6.712869859999046,
+      "report_repairs": 0,
+      "error": null
+    },
+    {
+      "id": "known-completion",
+      "status": "answer_produced",
+      "answer": "네이티브 도구 호출은 Motif-agent-current에서 수정되어 로컬 문서 검색·열람·계산을 통해 인용과 함께 답하는 실행기를 만들었으며, 원본 BF16 품질 보존은 입증되지 않았습니다. ",
+      "citations": [
+        "motif-agent-current",
+        "motif-runtime"
+      ],
+      "required_citation_coverage": true,
+      "seconds": 14.898635810008273,
+      "report_repairs": 0,
+      "error": null
+    }
+  ],
+  "server": {
+    "pid": "REDACTED",
+    "startup_seconds": 8.065866932971403,
+    "gpu_before": {
+      "gpu": "NVIDIA GB10, GPU-REDACTED, 57, 6.46",
+      "compute_processes": ""
+    }
+  },
+  "elapsed_seconds": 44.948244385188445
+}

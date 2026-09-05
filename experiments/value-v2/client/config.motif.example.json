@@ -1,0 +1,9 @@
+{
+  "integrated_binary": "/absolute/path/to/agent-runtime/bin/llama-server",
+  "target": "/absolute/path/to/motif3-direct-iq2xxs.gguf",
+  "sidecar": "/absolute/path/to/motif3-mtp-linked-bf16.gguf",
+  "binding": "/absolute/path/to/model-binding.json",
+  "ctx_size": 22016,
+  "port": 8825,
+  "gpu_uuid": ""
+}

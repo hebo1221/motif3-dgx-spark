@@ -15,6 +15,19 @@ patch, chat template, and benchmark rows are all public.
 **Download the model:**
 [jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)
 
+## Experimental follow-up: reproducible probes and document-agent evidence
+
+[v1.3.0-rc.1](https://github.com/hebo1221/motif3-dgx-spark/releases/tag/v1.3.0-rc.1)
+adds a model-free Q8 batch-consistency probe, a two-file opt-in reference patch,
+and a bounded document agent with project matching and exact source passages.
+The release includes successful and failed answers, public provenance, and
+reproduction instructions. The simple reference path is slower; the agent
+still makes factual errors. This is an experimental source/evidence release,
+with no new GGUF upload or BF16-quality claim.
+
+See [the follow-up](experiments/value-v2/README.md) and
+[한국어 결과](experiments/value-v2/README.ko.md).
+
 ## 한국어 요약
 
 한마디로, 3,147억 파라미터 규모의 sparse MoE인 Motif-3 핵심 모델을

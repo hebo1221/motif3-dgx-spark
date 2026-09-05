@@ -1,0 +1,29 @@
+{
+  "status": "pass",
+  "public_base_revision": "cc3f13b3f172978d7b3c215780d4cc98bb0e1c80",
+  "base_source_sha256": {
+    "common/chat.cpp": "c496276f42bb1ebae017ae67c58da9f045190b61b2bea852c46262bef9658675",
+    "ggml/include/ggml.h": "6fe9b62d3ea48c2de82cce6e9e06d3ae4f0de34f4b5831399c49c099badefb09",
+    "ggml/src/ggml-cuda/ggml-cuda.cu": "81e7a8dc692ceaa9998e3522560f1ad2b9e01959f8d0f50e7670343bc4bb5a40"
+  },
+  "patches": [
+    {
+      "patch": "q8-single-column-reference.patch",
+      "sha256": "afaee6e5cc3e5f80d8b29ee3a3aee4fca9bc294c8a53639345568393ef1d86d6",
+      "applied": true
+    },
+    {
+      "patch": "agent-parsers/motif3-agent-parser-v1.patch",
+      "sha256": "1b96a3117f71bd5421e63e67513dccf75b1c3c294718363a3930f1be591bea6b",
+      "applied": true
+    },
+    {
+      "patch": "agent-parsers/qwen3-agent-parser-v1.patch",
+      "sha256": "3bcc66963590d37d859c93179078f9a9c79590172e66a05bb1cabf4e3263f7b7",
+      "applied": true
+    }
+  ],
+  "minimal_q8_sources_match_measured_candidate": true,
+  "qwen_function_and_registration_match_measured_source": true,
+  "build_scope": "Patch application and exact source comparisons only. No fresh full CMake build or model inference in this publication step."
+}

@@ -1,0 +1,63 @@
+{
+  "status": "completed",
+  "base_source_hashes": {
+    "ggml/include/ggml.h": "6fe9b62d3ea48c2de82cce6e9e06d3ae4f0de34f4b5831399c49c099badefb09",
+    "ggml/src/ggml-cuda/ggml-cuda.cu": "81e7a8dc692ceaa9998e3522560f1ad2b9e01959f8d0f50e7670343bc4bb5a40"
+  },
+  "candidate_source_hashes": {
+    "ggml/include/ggml.h": "3c7f4fe6f5a33e19efb31a626ec33dbbb9ebd28ca8cca9c4259064dbb1640fd2",
+    "ggml/src/ggml-cuda/ggml-cuda.cu": "6b8334c4df91a19e4ce149923f5a956eaafe3dbc406eace50074be8e0488e4fd"
+  },
+  "patch_sha256": "afaee6e5cc3e5f80d8b29ee3a3aee4fca9bc294c8a53639345568393ef1d86d6",
+  "compile_command": [
+    "/usr/local/cuda/bin/nvcc",
+    "-forward-unknown-to-host-compiler",
+    "-I/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate-v2/source/ggml/include",
+    "-I/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate-v2/source/ggml/src/ggml-cuda",
+    "-DGGML_BACKEND_BUILD",
+    "-DGGML_BACKEND_SHARED",
+    "-DGGML_CUDA_PEER_MAX_BATCH_SIZE=128",
+    "-DGGML_CUDA_USE_GRAPHS",
+    "-DGGML_SCHED_MAX_COPIES=4",
+    "-DGGML_SHARED",
+    "-D_GNU_SOURCE",
+    "-D_XOPEN_SOURCE=600",
+    "-Dggml_cuda_EXPORTS",
+    "--options-file",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate-v2/includes.rsp",
+    "-O3",
+    "-DNDEBUG",
+    "-std=c++17",
+    "--generate-code=arch=compute_121a,code=[sm_121a]",
+    "-Xcompiler=-fPIC",
+    "-use_fast_math",
+    "-extended-lambda",
+    "-compress-mode=size",
+    "-Xcompiler",
+    "-Wmissing-declarations -Wmissing-noreturn -Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function -Wno-array-bounds -Wextra-semi -Wno-pedantic",
+    "-x",
+    "cu",
+    "-c",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate-v2/source/ggml/src/ggml-cuda/ggml-cuda.cu",
+    "-o",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate-v2/ggml-cuda.cu.o"
+  ],
+  "base_library_sha256": "a3152cf887434ca873350d22f2598b153bca5e8aa7e8d1c24492a7c74e368b38",
+  "mode": "Existing object reuse with one independently recompiled CUDA source file; not a full fresh build",
+  "link_command": [
+    "/usr/bin/g++",
+    "-fPIC",
+    "-shared",
+    "-Wl,-soname,libggml-cuda.so.0",
+    "-o",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate-v2/runtime/bin/libggml-cuda.so.0.20.2",
+    "@/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate-v2/objects.rsp",
+    "@CMakeFiles/ggml-cuda.dir/linkLibs.rsp",
+    "-L/usr/local/cuda/targets/sbsa-linux/lib/stubs",
+    "-L/usr/local/cuda/targets/sbsa-linux/lib"
+  ],
+  "library_sha256": "0e54fd0d0411ae48a048f1516f7628b7aad5c3cd13094ffe86cb2a76116dd0d7",
+  "library_bytes": 41758248,
+  "elapsed_seconds": 7.0210070631001145,
+  "base_unchanged": true
+}

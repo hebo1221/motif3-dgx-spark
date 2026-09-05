@@ -1,0 +1,101 @@
+--- a/common/chat.cpp
++++ b/common/chat.cpp
+@@ -3556,10 +3556,98 @@
+ }
+ 
+ 
++static common_chat_params common_chat_params_init_qwen3_agent(const common_chat_template & tmpl,
++                                                         const autoparser::generation_params & inputs) {
++    common_chat_params data;
++    const std::string start = "<|im_start|>assistant\n";
++    const std::string think_start = "<think>";
++    const std::string think_end = "</think>";
++    const std::string call_start = "<tool_call>";
++    const std::string call_end = "</tool_call>";
++
++    data.prompt = common_chat_template_direct_apply_impl(tmpl, inputs);
++    data.generation_prompt = start + (inputs.enable_thinking ? "" : "<think>\n\n</think>\n\n");
++    if (inputs.has_continuation() || !inputs.add_generation_prompt) {
++        throw std::invalid_argument("Qwen3 agent profile requires add_generation_prompt and does not support assistant prefill");
++    }
++    if (data.prompt.size() < data.generation_prompt.size() ||
++        data.prompt.compare(data.prompt.size() - data.generation_prompt.size(), data.generation_prompt.size(), data.generation_prompt) != 0) {
++        throw std::invalid_argument("Qwen3 generation prefix differs from the supported template");
++    }
++    data.format = COMMON_CHAT_FORMAT_PEG_NATIVE;
++    data.supports_thinking = true;
++    data.thinking_start_tag = think_start;
++    data.thinking_end_tags = {think_end};
++    data.preserved_tokens = {think_start, think_end, call_start, call_end};
++    data.additional_stops = {"<|im_end|>", "<|endoftext|>"};
++    data.message_delimiters = {
++        {COMMON_CHAT_ROLE_ASSISTANT, start},
++        {COMMON_CHAT_ROLE_USER, "<|im_start|>user\n"},
++        {COMMON_CHAT_ROLE_TOOL, "<|im_start|>user\n<tool_response>"},
++        {COMMON_CHAT_ROLE_SYSTEM, "<|im_start|>system\n"},
++    };
++    const bool has_tools = inputs.tools.is_array() && !inputs.tools.empty();
++    const bool use_tools = has_tools && inputs.tool_choice != COMMON_CHAT_TOOL_CHOICE_NONE;
++    const bool required = inputs.tool_choice == COMMON_CHAT_TOOL_CHOICE_REQUIRED;
++    const bool has_schema = inputs.json_schema.is_object() && !inputs.json_schema.empty();
++    if (required && !has_tools) {
++        throw std::invalid_argument("tool_choice required needs at least one tool");
++    }
++    if (use_tools && has_schema) {
++        throw std::invalid_argument("Qwen3 agent profile does not combine tools and response_format");
++    }
++    auto parser = build_chat_peg_parser([&](common_chat_peg_builder & p) {
++        auto prefix = p.literal(data.generation_prompt);
++        if (inputs.enable_thinking) {
++            auto thought = p.until(think_end);
++            auto reasoning = inputs.reasoning_format == COMMON_REASONING_FORMAT_NONE ? p.content(thought) : p.reasoning(thought);
++            prefix = prefix + p.optional(p.literal(think_start) + reasoning + p.literal(think_end) + p.space());
++        }
++        if (has_schema) {
++            auto response = p.content(p.schema(p.json(), "qwen-agent-response", inputs.json_schema));
++            return prefix + p.space() + response + p.space() + p.end();
++        }
++        if (!use_tools) {
++            return prefix + p.content(p.rest()) + p.end();
++        }
++        auto call = p.standard_json_tools(call_start, call_end, inputs.tools, false, true);
++        auto calls = inputs.parallel_tool_calls ? p.trigger_rule("qwen-agent-calls", call + p.zero_or_more(p.space() + call)) : call;
++        if (required) {
++            // Do not let free text exhaust the budget before the required call.
++            return prefix + p.space() + calls + p.space() + p.end();
++        }
++        return prefix + p.content(p.until(call_start)) + p.optional(calls) + p.space() + p.end();
++    });
++    data.parser = parser.save();
++    if (has_schema || use_tools) {
++        data.grammar_lazy = use_tools && !required;
++        data.grammar = build_grammar([&](const common_grammar_builder & builder) {
++            foreach_function(inputs.tools, [&](const json & tool) {
++                auto schema = tool.at("function").value("parameters", json::object());
++                builder.resolve_refs(schema);
++            });
++            if (has_schema) {
++                auto schema = inputs.json_schema;
++                builder.resolve_refs(schema);
++            }
++            parser.build_grammar(builder, data.grammar_lazy);
++        });
++        if (data.grammar_lazy) {
++            data.grammar_triggers = {{COMMON_GRAMMAR_TRIGGER_TYPE_WORD, call_start}};
++        }
++    }
++    return data;
++}
++
++
+ std::optional<common_chat_params> common_chat_try_specialized_template(
+         const common_chat_template &          tmpl,
+         const std::string &                   src,
+         autoparser::generation_params & params) {
++    if (src.find("qwen3_agent_profile_v1") != std::string::npos) {
++        return common_chat_params_init_qwen3_agent(tmpl, params);
++    }
++
+     if (src.find("motif3_agent_profile_v1") != std::string::npos) {
+         return common_chat_params_init_motif3(tmpl, params);
+     }

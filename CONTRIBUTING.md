@@ -36,7 +36,7 @@ Keep these claim boundaries intact unless you bring new, reproducible evidence:
 - this is a single-DGX-Spark systems result, not a BF16-equivalence result;
 - stock upstream llama.cpp compatibility is not established;
 - the downloadable GGUF does not include the native MTP head;
-- the experimental MTP result is bound to one byte-distinct target and one
+- the v1.2.0 experimental MTP result is bound to one byte-distinct target and one
   GB10, not the downloadable v1 GGUF or every CUDA GPU;
 - retained 256K-context quality is not established;
 - internal diagnostic tasks are not public leaderboard scores.

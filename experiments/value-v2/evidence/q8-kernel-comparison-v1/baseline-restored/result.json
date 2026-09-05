@@ -1,0 +1,310 @@
+{
+  "backend": "CUDA0",
+  "cases": [
+    {
+      "k": 2048,
+      "m": 4096,
+      "repeat_control": {
+        "backend_buffer_bytes": 8937472,
+        "bitwise_equal": true,
+        "compute_microseconds": 23.196759999999998,
+        "different_values": 0,
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0,
+        "output_fnv1a64": "4a76986a987ac587",
+        "reference_fnv1a64": "4a76986a987ac587",
+        "total_values": 4096
+      },
+      "single_column_microseconds": 27.25192,
+      "weight_bytes": 8912896,
+      "widths": [
+        {
+          "invariant_hint": {
+            "backend_buffer_bytes": 8962048,
+            "bitwise_equal": false,
+            "compute_microseconds": 14.63976,
+            "different_values": 5825,
+            "max_abs_difference": 7.62939453125e-06,
+            "mean_abs_difference": 1.2261516530998051e-06,
+            "output_fnv1a64": "c3868e1567d15e05",
+            "reference_fnv1a64": "c849b7a86edcb780",
+            "total_values": 8192
+          },
+          "ordinary": {
+            "backend_buffer_bytes": 8962048,
+            "bitwise_equal": false,
+            "compute_microseconds": 15.05192,
+            "different_values": 5825,
+            "max_abs_difference": 7.62939453125e-06,
+            "mean_abs_difference": 1.2261516530998051e-06,
+            "output_fnv1a64": "c3868e1567d15e05",
+            "reference_fnv1a64": "c849b7a86edcb780",
+            "total_values": 8192
+          },
+          "width": 2
+        },
+        {
+          "invariant_hint": {
+            "backend_buffer_bytes": 9011200,
+            "bitwise_equal": false,
+            "compute_microseconds": 19.4322,
+            "different_values": 11615,
+            "max_abs_difference": 7.62939453125e-06,
+            "mean_abs_difference": 1.2045602488797158e-06,
+            "output_fnv1a64": "7fbfa0427f94576c",
+            "reference_fnv1a64": "a85d64e8e5827e7f",
+            "total_values": 16384
+          },
+          "ordinary": {
+            "backend_buffer_bytes": 9011200,
+            "bitwise_equal": false,
+            "compute_microseconds": 19.17236,
+            "different_values": 11615,
+            "max_abs_difference": 7.62939453125e-06,
+            "mean_abs_difference": 1.2045602488797158e-06,
+            "output_fnv1a64": "7fbfa0427f94576c",
+            "reference_fnv1a64": "a85d64e8e5827e7f",
+            "total_values": 16384
+          },
+          "width": 4
+        },
+        {
+          "invariant_hint": {
+            "backend_buffer_bytes": 9109504,
+            "bitwise_equal": false,
+            "compute_microseconds": 26.77064,
+            "different_values": 23081,
+            "max_abs_difference": 7.62939453125e-06,
+            "mean_abs_difference": 1.198635800392367e-06,
+            "output_fnv1a64": "a743e74d586f33a6",
+            "reference_fnv1a64": "cdce19454deae77d",
+            "total_values": 32768
+          },
+          "ordinary": {
+            "backend_buffer_bytes": 9109504,
+            "bitwise_equal": false,
+            "compute_microseconds": 26.434639999999998,
+            "different_values": 23081,
+            "max_abs_difference": 7.62939453125e-06,
+            "mean_abs_difference": 1.198635800392367e-06,
+            "output_fnv1a64": "a743e74d586f33a6",
+            "reference_fnv1a64": "cdce19454deae77d",
+            "total_values": 32768
+          },
+          "width": 8
+        }
+      ]
+    },
+    {
+      "k": 4096,
+      "m": 4096,
+      "repeat_control": {
+        "backend_buffer_bytes": 17858560,
+        "bitwise_equal": true,
+        "compute_microseconds": 29.97524,
+        "different_values": 0,
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0,
+        "output_fnv1a64": "0aacd4e2222b2ddd",
+        "reference_fnv1a64": "0aacd4e2222b2ddd",
+        "total_values": 4096
+      },
+      "single_column_microseconds": 30.794439999999998,
+      "weight_bytes": 17825792,
+      "widths": [
+        {
+          "invariant_hint": {
+            "backend_buffer_bytes": 17891328,
+            "bitwise_equal": false,
+            "compute_microseconds": 20.507440000000003,
+            "different_values": 5962,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8295831978321075e-06,
+            "output_fnv1a64": "c2554385f1c67a73",
+            "reference_fnv1a64": "2d2eba4798899756",
+            "total_values": 8192
+          },
+          "ordinary": {
+            "backend_buffer_bytes": 17891328,
+            "bitwise_equal": false,
+            "compute_microseconds": 21.371480000000002,
+            "different_values": 5962,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8295831978321075e-06,
+            "output_fnv1a64": "c2554385f1c67a73",
+            "reference_fnv1a64": "2d2eba4798899756",
+            "total_values": 8192
+          },
+          "width": 2
+        },
+        {
+          "invariant_hint": {
+            "backend_buffer_bytes": 17956864,
+            "bitwise_equal": false,
+            "compute_microseconds": 27.143159999999998,
+            "different_values": 11859,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.830077962949872e-06,
+            "output_fnv1a64": "cf06c527e9a022b3",
+            "reference_fnv1a64": "99fc0545bd338b80",
+            "total_values": 16384
+          },
+          "ordinary": {
+            "backend_buffer_bytes": 17956864,
+            "bitwise_equal": false,
+            "compute_microseconds": 28.13516,
+            "different_values": 11859,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.830077962949872e-06,
+            "output_fnv1a64": "cf06c527e9a022b3",
+            "reference_fnv1a64": "99fc0545bd338b80",
+            "total_values": 16384
+          },
+          "width": 4
+        },
+        {
+          "invariant_hint": {
+            "backend_buffer_bytes": 18087936,
+            "bitwise_equal": false,
+            "compute_microseconds": 39.97168,
+            "different_values": 23993,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8794180505210534e-06,
+            "output_fnv1a64": "ddfc03fb0ecbd217",
+            "reference_fnv1a64": "38ebcaa8e9035cf8",
+            "total_values": 32768
+          },
+          "ordinary": {
+            "backend_buffer_bytes": 18087936,
+            "bitwise_equal": false,
+            "compute_microseconds": 40.03756,
+            "different_values": 23993,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8794180505210534e-06,
+            "output_fnv1a64": "ddfc03fb0ecbd217",
+            "reference_fnv1a64": "38ebcaa8e9035cf8",
+            "total_values": 32768
+          },
+          "width": 8
+        }
+      ]
+    },
+    {
+      "k": 4096,
+      "m": 16384,
+      "repeat_control": {
+        "backend_buffer_bytes": 71385088,
+        "bitwise_equal": true,
+        "compute_microseconds": 280.79868,
+        "different_values": 0,
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0,
+        "output_fnv1a64": "63e9008f4529b115",
+        "reference_fnv1a64": "63e9008f4529b115",
+        "total_values": 16384
+      },
+      "single_column_microseconds": 283.71652,
+      "weight_bytes": 71303168,
+      "widths": [
+        {
+          "invariant_hint": {
+            "backend_buffer_bytes": 71467008,
+            "bitwise_equal": false,
+            "compute_microseconds": 287.48944,
+            "different_values": 23846,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8358223314862698e-06,
+            "output_fnv1a64": "fa04015e96c40c84",
+            "reference_fnv1a64": "d4ec5abe65a7b9db",
+            "total_values": 32768
+          },
+          "ordinary": {
+            "backend_buffer_bytes": 71467008,
+            "bitwise_equal": false,
+            "compute_microseconds": 289.05364000000003,
+            "different_values": 23846,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8358223314862698e-06,
+            "output_fnv1a64": "fa04015e96c40c84",
+            "reference_fnv1a64": "d4ec5abe65a7b9db",
+            "total_values": 32768
+          },
+          "width": 2
+        },
+        {
+          "invariant_hint": {
+            "backend_buffer_bytes": 71630848,
+            "bitwise_equal": false,
+            "compute_microseconds": 289.79540000000003,
+            "different_values": 47534,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8243654267280363e-06,
+            "output_fnv1a64": "fb9cf182d86cac2f",
+            "reference_fnv1a64": "d8d6f6ccc2e2e6ef",
+            "total_values": 65536
+          },
+          "ordinary": {
+            "backend_buffer_bytes": 71630848,
+            "bitwise_equal": false,
+            "compute_microseconds": 290.36568,
+            "different_values": 47534,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8243654267280363e-06,
+            "output_fnv1a64": "fb9cf182d86cac2f",
+            "reference_fnv1a64": "d8d6f6ccc2e2e6ef",
+            "total_values": 65536
+          },
+          "width": 4
+        },
+        {
+          "invariant_hint": {
+            "backend_buffer_bytes": 71958528,
+            "bitwise_equal": false,
+            "compute_microseconds": 331.08104,
+            "different_values": 96094,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8773425836116076e-06,
+            "output_fnv1a64": "7e7af0945c41dc1b",
+            "reference_fnv1a64": "4135c9c24acb3de9",
+            "total_values": 131072
+          },
+          "ordinary": {
+            "backend_buffer_bytes": 71958528,
+            "bitwise_equal": false,
+            "compute_microseconds": 293.81984,
+            "different_values": 96094,
+            "max_abs_difference": 1.52587890625e-05,
+            "mean_abs_difference": 1.8773425836116076e-06,
+            "output_fnv1a64": "7e7af0945c41dc1b",
+            "reference_fnv1a64": "4135c9c24acb3de9",
+            "total_values": 131072
+          },
+          "width": 8
+        }
+      ]
+    }
+  ],
+  "fingerprint": "FNV-1a-64 over float32 bytes; diagnostic, not cryptographic",
+  "loaded_library_mappings": [
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cuda.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cuda.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cuda.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cuda.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cpu.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cpu.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cpu.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-cpu.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-base.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-base.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-base.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml-base.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml.so.0.20.2",
+    "mapped-library /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/build/bin/libggml.so.0.20.2"
+  ],
+  "purpose": "Synthetic Q8_0 matmul replay. No model weights, model quality, or MTP claims.",
+  "seed": 20260905,
+  "status": "completed",
+  "timing_scope": "25 repeated graph computes after one warm-up, excluding allocation, input transfer, and output copy"
+}

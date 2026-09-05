@@ -1,0 +1,12 @@
+{
+  "basis": "Line references replace model-transcribed quotes after four preserved development failures. Confirmation tasks have not run.",
+  "files": {
+    "test_agent.py": "137b228061d67ed1521d689e5819535bf494cebcf574a47ffab7c21816729a13",
+    "campaign_support.py": "5115c9fcd233d4571f74172cbaa27c0fb1bcddce7768ef24a374a21a720a32ce",
+    "qwen3-agent.jinja": "7c1d9947dedcb325bbfe60df2a6105bbe1f9346656a92b7e9499167bb22794fa",
+    "run_local.py": "fbb5ed7e7632c91687e2d496d9d0ee282118044b687b28cb07c756b14ce98cf4",
+    "agent.py": "a7ceb530cf8a308f5b5b7d3791d4210e77727843b2dec08e8003191ee967c826",
+    "document_contract.py": "ec6de39f201ad93cff9a905c58366523bdbece9394f9ef057e7df3f946310203",
+    "motif3-agent.jinja": "45a26ffea74ba9b166a3e6f0ae6b1b7ea6876d66f7b74243b50b57d4ccdc3e30"
+  }
+}

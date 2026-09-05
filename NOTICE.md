@@ -53,3 +53,7 @@ redistributed in this bundle.
 
 This is an independent community quantization and engineering report. It is
 not an official Motif Technologies, NVIDIA, or llama.cpp release.
+
+The v1.3.0-rc.1 experimental probes, agent client, and redacted evidence have
+additional [attribution](experiments/value-v2/NOTICE.md) and
+[publication provenance](experiments/value-v2/PUBLICATION.md).

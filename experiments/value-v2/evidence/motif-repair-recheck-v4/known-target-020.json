@@ -1,0 +1,242 @@
+{
+  "status": "answer_produced",
+  "task": "HELDOUT-020 프로젝트의 확인 코드를 알려줘.",
+  "steps": [
+    {
+      "step": 1,
+      "finalization_only": false,
+      "request_sha256": "79f182afa1ab724bfea88495bf1782533a4bd0b20fcb020a27676a0aed6bcaab",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "search_documents",
+                    "arguments": "{\"query\": \"HELDOUT-020 확인 코드\"}"
+                  },
+                  "id": "lvCBGeyKkMCFsqNqBnoYqxnlRpMXPFOH"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788601602,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 28,
+          "prompt_tokens": 931,
+          "total_tokens": 959,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-Y2pLtuJkIceVq3Pq5aHv4JjoIiM0Nlkw",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 931,
+          "prompt_ms": 3596.01,
+          "prompt_per_token_ms": 3.862524167561762,
+          "prompt_per_second": 258.8980564570176,
+          "predicted_n": 28,
+          "predicted_ms": 1252.044,
+          "predicted_per_token_ms": 46.37200000000001,
+          "predicted_per_second": 21.56473734149918,
+          "draft_n": 14,
+          "draft_n_accepted": 14
+        }
+      },
+      "tool": "search_documents",
+      "arguments": {
+        "query": "HELDOUT-020 확인 코드"
+      },
+      "execution": "completed",
+      "result": {
+        "matches": [
+          {
+            "doc_id": "heldout-020",
+            "snippet": "# 프로젝트-HELDOUT-020\n문서 ID: heldout-020\n담당자: 김하늘\n참가 인원: 46명\n1인당 재료비: 391원\n확인 코드: K39271\n"
+          }
+        ]
+      }
+    },
+    {
+      "step": 2,
+      "finalization_only": false,
+      "request_sha256": "765ff9d5b0c7bf37fba066429ad519bd2d9c926edd15312f53a8a9b57e0b8b5f",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_document",
+                    "arguments": "{\"doc_id\": \"heldout-020\"}"
+                  },
+                  "id": "7xOM04VHjxfqcP8FtXsFduZ8CrIwQoDE"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788601608,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 25,
+          "prompt_tokens": 1098,
+          "total_tokens": 1123,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-eD9lYYt84LKMejZ04LbxnXh2pXdmFZIF",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 1098,
+          "prompt_ms": 4794.61,
+          "prompt_per_token_ms": 4.36667577413479,
+          "prompt_per_second": 229.0071559522047,
+          "predicted_n": 25,
+          "predicted_ms": 1097.637,
+          "predicted_per_token_ms": 45.734874999999995,
+          "predicted_per_second": 21.86515214046174,
+          "draft_n": 12,
+          "draft_n_accepted": 12
+        }
+      },
+      "tool": "read_document",
+      "arguments": {
+        "doc_id": "heldout-020"
+      },
+      "execution": "completed",
+      "result": {
+        "doc_id": "heldout-020",
+        "text": "L1: # 프로젝트-HELDOUT-020\nL2: 문서 ID: heldout-020\nL3: 담당자: 김하늘\nL4: 참가 인원: 46명\nL5: 1인당 재료비: 391원\nL6: 확인 코드: K39271",
+        "sha256": "b5dea23a0dfd9ec0d77a9211edc87e9fe7617aee3d6c4110c3a59b9aa24cc3ca",
+        "line_count": 6
+      }
+    },
+    {
+      "step": 3,
+      "finalization_only": false,
+      "request_sha256": "a7dc23da4b753f3d4a634fe3891898bf44481fd8a08b515fde28bd566f489a3e",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "finish_report",
+                    "arguments": "{\"status\": \"answered\", \"answer\": \"HELDOUT-020 프로젝트의 확인 코드는 K39271입니다.\", \"citations\": [\"heldout-020\"], \"evidence\": [{\"doc_id\": \"heldout-020\", \"start_line\": 6, \"end_line\": 6}]}"
+                  },
+                  "id": "tDWnhJj6M7AmR3sA6Jhf4KCnNea7m5GZ"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788601617,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 75,
+          "prompt_tokens": 1327,
+          "total_tokens": 1402,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-vQx1zBHqDvVj2FBychszfRVeYAopjlIO",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 1327,
+          "prompt_ms": 5529.619,
+          "prompt_per_token_ms": 4.167007535795026,
+          "prompt_per_second": 239.98036754431,
+          "predicted_n": 75,
+          "predicted_ms": 3512.112,
+          "predicted_per_token_ms": 47.460972972972975,
+          "predicted_per_second": 21.069943099764473,
+          "draft_n": 38,
+          "draft_n_accepted": 36
+        }
+      },
+      "tool": "finish_report",
+      "arguments": {
+        "status": "answered",
+        "answer": "HELDOUT-020 프로젝트의 확인 코드는 K39271입니다.",
+        "citations": [
+          "heldout-020"
+        ],
+        "evidence": [
+          {
+            "doc_id": "heldout-020",
+            "start_line": 6,
+            "end_line": 6
+          }
+        ]
+      },
+      "execution": "completed"
+    }
+  ],
+  "max_steps": 8,
+  "deadline_seconds": 300,
+  "subject_scope": {
+    "mode": "explicit",
+    "subjects": [
+      "heldout-020"
+    ],
+    "index_sha256": "23aedea6b8867e9934749e5e9e38543bc79dc77b41481927aaf29c952c4ff01b"
+  },
+  "report": {
+    "status": "answered",
+    "answer": "HELDOUT-020 프로젝트의 확인 코드는 K39271입니다.",
+    "citations": [
+      "heldout-020"
+    ],
+    "evidence": [
+      {
+        "doc_id": "heldout-020",
+        "start_line": 6,
+        "end_line": 6,
+        "quote": "확인 코드: K39271",
+        "source_sha256": "b5dea23a0dfd9ec0d77a9211edc87e9fe7617aee3d6c4110c3a59b9aa24cc3ca"
+      }
+    ]
+  },
+  "source_receipts": {
+    "heldout-020": "b5dea23a0dfd9ec0d77a9211edc87e9fe7617aee3d6c4110c3a59b9aa24cc3ca"
+  },
+  "report_repairs": 0,
+  "validation": {
+    "subject_bound": true,
+    "quotes_exact": true,
+    "surface_completion": true
+  },
+  "elapsed_seconds": 19.910033906809986,
+  "case_id": "known-target-020",
+  "required_citation_coverage": true
+}

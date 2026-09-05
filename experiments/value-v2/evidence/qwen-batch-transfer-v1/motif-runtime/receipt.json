@@ -1,0 +1,37 @@
+{
+  "status": "completed",
+  "command": [
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/batch-probe",
+    "/opt/model-archive/motif3-agent-baselines-v1/qwen3-8b-q8/Qwen3-8B-Q8_0.gguf",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/qwen-batch-transfer-v1/motif-runtime/input.json",
+    "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/qwen-batch-transfer-v1/motif-runtime/result.json",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin"
+  ],
+  "library_hashes_before": {
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml-cpu.so.0.20.2": "5057508863de7312edbd43a0090e3296eb39f0436a8bdb84ba0fe6b194268b98",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libmtmd.so.0.1.2": "24b31a58e7879e6ec289135c08ee90ff07cf018a73a1c225339a2eb19d126624",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libllama.so.0.1.2": "a8531f14a733b35342c61a1b1e602494d1a27a762375df7773aeb0edf8181a07",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml-cuda.so.0.20.2": "87f85b4f88bb8fdf0cd24ca2eca136535d822986dc23c70e1f22197fbc499874",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml-base.so.0.20.2": "dd87a49af45c36387b764dd7c405e9c4e1a2b2c734b1c4502acb574a69fcd623",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml.so.0.20.2": "f4b63b2caf8f54ee772c0f9d67972ff75e068bfe6cf6520d6f9bc322daf7aa61",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libllama-server-impl.so": "1731416738b8ec5e33909d9757f34f8915843cc3ca6a1bc1dc1a68691a82ec2c",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libllama-common.so.0.1.2": "19d90ae71ca9e646f939d1020aa5841a5ef54b7b2f96627bfeeb524f6bbeba57"
+  },
+  "input_sha256": "f6b81d7b8bc0d78475d4ae76e674231026c24f2bedf24b2e9cfda78cc61a1f1b",
+  "pid": "REDACTED",
+  "exit_code": 0,
+  "elapsed_seconds": 19.807942759012803,
+  "process_stopped": true,
+  "gpu_after": "",
+  "library_hashes_after": {
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml-cpu.so.0.20.2": "5057508863de7312edbd43a0090e3296eb39f0436a8bdb84ba0fe6b194268b98",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libmtmd.so.0.1.2": "24b31a58e7879e6ec289135c08ee90ff07cf018a73a1c225339a2eb19d126624",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libllama.so.0.1.2": "a8531f14a733b35342c61a1b1e602494d1a27a762375df7773aeb0edf8181a07",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml-cuda.so.0.20.2": "87f85b4f88bb8fdf0cd24ca2eca136535d822986dc23c70e1f22197fbc499874",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml-base.so.0.20.2": "dd87a49af45c36387b764dd7c405e9c4e1a2b2c734b1c4502acb574a69fcd623",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libggml.so.0.20.2": "f4b63b2caf8f54ee772c0f9d67972ff75e068bfe6cf6520d6f9bc322daf7aa61",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libllama-server-impl.so": "1731416738b8ec5e33909d9757f34f8915843cc3ca6a1bc1dc1a68691a82ec2c",
+    "/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/runtime/bin/libllama-common.so.0.1.2": "19d90ae71ca9e646f939d1020aa5841a5ef54b7b2f96627bfeeb524f6bbeba57"
+  },
+  "libraries_unchanged": true
+}

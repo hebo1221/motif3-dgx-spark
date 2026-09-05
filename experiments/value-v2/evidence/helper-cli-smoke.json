@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "checks": [
+    "CLI creates a subject index with the actual source digest",
+    "CLI refuses to overwrite an existing index",
+    "CLI renders the recorded answer, source identifiers, hashes, and review limit"
+  ],
+  "network_requests": 0,
+  "model_requests": 0,
+  "python": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "entrypoints": {
+    "index_documents.py": "32ec9f30afad28ac462e37adf4f54bf887f4f4de8b90c09306643bd76b155c7a",
+    "render_report.py": "76a34309e6f3ee0f42dad9408618d7c011d5bd8c3deadba16d8aaa2800c23286"
+  }
+}

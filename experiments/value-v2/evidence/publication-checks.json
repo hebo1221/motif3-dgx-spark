@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "evidence": {
+    "status": "pass",
+    "imported_files_verified": 258,
+    "public_fixture_files_verified": 110,
+    "recorded_reports_checked": 29,
+    "redacted_source_spans_checked": 56,
+    "new_model_requests": 0
+  },
+  "client_tests": 30,
+  "algorithm_source_bytes_unchanged": true,
+  "private_pattern_scan": "pass",
+  "authored_links": "pass",
+  "publication_step_model_requests": 0
+}

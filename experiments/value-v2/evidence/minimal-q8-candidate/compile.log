@@ -1,0 +1,403 @@
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(261): error: function template "ggml_unused_vars_impl" has already been defined (previous definition at line 260 of /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/ggml/src/../include/ggml.h)
+                     constexpr inline void ggml_unused_vars_impl(Args&&...) noexcept {}
+                                           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(358): error: enum "ggml_status" has already been defined (previous definition at line 358 of /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/ggml/src/../include/ggml.h)
+      enum ggml_status {
+           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(359): error: "GGML_STATUS_ALLOC_FAILED" has already been declared in the current scope
+          GGML_STATUS_ALLOC_FAILED = -2,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(360): error: "GGML_STATUS_FAILED" has already been declared in the current scope
+          GGML_STATUS_FAILED = -1,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(361): error: "GGML_STATUS_SUCCESS" has already been declared in the current scope
+          GGML_STATUS_SUCCESS = 0,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(362): error: "GGML_STATUS_ABORTED" has already been declared in the current scope
+          GGML_STATUS_ABORTED = 1,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(377): error: type "ggml_bf16_t" has already been defined (previous definition at line 377 of /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/ggml/src/../include/ggml.h)
+      typedef struct { uint16_t bits; } ggml_bf16_t;
+                                        ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(378): error: cannot overload functions distinguished by return type alone
+      __attribute__ ((visibility ("default"))) extern ggml_bf16_t ggml_fp32_to_bf16(float);
+                                                                  ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(379): error: more than one instance of overloaded function "ggml_bf16_to_fp32" has "C" linkage
+      __attribute__ ((visibility ("default"))) extern float ggml_bf16_to_fp32(ggml_bf16_t);
+                                                            ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(380): error: more than one instance of overloaded function "ggml_bf16_to_fp32_row" has "C" linkage
+      __attribute__ ((visibility ("default"))) extern void ggml_bf16_to_fp32_row(const ggml_bf16_t *, float *, int64_t);
+                                                           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(381): error: more than one instance of overloaded function "ggml_fp32_to_bf16_row_ref" has "C" linkage
+      __attribute__ ((visibility ("default"))) extern void ggml_fp32_to_bf16_row_ref(const float *, ggml_bf16_t *, int64_t);
+                                                           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(382): error: more than one instance of overloaded function "ggml_fp32_to_bf16_row" has "C" linkage
+      __attribute__ ((visibility ("default"))) extern void ggml_fp32_to_bf16_row(const float *, ggml_bf16_t *, int64_t);
+                                                           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(389): error: enum "ggml_type" has already been defined (previous definition at line 389 of /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/ggml/src/../include/ggml.h)
+      enum ggml_type {
+           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(390): error: "GGML_TYPE_F32" has already been declared in the current scope
+          GGML_TYPE_F32 = 0,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(391): error: "GGML_TYPE_F16" has already been declared in the current scope
+          GGML_TYPE_F16 = 1,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(392): error: "GGML_TYPE_Q4_0" has already been declared in the current scope
+          GGML_TYPE_Q4_0 = 2,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(393): error: "GGML_TYPE_Q4_1" has already been declared in the current scope
+          GGML_TYPE_Q4_1 = 3,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(396): error: "GGML_TYPE_Q5_0" has already been declared in the current scope
+          GGML_TYPE_Q5_0 = 6,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(397): error: "GGML_TYPE_Q5_1" has already been declared in the current scope
+          GGML_TYPE_Q5_1 = 7,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(398): error: "GGML_TYPE_Q8_0" has already been declared in the current scope
+          GGML_TYPE_Q8_0 = 8,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(399): error: "GGML_TYPE_Q8_1" has already been declared in the current scope
+          GGML_TYPE_Q8_1 = 9,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(400): error: "GGML_TYPE_Q2_K" has already been declared in the current scope
+          GGML_TYPE_Q2_K = 10,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(401): error: "GGML_TYPE_Q3_K" has already been declared in the current scope
+          GGML_TYPE_Q3_K = 11,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(402): error: "GGML_TYPE_Q4_K" has already been declared in the current scope
+          GGML_TYPE_Q4_K = 12,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(403): error: "GGML_TYPE_Q5_K" has already been declared in the current scope
+          GGML_TYPE_Q5_K = 13,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(404): error: "GGML_TYPE_Q6_K" has already been declared in the current scope
+          GGML_TYPE_Q6_K = 14,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(405): error: "GGML_TYPE_Q8_K" has already been declared in the current scope
+          GGML_TYPE_Q8_K = 15,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(406): error: "GGML_TYPE_IQ2_XXS" has already been declared in the current scope
+          GGML_TYPE_IQ2_XXS = 16,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(407): error: "GGML_TYPE_IQ2_XS" has already been declared in the current scope
+          GGML_TYPE_IQ2_XS = 17,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(408): error: "GGML_TYPE_IQ3_XXS" has already been declared in the current scope
+          GGML_TYPE_IQ3_XXS = 18,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(409): error: "GGML_TYPE_IQ1_S" has already been declared in the current scope
+          GGML_TYPE_IQ1_S = 19,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(410): error: "GGML_TYPE_IQ4_NL" has already been declared in the current scope
+          GGML_TYPE_IQ4_NL = 20,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(411): error: "GGML_TYPE_IQ3_S" has already been declared in the current scope
+          GGML_TYPE_IQ3_S = 21,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(412): error: "GGML_TYPE_IQ2_S" has already been declared in the current scope
+          GGML_TYPE_IQ2_S = 22,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(413): error: "GGML_TYPE_IQ4_XS" has already been declared in the current scope
+          GGML_TYPE_IQ4_XS = 23,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(414): error: "GGML_TYPE_I8" has already been declared in the current scope
+          GGML_TYPE_I8 = 24,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(415): error: "GGML_TYPE_I16" has already been declared in the current scope
+          GGML_TYPE_I16 = 25,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(416): error: "GGML_TYPE_I32" has already been declared in the current scope
+          GGML_TYPE_I32 = 26,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(417): error: "GGML_TYPE_I64" has already been declared in the current scope
+          GGML_TYPE_I64 = 27,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(418): error: "GGML_TYPE_F64" has already been declared in the current scope
+          GGML_TYPE_F64 = 28,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(419): error: "GGML_TYPE_IQ1_M" has already been declared in the current scope
+          GGML_TYPE_IQ1_M = 29,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(420): error: "GGML_TYPE_BF16" has already been declared in the current scope
+          GGML_TYPE_BF16 = 30,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(424): error: "GGML_TYPE_TQ1_0" has already been declared in the current scope
+          GGML_TYPE_TQ1_0 = 34,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(425): error: "GGML_TYPE_TQ2_0" has already been declared in the current scope
+          GGML_TYPE_TQ2_0 = 35,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(429): error: "GGML_TYPE_MXFP4" has already been declared in the current scope
+          GGML_TYPE_MXFP4 = 39,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(430): error: "GGML_TYPE_NVFP4" has already been declared in the current scope
+          GGML_TYPE_NVFP4 = 40,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(431): error: "GGML_TYPE_Q1_0" has already been declared in the current scope
+          GGML_TYPE_Q1_0 = 41,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(432): error: "GGML_TYPE_Q2_0" has already been declared in the current scope
+          GGML_TYPE_Q2_0 = 42,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(433): error: "GGML_TYPE_COUNT" has already been declared in the current scope
+          GGML_TYPE_COUNT = 43,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(437): error: enum "ggml_prec" has already been defined (previous definition at line 437 of /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/ggml/src/../include/ggml.h)
+      enum ggml_prec {
+           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(438): error: "GGML_PREC_DEFAULT" has already been declared in the current scope
+          GGML_PREC_DEFAULT = 0,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(439): error: "GGML_PREC_F32" has already been declared in the current scope
+          GGML_PREC_F32 = 10,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(443): error: enum "ggml_op_hint" has already been defined (previous definition at line 443 of /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/ggml/src/../include/ggml.h)
+      enum ggml_op_hint {
+           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(444): error: "GGML_HINT_NONE" has already been declared in the current scope
+          GGML_HINT_NONE = 0,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(445): error: "GGML_HINT_SRC0_IS_HADAMARD" has already been declared in the current scope
+          GGML_HINT_SRC0_IS_HADAMARD = 1,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(450): error: enum "ggml_ftype" has already been defined (previous definition at line 449 of /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/ggml/src/../include/ggml.h)
+      enum ggml_ftype {
+           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(451): error: "GGML_FTYPE_UNKNOWN" has already been declared in the current scope
+          GGML_FTYPE_UNKNOWN = -1,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(452): error: "GGML_FTYPE_ALL_F32" has already been declared in the current scope
+          GGML_FTYPE_ALL_F32 = 0,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(453): error: "GGML_FTYPE_MOSTLY_F16" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_F16 = 1,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(454): error: "GGML_FTYPE_MOSTLY_Q4_0" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q4_0 = 2,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(455): error: "GGML_FTYPE_MOSTLY_Q4_1" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q4_1 = 3,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(456): error: "GGML_FTYPE_MOSTLY_Q4_1_SOME_F16" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q4_1_SOME_F16 = 4,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(457): error: "GGML_FTYPE_MOSTLY_Q8_0" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q8_0 = 7,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(458): error: "GGML_FTYPE_MOSTLY_Q5_0" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q5_0 = 8,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(459): error: "GGML_FTYPE_MOSTLY_Q5_1" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q5_1 = 9,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(460): error: "GGML_FTYPE_MOSTLY_Q2_K" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q2_K = 10,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(461): error: "GGML_FTYPE_MOSTLY_Q3_K" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q3_K = 11,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(462): error: "GGML_FTYPE_MOSTLY_Q4_K" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q4_K = 12,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(463): error: "GGML_FTYPE_MOSTLY_Q5_K" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q5_K = 13,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(464): error: "GGML_FTYPE_MOSTLY_Q6_K" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q6_K = 14,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(465): error: "GGML_FTYPE_MOSTLY_IQ2_XXS" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_IQ2_XXS = 15,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(466): error: "GGML_FTYPE_MOSTLY_IQ2_XS" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_IQ2_XS = 16,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(467): error: "GGML_FTYPE_MOSTLY_IQ3_XXS" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_IQ3_XXS = 17,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(468): error: "GGML_FTYPE_MOSTLY_IQ1_S" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_IQ1_S = 18,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(469): error: "GGML_FTYPE_MOSTLY_IQ4_NL" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_IQ4_NL = 19,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(470): error: "GGML_FTYPE_MOSTLY_IQ3_S" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_IQ3_S = 20,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(471): error: "GGML_FTYPE_MOSTLY_IQ2_S" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_IQ2_S = 21,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(472): error: "GGML_FTYPE_MOSTLY_IQ4_XS" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_IQ4_XS = 22,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(473): error: "GGML_FTYPE_MOSTLY_IQ1_M" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_IQ1_M = 23,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(474): error: "GGML_FTYPE_MOSTLY_BF16" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_BF16 = 24,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(475): error: "GGML_FTYPE_MOSTLY_MXFP4" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_MXFP4 = 25,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(476): error: "GGML_FTYPE_MOSTLY_NVFP4" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_NVFP4 = 26,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(477): error: "GGML_FTYPE_MOSTLY_Q1_0" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q1_0 = 27,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(478): error: "GGML_FTYPE_MOSTLY_Q2_0" has already been declared in the current scope
+          GGML_FTYPE_MOSTLY_Q2_0 = 28,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(482): error: enum "ggml_op" has already been defined (previous definition at line 481 of /opt/motif-work/motif3-tokenizer-runtime-baseline-v1/ggml/src/../include/ggml.h)
+      enum ggml_op {
+           ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(483): error: "GGML_OP_NONE" has already been declared in the current scope
+          GGML_OP_NONE = 0,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(485): error: "GGML_OP_DUP" has already been declared in the current scope
+          GGML_OP_DUP,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(486): error: "GGML_OP_ADD" has already been declared in the current scope
+          GGML_OP_ADD,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(487): error: "GGML_OP_ADD_ID" has already been declared in the current scope
+          GGML_OP_ADD_ID,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(488): error: "GGML_OP_ADD1" has already been declared in the current scope
+          GGML_OP_ADD1,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(489): error: "GGML_OP_ACC" has already been declared in the current scope
+          GGML_OP_ACC,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(490): error: "GGML_OP_SUB" has already been declared in the current scope
+          GGML_OP_SUB,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(491): error: "GGML_OP_MUL" has already been declared in the current scope
+          GGML_OP_MUL,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(492): error: "GGML_OP_DIV" has already been declared in the current scope
+          GGML_OP_DIV,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(493): error: "GGML_OP_SQR" has already been declared in the current scope
+          GGML_OP_SQR,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(494): error: "GGML_OP_SQRT" has already been declared in the current scope
+          GGML_OP_SQRT,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(495): error: "GGML_OP_LOG" has already been declared in the current scope
+          GGML_OP_LOG,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(496): error: "GGML_OP_SIN" has already been declared in the current scope
+          GGML_OP_SIN,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(497): error: "GGML_OP_COS" has already been declared in the current scope
+          GGML_OP_COS,
+          ^
+
+/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/include/ggml.h(498): error: "GGML_OP_SUM" has already been declared in the current scope
+          GGML_OP_SUM,
+          ^
+
+Error limit reached.
+100 errors detected in the compilation of "/opt/motif-work/motif3-quant/campaigns/value-v2-20260905/minimal-q8-candidate/source/ggml/src/ggml-cuda/ggml-cuda.cu".
+Compilation terminated.

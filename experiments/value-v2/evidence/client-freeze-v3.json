@@ -1,0 +1,14 @@
+{
+  "basis": "Permit valid source sections up to 16 lines, bounded by 4000 characters. This follows a 9-line development rejection. Confirmation tasks have not run.",
+  "files": {
+    "test_agent.py": "b31b1634ab1581494a7941d3cf8c2edd5128375838571bda790d0200c279f926",
+    "campaign_support.py": "5115c9fcd233d4571f74172cbaa27c0fb1bcddce7768ef24a374a21a720a32ce",
+    "qwen3-agent.jinja": "7c1d9947dedcb325bbfe60df2a6105bbe1f9346656a92b7e9499167bb22794fa",
+    "run_local.py": "fbb5ed7e7632c91687e2d496d9d0ee282118044b687b28cb07c756b14ce98cf4",
+    "agent.py": "2118955ee620c508fe173b1bc1988294ac969f5fea1657f5c6be6477014bc41a",
+    "document_contract.py": "679b9a43b242b49e05c4530c7fa2b141aeccf291822a376102b8d98eb234d0d9",
+    "render_report.py": "76a34309e6f3ee0f42dad9408618d7c011d5bd8c3deadba16d8aaa2800c23286",
+    "motif3-agent.jinja": "45a26ffea74ba9b166a3e6f0ae6b1b7ea6876d66f7b74243b50b57d4ccdc3e30",
+    "index_documents.py": "32ec9f30afad28ac462e37adf4f54bf887f4f4de8b90c09306643bd76b155c7a"
+  }
+}

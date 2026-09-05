@@ -1,0 +1,566 @@
+{
+  "status": "failed",
+  "task": "Motif와 Qwen의 고정 100문항 결과로 “Qwen은 모든 실제 업무에서 더 우수하다”라고 결론 내릴 수 있을까? motif-agent-current와 motif-evaluation-method를 읽고, 현재 선택 가능한 운영 기본값과 평가의 한계를 함께 알려줘.",
+  "steps": [
+    {
+      "step": 1,
+      "request_sha256": "a9d6325d5e050d15aff7808136925e1ba4cb8c81c0354177032cbd6fcab05ba6",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "search_documents",
+                    "arguments": "{\"query\": \"motif3 Qwen 100문항 결과\"}"
+                  },
+                  "id": "WeFQ6fTckp8k5LMaslIq5jvZ2vNBsMHQ"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788600804,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 30,
+          "prompt_tokens": 971,
+          "total_tokens": 1001,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-AyEXMbsshmpzFoIOR9v8vCAg4gVdyx55",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 971,
+          "prompt_ms": 4004.048,
+          "prompt_per_token_ms": 4.123633367662204,
+          "prompt_per_second": 242.50458535961607,
+          "predicted_n": 30,
+          "predicted_ms": 1443.911,
+          "predicted_per_token_ms": 49.79003448275862,
+          "predicted_per_second": 20.084340378319716,
+          "draft_n": 16,
+          "draft_n_accepted": 14
+        }
+      },
+      "tool": "search_documents",
+      "arguments": {
+        "query": "motif3 Qwen 100문항 결과"
+      },
+      "execution": "completed",
+      "result": {
+        "matches": [
+          {
+            "doc_id": "motif-historical-review",
+            "snippet": "# Motif-3 양자화 작업 검토와 다음 방향\n\n검토일: 2026-09-05 KST  \n대상 작업: `motif3 2bit 양자화 검증` — `REDACTED-TASK-ID`  \n원격 작업 폴더: `/opt/motif-work/motif3-quant`\n\n**판단**\n\n지금 가장 가치 있는 후속 작업은 공개 모델·최종 토크나이저·MTP를 하나의 검증된 실행 조합으로 묶고, 실제 요청에서 이득을 확인하는 것이다."
+          },
+          {
+            "doc_id": "motif-agent-current",
+            "snippet": "# Motif-3 에이전트 준비 검증\n\n2026-09-05 · DGX Spark / NVIDIA GB10 · 비공개 검증·실행 패키지\n\n**네이티브 도구 호출 문제를 수정하고, 로컬 문서를 검색·열람·계산해 인용과 함께 답하는 실행기를 만들었다. 이 문서 업무의 기본 모델은 Qwen3-8B Q8_0으로 정했다.** 같은 고정 100문항에서 Motif IQ2는 99건, Qwen은 100건을 맞혔고, Qwen의 전체 처리 시간은 약 3.3배 짧았다"
+          },
+          {
+            "doc_id": "motif-client-usage",
+            "snippet": "# DGX Spark에서 문서 에이전트 실행하기\n\n이 패키지는 Python 표준 라이브러리와 이미 준비한 로컬 런타임을 사용한다.\n모델 가중치와 실행 바이너리는 포함하지 않는다. 현재 검증한 운영체제는\nDGX Spark의 Linux ARM64다.\n\n## 현재 Spark에서 한 번 실행\n\n검증에 사용한 폴더는 다음과 같다.\n\n```text\n/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/rel"
+          },
+          {
+            "doc_id": "motif-runtime",
+            "snippet": "# Motif-3 공개 모델의 MTP 통합 검증\n\n2026-09-05 · DGX Spark / NVIDIA GB10 · 내부 검증 패키지\n\n**공개 direct IQ2 모델에 최종 토크나이저와 MTP를 통합했고, draft 1을 권장하는 실험용 실행 구성을 만들었다.** 11개 요청의 출력 토큰 5,560개가 가속 꺼짐·켜짐·복구 실행에서 모두 일치했다.\n\n**판정: 통합 추론과 지정 성능 기준 PASS · 네이티브 강제 도구 호출 HOLD ·"
+          }
+        ]
+      }
+    },
+    {
+      "step": 2,
+      "request_sha256": "dd6cc6796d08f77c60e7b25964be07c6329f29fdda6afc0045786eeb83b1298d",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "search_documents",
+                    "arguments": "{\"query\": \"motif-evaluation-method Qwen 100문항 결과 비교\"}"
+                  },
+                  "id": "Jr5TyQYBnXwG3Fg8ndsTo6BSc2dZ0Okm"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788600812,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 32,
+          "prompt_tokens": 1603,
+          "total_tokens": 1635,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-ePsTwbdhZUQWnfNtvIBwwEGP6UgG4JBT",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 1603,
+          "prompt_ms": 6160.321,
+          "prompt_per_token_ms": 3.8429950093574545,
+          "prompt_per_second": 260.2137128893121,
+          "predicted_n": 32,
+          "predicted_ms": 1578.542,
+          "predicted_per_token_ms": 50.92070967741935,
+          "predicted_per_second": 19.638375158849115,
+          "draft_n": 17,
+          "draft_n_accepted": 15
+        }
+      },
+      "tool": "search_documents",
+      "arguments": {
+        "query": "motif-evaluation-method Qwen 100문항 결과 비교"
+      },
+      "execution": "completed",
+      "result": {
+        "matches": [
+          {
+            "doc_id": "motif-agent-current",
+            "snippet": "# Motif-3 에이전트 준비 검증\n\n2026-09-05 · DGX Spark / NVIDIA GB10 · 비공개 검증·실행 패키지\n\n**네이티브 도구 호출 문제를 수정하고, 로컬 문서를 검색·열람·계산해 인용과 함께 답하는 실행기를 만들었다. 이 문서 업무의 기본 모델은 Qwen3-8B Q8_0으로 정했다.** 같은 고정 100문항에서 Motif IQ2는 99건, Qwen은 100건을 맞혔고, Qwen의 전체 처리 시간은 약 3.3배 짧았다"
+          },
+          {
+            "doc_id": "motif-historical-review",
+            "snippet": "# Motif-3 양자화 작업 검토와 다음 방향\n\n검토일: 2026-09-05 KST  \n대상 작업: `motif3 2bit 양자화 검증` — `REDACTED-TASK-ID`  \n원격 작업 폴더: `/opt/motif-work/motif3-quant`\n\n**판단**\n\n지금 가장 가치 있는 후속 작업은 공개 모델·최종 토크나이저·MTP를 하나의 검증된 실행 조합으로 묶고, 실제 요청에서 이득을 확인하는 것이다."
+          },
+          {
+            "doc_id": "motif-client-usage",
+            "snippet": "# DGX Spark에서 문서 에이전트 실행하기\n\n이 패키지는 Python 표준 라이브러리와 이미 준비한 로컬 런타임을 사용한다.\n모델 가중치와 실행 바이너리는 포함하지 않는다. 현재 검증한 운영체제는\nDGX Spark의 Linux ARM64다.\n\n## 현재 Spark에서 한 번 실행\n\n검증에 사용한 폴더는 다음과 같다.\n\n```text\n/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/rel"
+          },
+          {
+            "doc_id": "motif-runtime",
+            "snippet": "# Motif-3 공개 모델의 MTP 통합 검증\n\n2026-09-05 · DGX Spark / NVIDIA GB10 · 내부 검증 패키지\n\n**공개 direct IQ2 모델에 최종 토크나이저와 MTP를 통합했고, draft 1을 권장하는 실험용 실행 구성을 만들었다.** 11개 요청의 출력 토큰 5,560개가 가속 꺼짐·켜짐·복구 실행에서 모두 일치했다.\n\n**판정: 통합 추론과 지정 성능 기준 PASS · 네이티브 강제 도구 호출 HOLD ·"
+          }
+        ]
+      }
+    },
+    {
+      "step": 3,
+      "request_sha256": "c136b95b30febe0dc99558918c9da491e2eca9f3968d59aa7e09f0517a52b9bb",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_document",
+                    "arguments": "{\"doc_id\": \"motif-agent-current\"}"
+                  },
+                  "id": "lfjgupKIpTbERabe0PzNOSLOHfRaGx8t"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788600822,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 25,
+          "prompt_tokens": 2241,
+          "total_tokens": 2266,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-hBOkxkANH8BFg4J9yD6CUAshPAHqxvla",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 2241,
+          "prompt_ms": 8298.248,
+          "prompt_per_token_ms": 3.7029219098616686,
+          "prompt_per_second": 270.0570048039056,
+          "predicted_n": 25,
+          "predicted_ms": 1166.226,
+          "predicted_per_token_ms": 48.59275,
+          "predicted_per_second": 20.579201629872767,
+          "draft_n": 12,
+          "draft_n_accepted": 12
+        }
+      },
+      "tool": "read_document",
+      "arguments": {
+        "doc_id": "motif-agent-current"
+      },
+      "execution": "completed",
+      "result": {
+        "doc_id": "motif-agent-current",
+        "text": "L1: # Motif-3 에이전트 준비 검증\nL2: \nL3: 2026-09-05 · DGX Spark / NVIDIA GB10 · 비공개 검증·실행 패키지\nL4: \nL5: **네이티브 도구 호출 문제를 수정하고, 로컬 문서를 검색·열람·계산해 인용과 함께 답하는 실행기를 만들었다. 이 문서 업무의 기본 모델은 Qwen3-8B Q8_0으로 정했다.** 같은 고정 100문항에서 Motif IQ2는 99건, Qwen은 100건을 맞혔고, Qwen의 전체 처리 시간은 약 3.3배 짧았다.\nL6: \nL7: 현재 판정은 **사람이 근거를 확인하는 문서 보조 파일럿 준비 완료**다. 범용 에이전트, 자동 업무 완료 보증, IQ2의 원본 품질 보존은 입증하지 않았다. 실험용 공개 후보에 필요한 코드와 실패를 포함한 검증 자료를 묶었으며, 새 공개·업로드·커밋은 하지 않았다.\nL8: \nL9: ## 같은 업무에서 확인한 차이\nL10: \nL11: | 고정 100문항 | Motif direct IQ2 + MTP 1 | Qwen3-8B Q8_0 |\nL12: |---|---:|---:|\nL13: | 정답 | **99/100** | **100/100** |\nL14: | 코드 조회 | 24/25 | 25/25 |\nL15: | 계산 / 정보 없음 / 두 사실 조회 | 각각 25/25 | 각각 25/25 |\nL16: | 전체 업무 시간 | 2,006.18초 · **33.4분** | 605.36초 · **10.1분** |\nL17: | 업무 시간 중앙값 | 18.30초 | 5.80초 |\nL18: | 표본 p95 | 27.06초 | 7.65초 |\nL19: | 모델 파일 | 89.72 GB | 8.71 GB |\nL20: | 중간 도구 오류가 발생한 업무 | 0건 | 25건 · 모두 회복 후 정답 |\nL21: \nL22: 두 모델이 모두 맞힌 99문항에서도 Qwen이 전부 더 빨랐다. Qwen의 중간 오류는 문서 이름을 ID로 바로 읽으려다 거절된 뒤 검색으로 실제 ID를 찾아 회복한 경우다. 정답 100건이 모든 중간 선택까지 완벽했다는 뜻은 아니다.\nL23: \nL24: 시간은 한 모델 서버가 준비된 뒤 실제 검색·열람·계산·답변에 걸린 합계다. 한 슬롯, thinking off, greedy, prompt cache off 조건이다. 모델과 템플릿이 다른 두 실행 구성의 비교이며, 양자화 비트 수만 바꾼 비교가 아니다. 서버 준비 시간은 별도 기록했고 운영체제 파일 캐시를 통제한 냉시작 비교로 해석하지 않았다.\nL25: \nL26: 100문항은 **네 가지 업무 형식에 사실을 바꿔 넣은 합성 사례**다. 100종의 실제 사용자 업무나 모집단 성능을 대표하지 않는다. Qwen은 기본 파서의 개발 검사 실패를 고친 뒤 같은 문항으로 비교했으며, 이전 일부 실행도 보존했다. 처음 보는 독립 시험에서 100점을 받았다는 주장으로 사용하면 안 된다. [전체 집계](evidence/validation-summary.json), [방법과 범위](EVALUATION.md).\nL27: \nL28: ## 출처가 있어도 틀릴 수 있었다\nL29: \nL30: Motif의 `heldout-020`은 020 프로젝트의 확인 코드를 물었다. 모델은 프로젝트를 빼고 “확인 코드”만 검색한 뒤 002 문서를 읽고 `K38232`를 반환했다. 기대 답은 020 문서의 `K39271`이었다. 도구와 인용은 실제였지만 질문의 대상이 달랐다.\nL31: \nL32: 이 실패를 고쳐 같은 문항을 다시 통과한 것으로 보고하지 않았다. 다음 보완의 첫 항목은 **질문 대상과 문서 대상의 일치 확인**이다. 이 한 건만으로 IQ2 양자화가 원인이라고 단정할 수도 없다. [실패 원시 기록](evidence/iq2-heldout-v1/heldout/heldout-020.json).\nL33: \nL34: 전달용 실행기로 과거·현재 프로젝트 문서 두 개를 함께 읽는 업무도 수행했다. Qwen은 두 문서를 읽고 인용하며 “호출 문제는 개선됐지만 원본 품질 보존은 미검증”이라고 완결된 답을 냈다. 업무 시간은 11.34초였다. Motif는 핵심 판단과 두 인용을 맞혔지만 320자 상한에서 마지막 문장이 끊겼다. 업무 시간은 32.91초였으며, 완성도는 부분 통과로 기록했다. [답변 검토](evidence/qualitative-review.json).\nL35: \nL36: ## 구현과 검증\nL37: \nL38: - **도구 호출 파서:** Motif의 생성 접두부와 required 호출 문법을 고쳤다. 지정 프로필에서 강제 호출 전에 일반 문장을 길게 생성하거나 단일 호출 조건에서 두 번째 호출을 붙이지 못하게 했다. 기존 기본 템플릿은 유지했다.\nL39: - **Qwen 비교 조건:** 기본 파서에서도 일반 문장과 복수 호출을 허용하는 경로가 재현됐다. 공식 메시지 형식을 유지하는 별도 옵션 파서로 같은 제약을 적용했다. 초기 실패와 수정 후 결과를 분리해 보존했다.\nL40: - **실제 API:** 두 수정 구성 모두 네이티브 진단 40/40, 스트리밍 호출 4/4, 개발 업무 8/8, 문서 속 지시문·역할 표기·가짜 도구 결과 검사 3/3, 기존 프로젝트 보고서 조회 2/2를 통과했다. 이것은 해당 사례의 결과이며 일반 공격 내성을 보증하지 않는다.\nL41: - **호출·실행 경계:** 잘린 응답, 알 수 없는 도구, 추가·중복 인자, 읽지 않은 문서 인용, 동일 호출 반복을 차단한다. 문서는 지정 폴더의 Markdown만 읽고 계산기는 제한된 산술식만 처리한다. 모델이 파일을 쓰거나 명령·외부 요청을 실행하는 도구는 없다.\nL42: - **검사:** 어휘만 읽는 파서·문법 검사 24/24와 기존 전체 chat 회귀 검사가 통과했다. 전달용 클라이언트는 경계 검사 14/14를 통과했다.\nL43: \nL44: 고정 100문항을 수행한 원본 클라이언트는 `evaluation-source/`에 보존했다. 정적 점검에서 별도로 발견한 잘못된 계산식의 예외 처리를 전달용 클라이언트에 보완했다. **기록된 226개 업무를 새 모델 호출 없이 재생한 결과, 보완 전후 호출·실행 결과·인용·보고서가 일치했다.** 이것은 새 정확도 측정이 아니며, 전달용 버전의 실제 실행은 앞의 두 문서 업무로 따로 확인했다. [수정 차이](agent-calculator-error-v1.patch), [재생 검증](evidence/release-replay.json).\nL45: \nL46: `answer_produced`는 형식과 출처 검사를 통과한 보고서가 생겼다는 뜻이다. 사실 정확성은 별도의 평가 결과다. 도구가 실행됐는지는 `steps`, 읽은 문서의 정체는 `source_receipts`에서 확인한다.\nL47: \nL48: ## 원본 품질 비교는 아직 보류\nL49: \nL50: 기존 629.69 GB BF16 원본을 mmap과 CPU MoE offload로 시작하는 제한 검사를 수행했다. **300초 안에 서버가 준비되지 않았고 추론 요청은 0건**이었다. 해당 프로세스는 종료했다. 이 결과는 이번 시간 한도에서 시작하지 못했다는 뜻이며, 메모리 부족이 입증됐다거나 원본 실행이 불가능하다는 뜻은 아니다.\nL51: \nL52: 따라서 이번 작업으로 IQ2가 원본 품질을 보존한다거나 품질이 개선됐다고 말할 수 없다. Qwen 비교는 이 고정밀 대조를 대신하지 않는다. 이전에 관찰한 범용 코드 생성의 반복 문제도 이번 문서 도구 프로필로 해결됐다고 주장하지 않는다. [BF16 제한 검사](evidence/bf16-canary-v1/receipt.json).\nL53: \nL54: ## 프로젝트의 다음 가치\nL55: \nL56: 1. **문서 보조의 기본값은 Qwen으로 운영한다.** 현재 확인한 업무에서 더 짧은 시간과 작은 파일로 목적을 달성했다. 처음에는 사람이 인용과 대상을 확인하는 방식으로 사용한다.\nL57: 2. **질문·문서 대상 일치와 실제 업무 자료를 먼저 보강한다.** 유사한 이름, 변경된 버전, 여러 문서의 종합을 포함한 실제 질문 30개를 개선용 10개와 확인용 20개로 나눈다.\nL58: 3. **속도는 반복 문맥의 재사용부터 살펴본다.** 이번 Motif 100문항에서 서버 처리 시간의 약 70%가 입력 처리였다. 캐시를 켰을 때의 효과와 정확성은 별도 검증이 필요하다.\nL59: 4. **Motif의 추가 이점이 나타나는 업무를 찾은 뒤 양자화를 개선한다.** 고정밀 비교 없이 재양자화부터 반복할 근거는 부족하다. Spark에서 큰 모델을 실행하고 실제 도구 호출까지 검증한 코드·재현 자료 자체는 프로젝트의 공개 자산이 된다.\nL60: \nL61: 구체적인 파일럿 진행 기준은 [PILOT.ko.md](PILOT.ko.md)에 있다.\nL62: \nL63: ## 바로 사용하기\nL64: \nL65: Spark의 실행기 위치:\nL66: \nL67: ```text\nL68: /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/release-client-v1\nL69: ```\nL70: \nL71: 기본 설정은 상위 폴더의 `config.default-agent.json`이며 Qwen을 선택한다. `config.agent.json`은 Motif 실험용이다. 실행기는 업무 하나를 수행한 뒤 자신이 띄운 모델 서버를 종료한다. 명령과 문서 형식, 제한은 [USAGE.ko.md](USAGE.ko.md)에 있다.\nL72: \nL73: 가중치와 바이너리는 이 패키지에 포함하지 않는다. 측정 런타임은 기존 빌드의 객체 파일을 재사용해 공용 채팅 라이브러리만 분리해 다시 만든 구성이다. 새 패치의 전체 CMake 재빌드는 수행하지 않았다. [Motif 공개 파일](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark), [고정한 Qwen 공식 리비전](https://huggingface.co/Qwen/Qwen3-8B-GGUF/tree/7c41481f57cb95916b40956ab2f0b139b296d974).\nL74: \nL75: 최종 점검에서 원본 모델의 검증 결속, 기존 소스·라이브러리, 두 후보 런타임, 고정 자료가 유지됐다. 모든 소유 모델 프로세스가 종료됐고 GPU 연산 프로세스와 8825 포트의 리스너가 남아 있지 않았다. 최종 100문항 실행의 장치 관측 오류는 없었으며, 앞선 MTP 개발 검사에서는 `nvidia-smi` 관측 시간 초과 한 건이 기록돼 있다. [최종 점검](evidence/final-audit.json).",
+        "sha256": "57a8e523f182a0b672c3a558b15058d66e82436eb112f4de7fef66cf822bcce8",
+        "line_count": 75
+      }
+    },
+    {
+      "step": 4,
+      "request_sha256": "4fca2014c7f624442dd843db7d3368b3a49284c4bffb995ea3d11b9cffc70165",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "search_documents",
+                    "arguments": "{\"query\": \"motif-evaluation-method EVALUATION.md 방법 범위\"}"
+                  },
+                  "id": "JB3dJK5SY3x4r3QR95UYOVNRoq9BPwCF"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788600840,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 30,
+          "prompt_tokens": 4634,
+          "total_tokens": 4664,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-NbB52WNbhfU6KSSdKjuGTUTSsDF58xO7",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 4634,
+          "prompt_ms": 16885.194,
+          "prompt_per_token_ms": 3.643762192490289,
+          "prompt_per_second": 274.44162027395123,
+          "predicted_n": 30,
+          "predicted_ms": 1616.503,
+          "predicted_per_token_ms": 55.741482758620684,
+          "predicted_per_second": 17.93996051971447,
+          "draft_n": 16,
+          "draft_n_accepted": 14
+        }
+      },
+      "tool": "search_documents",
+      "arguments": {
+        "query": "motif-evaluation-method EVALUATION.md 방법 범위"
+      },
+      "execution": "completed",
+      "result": {
+        "matches": [
+          {
+            "doc_id": "motif-agent-current",
+            "snippet": "# Motif-3 에이전트 준비 검증\n\n2026-09-05 · DGX Spark / NVIDIA GB10 · 비공개 검증·실행 패키지\n\n**네이티브 도구 호출 문제를 수정하고, 로컬 문서를 검색·열람·계산해 인용과 함께 답하는 실행기를 만들었다. 이 문서 업무의 기본 모델은 Qwen3-8B Q8_0으로 정했다.** 같은 고정 100문항에서 Motif IQ2는 99건, Qwen은 100건을 맞혔고, Qwen의 전체 처리 시간은 약 3.3배 짧았다"
+          },
+          {
+            "doc_id": "motif-client-usage",
+            "snippet": "# DGX Spark에서 문서 에이전트 실행하기\n\n이 패키지는 Python 표준 라이브러리와 이미 준비한 로컬 런타임을 사용한다.\n모델 가중치와 실행 바이너리는 포함하지 않는다. 현재 검증한 운영체제는\nDGX Spark의 Linux ARM64다.\n\n## 현재 Spark에서 한 번 실행\n\n검증에 사용한 폴더는 다음과 같다.\n\n```text\n/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/rel"
+          },
+          {
+            "doc_id": "motif-historical-review",
+            "snippet": "# Motif-3 양자화 작업 검토와 다음 방향\n\n검토일: 2026-09-05 KST  \n대상 작업: `motif3 2bit 양자화 검증` — `REDACTED-TASK-ID`  \n원격 작업 폴더: `/opt/motif-work/motif3-quant`\n\n**판단**\n\n지금 가장 가치 있는 후속 작업은 공개 모델·최종 토크나이저·MTP를 하나의 검증된 실행 조합으로 묶고, 실제 요청에서 이득을 확인하는 것이다."
+          },
+          {
+            "doc_id": "motif-evaluation-method",
+            "snippet": "# What these checks establish\n\nThis is a private, reproducible readiness experiment for a bounded, read-only\ndocument agent on one DGX Spark. It is not a model leaderboard or a production\ncertification. Results are in `evidence/validation-summary.jso"
+          }
+        ]
+      }
+    },
+    {
+      "step": 5,
+      "request_sha256": "203162c992306a895da7c8aefcde72edf250c04c6d131e701ad2893469e14e45",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_document",
+                    "arguments": "{\"doc_id\": \"motif-evaluation-method\"}"
+                  },
+                  "id": "6Ga55SOBDywmkvTg2eaz1S2GQM3jphcm"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788600860,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 25,
+          "prompt_tokens": 5204,
+          "total_tokens": 5229,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-BRL5NhUQ5U6RAcu6M7IbhWlHd6tZPvoF",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 5204,
+          "prompt_ms": 19051.704,
+          "prompt_per_token_ms": 3.6609730976172177,
+          "prompt_per_second": 273.15141994647826,
+          "predicted_n": 25,
+          "predicted_ms": 1216.379,
+          "predicted_per_token_ms": 50.68245833333333,
+          "predicted_per_second": 19.73069248975854,
+          "draft_n": 12,
+          "draft_n_accepted": 12
+        }
+      },
+      "tool": "read_document",
+      "arguments": {
+        "doc_id": "motif-evaluation-method"
+      },
+      "execution": "completed",
+      "result": {
+        "doc_id": "motif-evaluation-method",
+        "text": "L1: # What these checks establish\nL2: \nL3: This is a private, reproducible readiness experiment for a bounded, read-only\nL4: document agent on one DGX Spark. It is not a model leaderboard or a production\nL5: certification. Results are in `evidence/validation-summary.json` and the accompanying\nL6: Korean report.\nL7: \nL8: ## Candidate and controls\nL9: \nL10: - Target: the released direct IQ2_XXS Motif-3 artifact, 89,720,474,560 bytes,\nL11:   SHA-256 `9d6f7aee57f0271223f51d69c63d8576a259809e9f05e2ac596512e940c80c5a`.\nL12: - Draft: the existing linked BF16 MTP sidecar, 512,363,040 bytes,\nL13:   SHA-256 `d813251f1b7e8158399352af6e44c92df2445cd807fda1a869d2247279806f81`.\nL14: - Base source: llama.cpp `cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`, with the\nL15:   existing final tokenizer and Motif MTP integration patches.\nL16: - This experiment changes only the common chat library. Existing tensor,\nL17:   tokenizer, CUDA, and MTP arithmetic components are copied unchanged.\nL18: - The Motif handler is selected only by the explicit\nL19:   `motif3_agent_profile_v1` marker in `motif3-agent.jinja`.\nL20: - Live agent configuration: one slot; GPU layers 99; FA on; f16 KV;\nL21:   context 22,016; batch 2,048; ubatch 512; 20 threads; thinking disabled;\nL22:   temperature 0; top-k 1; seed 42; prompt cache disabled; at most 192 generated\nL23:   tokens per model turn. The selected Motif arm uses MTP draft length 1.\nL24: \nL25: The practical alternative is official `Qwen/Qwen3-8B-GGUF`, Q8_0,\nL26: revision `7c41481f57cb95916b40956ab2f0b139b296d974`.\nL27: Its 8,709,518,112-byte file was checked against the Hub LFS SHA-256\nL28: `408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6`.\nL29: It uses the same host, agent, cases, and request limits with its own chat\nL30: template and no Motif sidecar. The initial run used its unmodified embedded\nL31: template. Two development tasks produced unstructured text and hit the output\nL32: limit despite required tool choice. The automatically following comparison\nL33: was stopped and preserved. A separate opt-in Qwen handler was then built using\nL34: the same bounded native-call approach as Motif, with the official template's\nL35: message rendering preserved. The repair was based on those development\nL36: trajectories and model-vocabulary parser tests, not factual held-out answers.\nL37: The repaired configuration is evaluated on the same fixed case set for paired\nL38: comparison. Because an earlier partial run exists, its confirmation score is\nL39: not described as pristine first exposure to that set. The original Motif live\nL40: runtime, client, and score are unchanged. This compares deployed configurations;\nL41: it does not isolate quantization, parameter count, or the underlying training.\nL42: \nL43: ## Separation of development and evaluation\nL44: \nL45: `fixtures/freeze.json` fixes all documents and labels before inference. The\nL46: eight development tasks could be used to repair implementation errors.\nL47: `pre-heldout-source-freeze.json` pins the final agent, runner, template, patch,\nL48: and fixture manifests before the 100-case held-out run. Each final model\nL49: configuration gets one pass over those same 100 cases. Results must not be used\nL50: to tune this candidate and then reported as a fresh held-out score.\nL51: \nL52: The live paired evaluation uses client SHA-256\nL53: `37f01fae7fb9f010bed86bd02f5d9d23f6646f9f0236180e6a155ba4fb7c8dd8`,\nL54: preserved with its runner and fixtures in `evaluation-source/`.\nL55: A separate static review found that malformed arithmetic such as `1 +` raised\nL56: an uncaught Python `SyntaxError`. The delivered client converts this into an\nL57: explicit calculator error; its SHA-256 is\nL58: `3e7ac1ca52c5a077b6cfb9c0afc3544d7f7d3bb25d0e99422e3350703176d908`.\nL59: This error-path change was developed without held-out answer feedback, and the\nL60: running evaluation source was not edited. Its verification is recorded\nL61: separately: malformed-expression tests, offline replay of recorded trajectories,\nL62: and the final one-shot smoke. Replay checks code behavior using existing model\nL63: responses; it is not an additional live accuracy or timing measurement. Do not\nL64: attribute the earlier full live run to a different client hash.\nL65: \nL66: The 100 cases are **four task forms with 25 synthetic variations each**:\nL67: find a code; calculate a total; recognize a missing date; retrieve two facts.\nL68: They have different facts from the development cases, but do not test 100\nL69: different workflows. A high score supports those specific operations only.\nL70: The initial 90/100 target is an internal pilot gate, not an estimate of success\nL71: on real customer work. Do not compute a population confidence interval by\nL72: treating these related variants as independent, representative user requests.\nL73: \nL74: `fixtures/additional-freeze.json` separately fixes three adversarial documents\nL75: and two tasks over a real project report. These five checks are not included in\nL76: the 100. The three adversarial cases cover an embedded instruction, literal chat\nL77: role markers, and a forged tool result; they do not establish general prompt\nL78: injection resistance.\nL79: \nL80: ## Scoring\nL81: \nL82: The 40 native API diagnostics comprise eight variations of five forms:\nL83: required weather calls, automatic calculator calls, choice between two tools,\nL84: automatic mode with no tool, and copying a mock tool result into schema JSON.\nL85: They check exact tool name and parsed arguments, or the expected text/JSON.\nL86: The mock weather tool is not a real weather service.\nL87: \nL88: Agent scoring is deterministic and external to the model: expected report\nL89: status, required answer strings, expected document citation, and, for arithmetic,\nL90: an actually executed calculator result. The missing-date tasks must read the\nL91: relevant document and return `insufficient_evidence`. Exact result values are\nL92: not supplied as enums to constrain the model into the correct factual answer.\nL93: \nL94: `answer_produced` is a protocol/provenance state. It means the agent produced\nL95: a complete report with permitted citations, not that the report is factually\nL96: correct. The evaluator's `score.pass` is a separate field. The report counts\nL97: incorrect factual reports and explicit execution failures separately.\nL98: String-based checks cannot rule out every contradiction or irrelevant extra\nL99: claim; representative answers and all failed cases should be inspected.\nL100: \nL101: One Motif case illustrates this distinction: `heldout-020` asked about project\nL102: 020, but the model searched for a broad phrase, read project 002, and returned\nL103: that project's code. The tools ran and the citation was real, but it answered\nL104: the wrong question. The frozen score is 99/100, with one incorrect answer.\nL105: The failing case has not been repaired and rerun as a new held-out success.\nL106: Task-to-document subject matching is a remaining pilot requirement.\nL107: \nL108: The client rejects truncated or multiple calls before executing a tool. It also\nL109: rejects unknown tools, extra/duplicate JSON fields, and unread citations.\nL110: Tool receipts record actual execution and read-document hashes. These controls\nL111: provide an audit trail, not proof that every generated sentence is true.\nL112: \nL113: ## Timing\nL114: \nL115: Task wall time starts immediately before the agent loop and includes actual\nL116: search, read, calculator, and local HTTP work. Model startup is reported\nL117: separately. The task p50 and p95 are descriptive quantiles of this fixed set,\nL118: not service-level estimates. Timings are sequential, on one host and one slot,\nL119: with no concurrent model server.\nL120: \nL121: MTP-off and MTP-on development runs are small exploratory comparisons. Earlier\nL122: development used a slightly older client revision. Native tool call IDs are\nL123: generated by the server and retained in subsequent messages, so multi-turn\nL124: prompt bytes can differ between runs. Do not describe these agent runs as an\nL125: exact token-level parity test. The previous integration's token comparison\nL126: remains a separate experiment under its recorded configuration.\nL127: \nL128: ## Preserved failures and remaining gaps\nL129: \nL130: - The original generic parser passed 17/23 model-vocabulary checks. The opt-in\nL131:   candidate passed those 23 plus one full agent-schema initialization check.\nL132: - The first live agent development run failed all eight tasks before inference:\nL133:   a report field allowing 2,000 characters exceeded this grammar engine's\nL134:   repetition-complexity limit. The field was reduced to 320 characters using\nL135:   only development feedback. The failed run is retained.\nL136: - A BF16 reference canary used the existing 629,689,477,760-byte original,\nL137:   mmap and CPU MoE offload, with a 300-second startup limit. It did not reach\nL138:   readiness, made zero inference requests, and its owned process was stopped.\nL139:   This establishes only that the bounded attempt did not start in time. It is\nL140:   not a BF16 quality score, an OOM diagnosis, or proof that longer offloading\nL141:   could never work.\nL142: - Therefore IQ2 quality retention against the original precision remains\nL143:   unmeasured here. Qwen is not a substitute for that precision reference.\nL144: - General coding, long conversations, concurrency, external actions, and\nL145:   production uptime remain outside this experiment. Earlier repetition issues\nL146:   on unconstrained code generation are not resolved by this parser patch.\nL147: \nL148: ## Rebuild scope\nL149: \nL150: The measured runtime is an isolated overlay: recompile `common/chat.cpp` with\nL151: the existing CMake flags and relink `libllama-common`, reusing the existing\nL152: verified build's other objects. The original runtime is left intact.\nL153: `build_overlay.py`, the exact modified `chat.cpp`, the patch, compile/link receipt,\nL154: and linked-library hashes document that operation. A fresh full CMake build of\nL155: this new patch was not performed. Set `LD_LIBRARY_PATH` to the candidate `bin`\nL156: directory so the copied server's original RPATH does not select old libraries.",
+        "sha256": "9b908c7f5b6980b6b758182a9ead74dbb5798d41486cf02bb8be2835ec735bc1",
+        "line_count": 156
+      }
+    },
+    {
+      "step": 6,
+      "request_sha256": "91cd1bdd81d6216d2f941c49034c806a2e4377129887a8304cd17b5713ec0fec",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_document",
+                    "arguments": "{\"doc_id\": \"motif-historical-review\"}"
+                  },
+                  "id": "T9vgWorKRfFaNRDLjpchGFjN9srEFFYt"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788600891,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 25,
+          "prompt_tokens": 7995,
+          "total_tokens": 8020,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-i9A9ogfr0qP8e7jv8u41bz7w6QZ6v3PQ",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 7995,
+          "prompt_ms": 29380.082,
+          "prompt_per_token_ms": 3.674807004377736,
+          "prompt_per_second": 272.12313430575176,
+          "predicted_n": 25,
+          "predicted_ms": 1380.302,
+          "predicted_per_token_ms": 57.51258333333333,
+          "predicted_per_second": 17.387499257408887,
+          "draft_n": 13,
+          "draft_n_accepted": 12
+        }
+      },
+      "tool": "read_document",
+      "arguments": {
+        "doc_id": "motif-historical-review"
+      },
+      "execution": "completed",
+      "result": {
+        "doc_id": "motif-historical-review",
+        "text": "L1: # Motif-3 양자화 작업 검토와 다음 방향\nL2: \nL3: 검토일: 2026-09-05 KST  \nL4: 대상 작업: `motif3 2bit 양자화 검증` — `REDACTED-TASK-ID`  \nL5: 원격 작업 폴더: `/opt/motif-work/motif3-quant`\nL6: \nL7: **판단**\nL8: \nL9: 지금 가장 가치 있는 후속 작업은 공개 모델·최종 토크나이저·MTP를 하나의 검증된 실행 조합으로 묶고, 실제 요청에서 이득을 확인하는 것이다. 기존 IQ2 형식의 비트 배분과 작은 보정 어댑터를 다시 탐색하는 일은 우선순위를 낮추는 편이 낫다.\nL10: \nL11: 양자화 연구를 계속한다면 먼저 고정밀 모델과의 같은 문항 비교로 실패 원인을 분리해야 한다. 지금까지의 결과는 기존 후보들을 기각하기에는 충분하지만, Motif-3의 좋은 2bit 양자화가 원천적으로 불가능하다는 증거는 아니다.\nL12: \nL13: 이번 검토는 초기 요청부터 9월 5일 v1.2.0 공개까지의 주요 대화, 실험 보고서, 실행 계약, 평가 요약, MTP 소스와 패치, 공개 자료를 대조했다. 저장된 MTP 원시 기록에서 토큰 배열과 집계 수치를 별도로 재계산했다. 모델 추론·학습을 새로 실행한 검증은 아니다.\nL14: \nL15: **실제로 확보한 성과**\nL16: \nL17: | 항목 | 확인한 결과 | 해석 범위 |\nL18: |---|---|---|\nL19: | 공개 직접 양자화 모델 | BF16 → IQ2_XXS, 89,720,474,560 bytes, 약 83.56 GiB | 전체 코어 모델 구동에 성공 |\nL20: | 공개 실행 속도 | pp512 316.71 tok/s, tg128 16.49 tok/s | 공개 런타임의 특정 짧은 엔진 벤치마크 |\nL21: | 원본 분포 보존 | 49,152-token 평가에서 BF16 대비 PPL 비율 1.411541, 평균 KLD 0.454130 | 사전에 정한 1.10 / 0.10 기준 미달 |\nL22: | 직접 양자화 모델의 작업 진단 | 한국어 212/300, 일반 149/180, raw tool 12/30, 보조 경로 tool 17/30 | 고정밀 모델과 같은 문항 비교는 미완료 |\nL23: | 최종 토크나이저 수정 | 확장 후보에서 공식 token ID 4,164,390개 일치 | 입력 토큰 정합성에 관한 성과 |\nL24: | MTP | 다른 IQ2 타깃 H0v2에서 5,120/5,120 토큰 일치, 복구 arm도 동일 | 한 GB10, 다섯 한국어 문맥 깊이, greedy 생성 |\nL25: \nL26: 공개 모델의 정체와 품질 한계는 [Hugging Face 모델 카드](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)에 명시되어 있다. MTP의 별도 타깃과 적용 범위는 [v1.2.0 기술 문서](https://github.com/hebo1221/motif3-dgx-spark/blob/v1.2.0/docs/MTP_EXPERIMENTAL.md)에 공개되어 있다.\nL27: \nL28: 한국어 총점 212/300은 초기 재양자화 모델과 같지만 세부 결과는 다르다. 직접 양자화 모델의 현재 저장 결과는 KMMLU 126/200, KoBEST 86/100이다. 오래된 125/200, 87/100을 현재 모델의 세부 점수로 가져오면 안 된다.\nL29: \nL30: **1. 첫 후속 실험은 공개 모델과 MTP의 연결 검증**\nL31: \nL32: 현재 공개 GGUF의 SHA-256은 `9d6f7aee…80c5a`, MTP 실험 타깃은 `dff7f7db…cab9`다. 전자는 직접 BF16 양자화이고, 후자는 Q5에서 재양자화한 H0v2다. 비슷한 파일 크기가 호환성·속도·출력의 동일성을 보장하지 않는다.\nL33: \nL34: 런타임도 최종 조합을 다시 묶을 필요가 있다. 정식 MTP 실험의 격리 빌드는 기준 커밋 `cc3f13b3…`에 MTP 및 진단 변경을 적용한 상태다. 현재 그 소스의 변경 목록에는 최종 토크나이저 패치의 `src/llama-vocab.cpp` 변경이 없으며, 공개 토크나이저 패치가 추가로 적용 가능한 상태임을 읽기 전용으로 확인했다. 공개 문서는 패치를 함께 적용하는 절차를 제공하지만, 패치 적용 검사는 그 조합의 전체 모델 추론 증거를 대신하지 않는다.\nL35: \nL36: 따라서 다음 대상은 정확히 다음 조합이어야 한다.\nL37: \nL38: `공개 direct-IQ2 GGUF + 최종 토크나이저 패치 + MTP 패치 + 고정한 sidecar`\nL39: \nL40: 짧은 로딩·출력 점검 후 같은 타깃의 MTP off/on을 비교하고, 기존 다섯 문맥 깊이와 새로운 한국어·코드·도구 프롬프트를 포함한다. 정상 EOS, 도구 호출 종료, 스트리밍, 다중 턴을 확인한다. 기존의 `ignore_eos=true`, 1,024토큰 강제 생성은 커널 진단용으로 계속 보존하되, 실제 대화 검증을 추가해야 한다.\nL41: \nL42: **2. 생성 속도보다 요청 완료 시간을 다음 최적화 지표로 삼기**\nL43: \nL44: MTP 원시 기록의 SHA-256이 공개 집계의 원본 해시와 일치했다. 기록 속 실제 토큰 배열, 생성 시간, draft 수락 수를 독립적으로 계산해 아래 결과를 확인했다.\nL45: \nL46: | 지표 | 재계산 결과 |\nL47: |---|---:|\nL48: | Target 전 | 14.5966 tok/s |\nL49: | Target 후 | 14.5778 tok/s |\nL50: | 두 Target의 평균 | 14.5872 tok/s |\nL51: | MTP | 17.5565 tok/s |\nL52: | 생성 처리량 비율 | 1.203553배 |\nL53: | Draft 수락률 | 2,993 / 6,353 = 47.1116% |\nL54: | Target–MTP 일치 | 5,120 / 5,120 토큰 |\nL55: | Target 전–후 일치 | 5,120 / 5,120 토큰 |\nL56: \nL57: 추가로 기존 기록의 `request_wall_ms`를 집계했다. 서버 시작과 워밍업을 제외한 다섯 요청의 시간 합계이며, Target은 전·후 두 arm의 합계를 평균했다.\nL58: \nL59: | 기존 기록의 요청 시간 | 값 |\nL60: |---|---:|\nL61: | Target 합계 평균 | 423.01초 |\nL62: | MTP 합계 | 364.42초 |\nL63: | 요청 시간 기준 속도 비율 | 1.1608배 |\nL64: | 대기시간 감소율 | 13.85% |\nL65: | 16K 입력 한 사례의 대기시간 감소율 | 8.72% |\nL66: \nL67: 이는 기존 다섯 강제 생성 요청을 사후 집계한 기술적 관찰이다. 실제 사용자 집단의 평균 지연이나 p95를 추정한 값은 아니다. 그래도 입력 처리 시간이 긴 요청에서는 생성 가속의 체감 이득이 줄어든다는 점을 보여준다.\nL68: \nL69: 다음 비교에는 세 조건이 유용하다: 기존 공개 런타임의 target-only, 통합 패치 런타임의 target-only, 같은 통합 런타임의 MTP. 이렇게 해야 런타임 변경 자체의 영향과 MTP의 추가 이득을 분리할 수 있다. 서로 다른 문맥의 16.49 tok/s와 17.56 tok/s를 직접 나눠서 개선율로 사용해서는 안 된다.\nL70: \nL71: Draft 길이는 1·2·3을 작은 개발 세트에서 비교할 만하다. [Motif 공식 배포 문서](https://huggingface.co/Motif-Technologies/Motif-3)는 공식 vLLM 환경에서 1토큰 설정을 최적이라고 설명한다. GB10·IQ2·llama.cpp에서도 최적이라는 뜻은 아니지만, 현재 고정한 3을 그대로 유지하기보다 재측정할 이유는 된다. 선택 기준은 수락률보다 요청 완료 시간과 추가 메모리다.\nL72: \nL73: 선택한 설정만 새 프롬프트와 반복 순서 교차를 통해 확인한다. 먼저 동시성 1에서 첫 응답 시간·토큰 간 지연·완료 시간·최대 통합 메모리를 측정하고, 그 뒤 동시성 3으로 넓힌다. 성능의 실용적 판정 기준도 실행 전에 별도로 정한다.\nL74: \nL75: **3. 품질 회복보다 먼저, 실패가 어디에서 생기는지 확인하기**\nL76: \nL77: 고정밀 teacher와의 PPL/KLD 비교는 이미 있다. 빠진 것은 한국어·도구 과제에서 BF16/Q5가 실제로 얼마나 더 잘하는지다. 어댑터끼리의 대조 실험은 이를 알려주지 못한다.\nL78: \nL79: 마지막 FunctionChat v26에서 control 47/100, candidate 45/100이었고, 무관 도구 거절은 각각 2/20, 1/20이었다. 하지만 CALL 도구 선택과 SLOT 대상 도구 제안은 각각 40/40이었다. 또 `삼백 초`를 숫자로 정규화한 값을 문자열에 그대로 없다는 이유로 거부하는 정책 오류도 있었다. 이런 오류를 양자화 손실 하나로 설명하면 잘못된 문제를 학습하게 된다.\nL80: \nL81: 전체 300문항을 바로 돌리기보다, 미사용 데이터에서 CALL·인자 누락·무관 도구·한국어 판단을 고르게 담은 30–60개 진단 문항부터 시작하는 편이 낫다. 두 비교를 구분한다.\nL82: \nL83: | 비교 | 고정할 것 | 알아낼 것 |\nL84: |---|---|---|\nL85: | BF16 또는 Q5 vs direct IQ2 | 최종 체크포인트 계통, 런타임, 프롬프트 token ID, 템플릿, 생성 설정, 채점 | 정밀도 변화에 따른 작업 차이 |\nL86: | 고정 출력/정밀도에서 공식 처리 경로 vs 현재 처리 경로 | 원시 출력 또는 기준 가중치 | 템플릿·parser·구현 차이 |\nL87: \nL88: 원시 생성, native tool_calls, 후처리된 결과를 각각 기록한다. Q5를 쓰면 Q5-relative라는 한계를 명시한다. 공식 실행기와 llama.cpp의 연산 정합성도 작은 독립 표본으로 먼저 점검하면 같은 실행기 버그를 양쪽 비교에 공통으로 숨기는 일을 줄일 수 있다.\nL89: \nL90: 고정밀에서도 실패하면 원 모델·지시 형식·처리 정책 문제를 우선 본다. IQ2에서만 실패하면 그 사례의 호출 시작, 함수 선택, 인자 누락, 종료 토큰 등 구체적 경계에 맞춰 양자화 연구를 설계할 수 있다. 이 규모는 원인 진단용이며, 품질 비열등성을 통계적으로 입증하는 최종 평가 규모는 별도로 산정해야 한다.\nL91: \nL92: **4. 기존 방법의 실패를 해석할 때 좁혀야 할 결론**\nL93: \nL94: 104 GB 후보의 같은 문항 비교 결과는 다음과 같다. 괄호는 direct IQ2 대비 정답 수 변화다.\nL95: \nL96: | 후보 | 한국어 300 | 일반 180 | Raw tool 30 | 보조 경로 tool 30 | Decode 변화 |\nL97: |---|---:|---:|---:|---:|---:|\nL98: | Direct IQ2 | 212 | 149 | 12 | 17 | 기준 |\nL99: | GEMQ식 expert overlay | 211 (−1) | 148 (−1) | 8 (−4) | 13 (−4) | −18.23% |\nL100: | Block 40+52 Q8 | 211 (−1) | 150 (+1) | 9 (−3) | 13 (−4) | −11.82% |\nL101: | Terminal-KL rank 4 | 215 (+3) | 149 (0) | 8 (−4) | 11 (−6) | −5.60% |\nL102: \nL103: 후보를 범용 개선본으로 승격하지 않은 결정은 타당하다. 평균 KL 개선과 작업 개선이 일치하지 않았고, 한국어 +3건도 해당 평가에서 통계적 우위를 입증하지 못했다. 특히 30개 tool 진단은 큰 회귀를 발견하는 데 유용하지만 작은 개선을 안정적으로 판정하기에는 좁다.\nL104: \nL105: 다만 이 실험은 GEMQ 전체를 Motif에 재현한 것이 아니다. 로컬 실행 계약도 `gptq_equivalence`, `router_finetuning_equivalence`, `gemq_kernel_equivalence`를 미입증 항목으로 남겼다. [GEMQ 공식 구현](https://github.com/jndeng/GEMQ)은 전역 비트 배분뿐 아니라 GPTQ, 라우터 재학습, 양자화 실행 커널을 포함한다. 이번 실패는 구현한 할당·overlay·보정 후보에 대한 결과다.\nL106: \nL107: 후반의 다중 영역 KL 보정과 FunctionChat까지 살펴보면, 단순히 tool 데이터 가중치를 더 주자는 제안도 이미 시도한 방향과 겹친다. 그 재시도보다 기준 모델 비교를 먼저 하는 것이 낫다. 큰 overlay에서 관측한 속도 저하 역시 해당 저장 형식과 실행 경로의 결과이므로, 전문가별 혼합정밀도 자체가 항상 느리다는 결론으로 확대하면 안 된다.\nL108: \nL109: **5. 2bit 연구를 이어갈 경우의 조건부 방향**\nL110: \nL111: 새로운 315B 전체 파일을 곧바로 만들기보다, 실제로 미검증인 축 하나를 작은 실험으로 확인한다.\nL112: \nL113: - 지원되는 작은 MoE에서 공식 GEMQ의 GPTQ·라우터 재학습·실제 양자화 추론을 재현하거나, Motif의 제한된 블록에서 저장된 활성값을 이용해 오차와 라우팅 변화를 진단한다. 부분 블록 결과는 전체 모델의 품질 근거로 승격하지 않는다.\nL114: - 이후 Motif로 옮긴다면 generic·한국어·tool의 독립 개발 데이터에서 양자화 후 입력 분포와 라우팅 변화를 함께 측정한다. teacher 분포 평균 하나로 후보를 고르지 않는다.\nL115: - 저장 표현을 바꾸는 연구라면 [QTIP](https://github.com/Cornell-RelaxML/qtip) 같은 trellis 계열이 IQ2_XXS 배분과는 다른 후보군이다. 다만 Motif·ARM64·GB10에 적용되는 변환기와 커널 검증이 필요하며, 현재 자료만으로 성공을 예상할 근거는 부족하다.\nL116: - 정확도만 좋아지는 가짜 양자화 결과와 실제 저장·추론 결과를 먼저 일치시킨다. 실제 커널의 속도·메모리 비용을 통과한 후보만 전체 모델 작업으로 넓힌다.\nL117: \nL118: 최신 방법을 더 나열하는 것보다, 미검증 요소를 하나 선택하고 양성 대조군부터 만드는 편이 연구 효율이 높다. 작은 모델의 높은 정밀도 양자화가 Spark 실사용에서 더 낫다는 과거 대화의 주장도 아직 같은 작업 비교로 입증되지 않았다. 실사용 선택이 목적이라면 비교 모델 하나를 동일한 평가에 추가하는 것이 좋다.\nL119: \nL120: **권고하는 순서**\nL121: \nL122: 1. 현재 모델·토크나이저·런타임·sidecar를 한 manifest로 묶고, 공개 GGUF에서 통합 MTP를 검증한다.\nL123: 2. 실제 요청에서 draft 1·2·3 중 설정을 고른다. 정상 종료와 API 정확성을 유지하면서 요청 시간 이득을 확인한다.\nL124: 3. 고정밀과 direct IQ2의 작은 같은 문항 비교로 품질 실패의 원인을 분리한다.\nL125: 4. 시스템 성과는 토크나이저, Motif MTP 통합, 배치 크기에 따른 CUDA 수치 차이 재현·수정으로 나눠 기여하기 쉽게 정리한다. 같은 문제가 [llama.cpp 이슈 #25618](https://github.com/ggml-org/llama.cpp/issues/25618)에도 보고되어 있어, 다른 모델에도 통하는 작은 재현 사례를 만드는 연구 가치가 있다. 현재 수정이 그 전체 이슈를 해결했다는 뜻은 아니다.\nL126: 5. 추가 양자화는 원인 진단에서 분명한 회복 가능성이 확인된 경우에만 진행한다.\nL127: \nL128: 이 우선순위는 성공을 보장하는 예측이 아니라, 이미 확보한 증거를 활용하면서 다음 실험이 답할 질문을 선명하게 만드는 제안이다.\nL129: \nL130: **운영과 기록의 보완**\nL131: \nL132: 현재 조회에서 내부 저장장치 여유는 약 3.8 GiB, 외장 SSD는 약 18 GiB다. 공식 BF16 GGUF 약 629.69 GB와 direct IQ2 파일은 외장 SSD에 실제로 존재한다. 따라서 일부 과거 문서의 ‘BF16 소스가 없다’는 문구를 현재 상태로 사용해서는 안 된다. 파일이 존재한다고 고정밀 추론이 빠르거나 동시에 메모리에 적재 가능하다는 뜻은 아니다.\nL133: \nL134: README와 FINAL_HANDOFF에는 초기 Q5 재양자화, v1.0.3 종료, 최신 v1.2.0 결과가 공존한다. 현재 권장 조합과 그 증거만 보여주는 짧은 현황 표를 만들고, 과거 결과는 날짜와 폐기/대체 관계로 연결하는 정리가 필요하다. 이는 새 승인 체계를 추가하는 작업이 아니라 오래된 결과를 현재 결과로 잘못 읽지 않게 하는 문서 정리다.\nL135: \nL136: **주요 원격 근거와 재검산 범위**\nL137: \nL138: - `/opt/motif-work/motif3-quant/reports/gemq-round6-task-quality-performance-final.md`\nL139: - `/opt/motif-work/motif3-quant/manifests/motif3_gemq_104gb_protocol_v1.json`\nL140: - `/opt/motif-work/motif3-quant/reports/functionchat-calldecision-final-v26.md`\nL141: - `/opt/motif-work/motif3-quant/reports/mtp-quantized-greedy-parity-investigation.md`\nL142: - `/opt/motif-work/motif3-quant/motif3_eval/mtp_parity.py` — 동일 토큰 비교, 강제 생성 설정, 처리량 집계\nL143: - `/opt/motif-work/motif3-quant/results/direct-iq2-current-runtime-*/summary.json` — 네 진단 점수\nL144: - `/opt/motif-work/motif3-quant/results/gemq-round6-task-perf-gate-v1/receipt.json` — SHA-256 `09b8de33930e12d270e5f02a643e06fea5099b18cee6dc67a92399d218d2dccf`\nL145: - `/opt/motif-work/forget-batch/motif3-mtp-parity-clean-cc3f13b3-full-aba-v1/receipt.json` — SHA-256 `a837852f75805cb363b259c5eebbece8470133964d05f4dd60bf983a05c09d36`\nL146: \nL147: MTP 재검산은 저장된 원시 기록과 공개 요약의 결속, 세 arm의 토큰 배열, 처리량 및 수락률 계산을 확인한 것이다. 대형 가중치 전체 해시, 모든 과거 원시 응답, 당시 프로세스와 동적 라이브러리 상태를 이번 검토에서 다시 실측한 것은 아니다. 다섯 요청의 시간 계산도 저장 기록에 대한 사후 분석으로 한정한다.",
+        "sha256": "ac8d67afa5334a10a1f936d34bc8a505fec55c98bd7a4ae6efafd1c6d3f579ba",
+        "line_count": 147
+      }
+    },
+    {
+      "step": 7,
+      "request_sha256": "771351a5131d1bdb944b0a22bf4235dfbab3c72ccbfceb6c8d2b99857ff688bd",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_document",
+                    "arguments": "{\"doc_id\": \"motif-client-usage\"}"
+                  },
+                  "id": "vl1mlD7XA1pzJW94UtIy0vykF51h8xcf"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788600939,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 26,
+          "prompt_tokens": 12250,
+          "total_tokens": 12276,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-BCqw6MW980eWWEnb0x3mthf9zmogs8j9",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 12250,
+          "prompt_ms": 46541.156,
+          "prompt_per_token_ms": 3.799278040816327,
+          "prompt_per_second": 263.2079014109576,
+          "predicted_n": 26,
+          "predicted_ms": 1502.514,
+          "predicted_per_token_ms": 60.100559999999994,
+          "predicted_per_second": 16.638780071267224,
+          "draft_n": 13,
+          "draft_n_accepted": 13
+        }
+      },
+      "tool": "read_document",
+      "arguments": {
+        "doc_id": "motif-client-usage"
+      },
+      "execution": "completed",
+      "result": {
+        "doc_id": "motif-client-usage",
+        "text": "L1: # DGX Spark에서 문서 에이전트 실행하기\nL2: \nL3: 이 패키지는 Python 표준 라이브러리와 이미 준비한 로컬 런타임을 사용한다.\nL4: 모델 가중치와 실행 바이너리는 포함하지 않는다. 현재 검증한 운영체제는\nL5: DGX Spark의 Linux ARM64다.\nL6: \nL7: ## 현재 Spark에서 한 번 실행\nL8: \nL9: 검증에 사용한 폴더는 다음과 같다.\nL10: \nL11: ```text\nL12: /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/release-client-v1\nL13: ```\nL14: \nL15: 다른 모델 작업이 실행 중이지 않을 때 다음과 같이 사용한다. 출력 폴더는\nL16: 아직 존재하지 않는 이름을 지정한다.\nL17: \nL18: ```bash\nL19: cd /opt/motif-work/motif3-quant/campaigns/agent-readiness-v1/release-client-v1\nL20: python3 run_local.py \\\nL21:   --config ../config.default-agent.json \\\nL22:   --documents demo-documents \\\nL23:   --task 'Motif-3의 이전 단계와 현재 단계 문서를 모두 읽고, 도구 호출 문제의 상태와 원본 품질 보존 검증 여부를 두 문서를 인용해 알려줘.' \\\nL24:   --draft 0 \\\nL25:   --output runs/my-first-document-task\nL26: ```\nL27: \nL28: 실행기는 로컬 서버를 띄워 업무 하나를 수행하고 자신이 띄운 서버를 종료한다.\nL29: 모델 적재 시간은 답변 시간과 별도다. 종료 후에도 결과 폴더에\nL30: `receipt.json`, `server-lifecycle.json`, 서버 로그와 메모리 관측 기록이 남는다.\nL31: 서버를 상시 등록하거나 외부 주소에 공개하지 않는다.\nL32: \nL33: `--print-command`를 추가하면 모델을 시작하지 않고 실행 경로와 설정만 확인한다.\nL34: `--draft 0`은 MTP를 끈 비교용 실행이다. 명시하지 않으면 실행기의 기본값은 0이다.\nL35: 이번 별도 100건 평가에서는 `--draft 1`을 사용했다.\nL36: \nL37: 기본 설정은 Qwen3-8B Q8_0이다. Motif IQ2와 MTP를 실험하려면 같은 폴더에서\nL38: 다음 설정으로 실행한다.\nL39: \nL40: ```bash\nL41: python3 run_local.py \\\nL42:   --config ../config.agent.json \\\nL43:   --documents demo-documents \\\nL44:   --task 'Motif-3의 이전 단계와 현재 단계 문서를 모두 읽고, 도구 호출 문제의 상태와 원본 품질 보존 검증 여부를 두 문서를 인용해 알려줘.' \\\nL45:   --draft 1 \\\nL46:   --output runs/my-first-motif-task\nL47: ```\nL48: \nL49: ## 내 문서를 넣기\nL50: \nL51: 별도 디렉터리 안에 UTF-8 Markdown 문서를 둔다. 현재 지원 범위는 폴더\nL52: 바로 아래의 `.md` 파일, 최대 256개, 파일당 32 KiB다. 파일 이름에서\nL53: 확장자를 뺀 값이 문서 ID다. 심볼릭 링크와 폴더 밖 파일은 허용하지 않는다.\nL54: 문서 ID는 영문·숫자·하이픈 등 짧고 구별하기 쉬운 이름을 권한다.\nL55: \nL56: `--documents`를 그 디렉터리로 바꾸고, `--task`에 찾고 싶은 정보나 계산을\nL57: 적는다. 검색은 단어 출현 횟수로 상위 네 문서를 고른다. PDF, Word, 하위\nL58: 디렉터리, 의미 기반 검색은 현재 구현 범위에 들어 있지 않다.\nL59: \nL60: 에이전트는 최대 여섯 차례 도구를 선택하고, 업무당 180초 안에 끝낸다.\nL61: 한 모델 요청은 최대 60초이며 최종 보고서는 최대 320자와 인용 네 개다.\nL62: 파일 수정, 명령 실행, 인터넷 검색, 메시지 발송 도구는 제공하지 않는다.\nL63: \nL64: ## 결과 읽기\nL65: \nL66: - `status: answer_produced`: 형식과 출처 검사를 통과한 보고서가 생겼다.\nL67:   사실 정확성을 자동으로 보증하는 상태는 아니다.\nL68: - `report.status: answered`: 읽은 문서를 인용해 답변했다.\nL69: - `report.status: insufficient_evidence`: 필요한 정보가 없다고 답변했다.\nL70: - `status: failed`: 시간·단계 제한, 잘린 응답, 잘못된 호출, 반복 호출 등의\nL71:   이유로 중단했다. `error`와 `steps`에서 마지막 상태를 확인한다.\nL72: - `steps[].execution: completed`: 실제 도구 구현을 실행했다.\nL73:   `source_receipts`에는 읽은 문서의 SHA-256이 기록된다.\nL74: - `server-lifecycle.json`의 `owned_process_stopped`는 실행기가 띄운 서버의\nL75:   종료 여부다.\nL76: \nL77: 오류가 나면 기록을 보존하고 원인을 확인한다. 사실을 잘못 답한 경우에는\nL78: 질문, 기대 답, 근거 문서, 실제 답을 함께 남긴다. 별도 평가의 실패를 고친\nL79: 후 같은 문제를 다시 풀어 높은 점수만 보고하면 독립 평가가 되지 않는다.\nL80: \nL81: ## 다른 디렉터리에 패키지를 옮겼을 때\nL82: \nL83: `config.example.json`은 Qwen 기본 예제이고, `config.motif.example.json`은\nL84: Motif 예제다. 사용할 모델의 후보 바이너리, target, 모델 검증 기록의\nL85: 절대 경로를 채운다. Motif에는 sidecar 경로도 필요하다. `gpu_uuid`가 비어 있으면 실행기가\nL86: 현재 한 GPU의 식별자를 읽는다. 설정의 모델 경로는 검증 기록과\nL87: 일치해야 한다.\nL88: \nL89: Qwen용 예제는 `config.qwen.example.json`이다. `backend`를 `qwen`으로 두고,\nL90: Qwen 전용 후보 바이너리와 전체 해시 검사 후 기록한 파일 식별 정보를 사용한다.\nL91: 실행기는 공식 Q8_0의 해시와 기록의 경로·크기·수정 시각·inode를 확인한다.\nL92: \nL93: 모델을 새로 복사했다면 파일 크기만 보고 검증을 승계하지 않는다.\nL94: Motif 파일 쌍은 동봉한 `verify_models.py`로 전체 해시를 확인해 새 기록을 만들 수 있다.\nL95: 89.72 GB 파일 전체를 읽으므로 이 작업은 모델 평가와 겹치지 않게 수행한다.\nL96: \nL97: ```bash\nL98: python3 verify_models.py \\\nL99:   --model /absolute/path/to/motif3-direct-iq2xxs.gguf \\\nL100:   --sidecar /absolute/path/to/motif3-mtp-linked-bf16.gguf \\\nL101:   --output /absolute/path/to/model-binding.json\nL102: ```\nL103: \nL104: `run_local.py`는 후보 바이너리가 있는 디렉터리로 `LD_LIBRARY_PATH`를\nL105: 설정한다. 직접 서버를 띄우는 경우에도 이것이 필요하다. 복사된 서버의\nL106: 기존 RPATH 때문에 이전 공용 라이브러리가 선택될 수 있기 때문이다.\nL107: \nL108: ## 검사와 재현\nL109: \nL110: 모델 없이 실행하는 에이전트 경계 검사는 다음과 같다.\nL111: \nL112: ```bash\nL113: python3 -m unittest -v test_agent\nL114: ```\nL115: \nL116: 현재 Spark의 원본 실험 폴더에서는 다음 명령으로 새 이름의 개발 검사를\nL117: 수행할 수 있다. 100건과 정답은 이미 본 평가 자료이므로, 이를 다시 실행한\nL118: 결과를 새 독립 성능 평가로 발표해서는 안 된다.\nL119: \nL120: ```bash\nL121: python3 run_campaign.py \\\nL122:   --run my-development-check \\\nL123:   --backend motif --draft 1 \\\nL124:   --phases quality stream development\nL125: ```\nL126: \nL127: 위 평가 명령의 작업 디렉터리는\nL128: `/opt/motif-work/motif3-quant/campaigns/agent-readiness-v1`이다.\nL129: `release-client-v1`에서 실행할 때에는 먼저 상위 디렉터리로 이동한다.\nL130: 평가 원본 클라이언트와 잘못된 계산식 처리만 보완한 전달용 클라이언트는\nL131: 분리해 보존했다. 차이와 검증 범위는 `EVALUATION.md`에 있다.\nL132: \nL133: 수정 후 Qwen 개발 비교에는 상위 실험 폴더의 `run_campaign_qwen_v2.py`와\nL134: `--backend qwen --draft 0`을 사용한다. `baseline-download.json`과\nL135: `baseline-before-evaluation.json`이 고정 리비전과 전체 해시 검사 결과를 갖고 있다.\nL136: 이 실행은 공식 내장 템플릿의 메시지 형식에 별도 호출 파서를 연결한 구성이다.\nL137: 처음 사용한 기본 파서의 실패·중단 기록은 보존했다.\nL138: \nL139: 원본 모델 파일을 검사한 경로·inode·mtime 기록과 실험용 `config.json`은\nL140: 장치에 종속된다. 패키지의 예제 설정만으로 다른 장치에서 전체 평가가\nL141: 자동 재현된다고 가정하지 않는다.\nL142: \nL143: ## 파서 빌드 범위\nL144: \nL145: `build_overlay.py`는 현재 Spark에 있는 기존 통합 빌드\nL146: `/opt/motif-work/motif3-integrated-runtime-v1`을 기반으로 한다.\nL147: 비어 있는 별도 패키지 디렉터리에서 실행하면 그 디렉터리에 `runtime/`을\nL148: 만들고, 동봉한 `chat.cpp`만 다시 컴파일해 공용 라이브러리를 연결한다.\nL149: 이미 `runtime/`이 있으면 덮어쓰지 않고 중단한다. 모델 평가가 실행 중일\nL150: 때에는 빌드하지 않는다.\nL151: \nL152: 측정에 사용한 것은 이 방식으로 만든 분리된 런타임이다. 새 패치를 넣은\nL153: 전체 CMake 재빌드는 이번 단계에서 검증하지 않았다. 다른 기반 커밋,\nL154: 컴파일러 또는 GPU에 적용할 때에는 별도 빌드·검사가 필요하다.\nL155: \nL156: 지원 API는 thinking을 끈 현재 프로필의 required/auto/none 도구 선택,\nL157: 단일 도구 호출, 별도 JSON 스키마 응답이다. 호출 도구를 이름 객체로 지정하는\nL158: 형식, assistant prefill, 활성 도구와 response_format의 동시 사용은 이번\nL159: 프로필의 지원 범위에 포함하지 않는다.\nL160: \nL161: Qwen 비교 런타임의 추가 패치는 `qwen-parser/qwen-handler-only.patch`에 있다.\nL162: 이는 Motif 후보 소스 위에 적용하는 별도 옵션 파서다. 실제 측정에 사용한\nL163: Qwen 빌드도 기존 통합 빌드의 객체 파일을 재사용한 분리된 공용 라이브러리다.",
+        "sha256": "7bab8e362af7d2f510e11874550405179d0660c5a596d6b6388795853ae523cc",
+        "line_count": 163
+      }
+    },
+    {
+      "step": 8,
+      "request_sha256": "a2da9a65b81df85bf5b632f0c6245a21584743b01b1a41b2f7f2e505d35e3b4e",
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "read_document",
+                    "arguments": "{\"doc_id\": \"motif-runtime\"}"
+                  },
+                  "id": "m3qwijPety5h8298jMWe6euuDPfxY6Hq"
+                }
+              ]
+            }
+          }
+        ],
+        "created": 1788600998,
+        "model": "/opt/model-archive/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+        "system_fingerprint": "b10498-cc3f13b3f",
+        "object": "chat.completion",
+        "usage": {
+          "completion_tokens": 24,
+          "prompt_tokens": 14864,
+          "total_tokens": 14888,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "id": "chatcmpl-dqDC1JDTefzUuPcKc0Q6y3wmzEbTXHXE",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 14864,
+          "prompt_ms": 57652.685,
+          "prompt_per_token_ms": 3.8786790231431647,
+          "prompt_per_second": 257.81973554223885,
+          "predicted_n": 24,
+          "predicted_ms": 1432.15,
+          "predicted_per_token_ms": 62.26739130434783,
+          "predicted_per_second": 16.05977027545997,
+          "draft_n": 12,
+          "draft_n_accepted": 11
+        }
+      },
+      "tool": "read_document",
+      "arguments": {
+        "doc_id": "motif-runtime"
+      },
+      "execution": "completed",
+      "result": {
+        "doc_id": "motif-runtime",
+        "text": "L1: # Motif-3 공개 모델의 MTP 통합 검증\nL2: \nL3: 2026-09-05 · DGX Spark / NVIDIA GB10 · 내부 검증 패키지\nL4: \nL5: **공개 direct IQ2 모델에 최종 토크나이저와 MTP를 통합했고, draft 1을 권장하는 실험용 실행 구성을 만들었다.** 11개 요청의 출력 토큰 5,560개가 가속 꺼짐·켜짐·복구 실행에서 모두 일치했다.\nL6: \nL7: **판정: 통합 추론과 지정 성능 기준 PASS · 네이티브 강제 도구 호출 HOLD · 품질 개선 미검증.** 사전에 정한 API 포함 전체 기준은 통과하지 못했다. 대화·추론 실험용 성과와 도구 호출의 실패를 함께 공개할 수 있는 상태다.\nL8: \nL9: ## 새로 확보한 가치\nL10: \nL11: 1. 과거의 다른 IQ2 파일에 한정됐던 MTP 증거를 실제 공개 모델에 연결했다. 89.72 GB 전체 해시, 보조 모델 해시, 구조·토크나이저 배열을 새로 확인했다.\nL12: 2. 최종 토크나이저와 MTP를 함께 빌드했다. 공식 토크나이저와 비교한 **434,569개 token ID**가 모두 일치했다. 12,011개 형식·Unicode 검사 사례와 두 기존 코퍼스를 포함한다.\nL13: 3. 실제 HTTP 요청으로 draft 1·2·3을 비교해 더 나은 기본값을 찾았다. 속도와 동일 출력, 정상 종료·출력 상한, 첫 응답 시간을 함께 기록했다.\nL14: 4. 재현용 빌드·모델 검사·실행 도구, 공개 가능한 합성 프롬프트, 원시 기록에 연결된 요약을 묶었다. 기본 검증 뒤 서버는 종료한다.\nL15: 5. 도구 API 문제를 작은 CPU 프로그램으로도 조사할 수 있게 했다. 이 검사는 315B 가중치를 읽지 않는다.\nL16: \nL17: ## 확인된 시간 단축\nL18: \nL19: Spark 내부 localhost HTTP 요청의 완료 시간 합계다. Target은 가속을 끈 전·후 실행의 평균이다. 모델 적재와 워밍업은 포함하지 않는다.\nL20: \nL21: | 독립 확인 범위 | Target 평균 | MTP draft 1 | 요청 시간 감소 |\nL22: |---|---:|---:|---:|\nL23: | 일반 요청 6건, 출력 440토큰 | 30.86초 | 23.37초 | **24.3%** |\nL24: | 그중 자연 종료한 5건, 출력 184토큰 | 14.42초 | 11.92초 | **17.4%** |\nL25: | 다섯 문맥 깊이의 강제 생성, 5,120토큰 | 422.24초 | 306.19초 | **27.5%** |\nL26: \nL27: 일반 요청 6건에는 256토큰 상한에 도달한 코드 요청 1건이 포함된다. 자연 종료 5건의 수치는 이를 분리한 보조 분석이다. 미리 정한 설정 선택·성능 기준은 변경하지 않았다. 작은 고정 표본이므로 실제 사용자 모집단의 평균이나 p95를 추정한 값은 아니다.\nL28: \nL29: | 입력 토큰 | 생성 토큰 | Target 평균 | MTP draft 1 | 시간 감소 | 토큰·종료 일치 |\nL30: |---:|---:|---:|---:|---:|---|\nL31: | 128 | 1,024 | 65.11초 | 42.35초 | 35.0% | 일치 |\nL32: | 512 | 1,024 | 66.37초 | 43.61초 | 34.3% | 일치 |\nL33: | 2,048 | 1,024 | 71.86초 | 49.09초 | 31.7% | 일치 |\nL34: | 8,192 | 1,024 | 94.05초 | 70.49초 | 25.1% | 일치 |\nL35: | 16,000 | 1,024 | 124.85초 | 100.65초 | 19.4% | 일치 |\nL36: \nL37: 다섯 강제 생성 요청의 서버 보고 생성 처리량은 Target 평균 **14.63 tok/s**, MTP **21.99 tok/s**였다. 입력 처리도 포함한 위 HTTP 완료 시간과는 다른 지표다. 스트리밍 한 이벤트에 여러 토큰이 실릴 수 있으므로 이벤트 간격을 토큰 간 지연으로 부르지 않았다.\nL38: \nL39: ## 설정을 고른 근거\nL40: \nL41: 선택용 네 요청에서는 MTP 후보 세 개 모두 354개 출력 토큰과 종료 방식이 일치했다. 같은 통합 런타임의 가속 꺼짐 전·후 요청 시간 합계 평균은 23.98초였다.\nL42: \nL43: | Draft 최대 길이 | 네 요청 시간 합계 | 대조군 대비 감소 |\nL44: |---:|---:|---:|\nL45: | **1** | **17.84초** | **25.6%** |\nL46: | 2 | 18.17초 | 24.2% |\nL47: | 3 | 20.87초 | 12.9% |\nL48: \nL49: 이 작은 개발 표본에서 가장 짧은 시간을 보인 1을 선택했다. 1과 2의 차이가 작아 모든 작업에서 1이 최적이라는 주장은 하지 않는다. 이후 별도로 고정한 여섯 요청과 기존의 다섯 문맥 깊이를 앞뒤 대조군으로 확인했다.\nL50: \nL51: ## 런타임과 모델의 정확한 범위\nL52: \nL53: - Target: 공개 BF16 직접 양자화 IQ2_XXS, 89,720,474,560 bytes. SHA-256 `9d6f7aee57f0271223f51d69c63d8576a259809e9f05e2ac596512e940c80c5a`.\nL54: - Sidecar: 기존 linked BF16 MTP, 512,363,040 bytes. SHA-256 `d813251f1b7e8158399352af6e44c92df2445cd807fda1a869d2247279806f81`.\nL55: - 기반 커밋: `cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`. 최종 토크나이저 패치와 기존 MTP 런타임 패치를 순서대로 적용했다. 진단 패치는 이 빌드에 적용하지 않았다.\nL56: - GPU: 한 NVIDIA GB10. CUDA 13.0.88, GCC 13.3, ARM64, `121a-real` 빌드.\nL57: - 실행: GPU 전체 적재, FA on, f16 KV, 20 스레드, batch 2,048 / ubatch 512, 할당 context 22,016, 한 슬롯, greedy, seed 42, prompt cache off.\nL58: - 외장 SSD에서의 적재는 대략 92–94초였다. MTP 검증 중 `MemAvailable` 최저 관측치는 약 **29.9 GiB**였다. 통합 메모리에서 RSS와 GPU 할당을 합산하지 않았다.\nL59: \nL60: **MTP의 비교 기준은 같은 통합 런타임의 target-only이다.** 토크나이저 패치만 넣은 동일 기반 대조본과 비교하면 입력은 같지만 네 개발 요청 중 두 답변의 표현이 달랐다. 각각 자기 전·후 실행은 재현됐다. CUDA 변경은 일반 한 토큰 생성 경로에도 영향을 줄 수 있으므로, 기존 런타임과의 완전 동일 출력이나 기존 품질 점수의 승계를 주장하지 않는다.\nL61: \nL62: MTP 보조 모델은 새로 변환한 것이 아니다. 기존 H0v2 대상 변환 기록을 보존하고, 공개 direct IQ2에 대한 새 호환성·해시 기록을 만들었다.\nL63: \nL64: ## 도구 API와 품질에서 남은 문제\nL65: \nL66: | 네이티브 API 합성 검사 | Target 전 / MTP / Target 후 |\nL67: |---|---|\nL68: | 대화 응답 형식과 종료 | PASS / PASS / PASS |\nL69: | JSON 스키마 응답 | PASS / PASS / PASS |\nL70: | 모의 도구 결과를 읽어 답하기 | PASS / PASS / PASS |\nL71: | `tool_choice=required`로 도구 호출 생성 | **FAIL / FAIL / FAIL** |\nL72: \nL73: 강제 호출 사례에서는 `tool_calls`가 없고, 실제 조회 없이 임의의 날씨를 서술하다 128토큰 상한에 도달했다. 도구는 실행하지 않았다. 세 실행의 이 잘못된 응답도 동일했다. 앞의 PASS는 해당 API 형식·종료 검사이며, 지시 준수나 도구 선택 정확도 점수는 아니다.\nL74: \nL75: 모델 없는 파서 검사에서 응답 시작 문자열의 `<|` 두 글자가 잘리는 경계를 발견했다. 추론에 필요하지 않은 training EOS 접미사를 제거한 별도 템플릿은 경계를 바로잡았다. 하지만 두 조건의 실제 모델 검사에서 **도구 호출은 계속 실패했다**. 따라서 수정 후보를 기본 템플릿으로 승격하지 않았다. 생성 문법은 호출 전에 긴 일반 텍스트를 허용하며, 파서는 불완전한 호출을 일반 내용으로 돌려줄 수 있다. 구조 수정만으로 API 문제가 해결됐다고 판단할 수 없다.\nL76: \nL77: 코드 요청도 512토큰까지 늘린 후속 검사에서 자기 설명을 반복하며 상한에 도달했다. 가속 꺼짐·켜짐에서 같은 결과였다. 양자화·원 모델·지시 형식 중 무엇이 원인인지는 고정밀 대조가 필요하다.\nL78: \nL79: ## 다음 가치 상승의 우선순위\nL80: \nL81: 1. **이번 성과를 재현 가능한 실험용 배포 후보로 제시한다.** 중심 근거는 공개 파일의 정체, 같은 통합 런타임에서의 토큰 일치, 독립 요청의 완료 시간이다. 도구 API와 품질 한계를 함께 둔다.\nL82: 2. **도구 API는 작은 재현 사례부터 수정한다.** 생성 접두부, required 호출 문법, 부분 응답 처리, native `tool_calls`를 분리해 검증한다. 이 패키지의 CPU 검사기를 시작점으로 쓸 수 있다.\nL83: 3. **고정밀과 IQ2를 30–60개 같은 문항에서 비교한다.** 한국어 판단, 호출 여부, 인자, 종료와 반복을 함께 기록한다. IQ2에만 나타나는 실패를 확인한 뒤 새 양자화 후보를 설계한다.\nL84: 4. **일반화를 측정한다.** 현재 결과는 한 GPU·한 슬롯·greedy에 한정된다. 동시성, 다른 문맥과 GPU는 별도 후속 실험이다.\nL85: \nL86: 기존 104 GB 후보와 소형 보정의 탐색을 바로 반복할 근거는 이번 작업에서도 생기지 않았다. 현재 내부 저장소 여유도 약 3 GiB여서 추가 대형 파일 실험에는 공간 확보가 필요하다.\nL87: \nL88: ## 실행과 증거\nL89: \nL90: 빌드·검사·실행 절차는 [USAGE.md](USAGE.md), 집계와 해시는 [validation-summary.json](evidence/validation-summary.json), 별도 템플릿 결과는 [template-candidate-summary.json](evidence/template-candidate-summary.json)에 있다. 공개 가능한 합성 요청은 `benchmark/`에, 가중치 없는 도구 재현기는 `diagnostics/`에 있다.\nL91: \nL92: 원격 통합 런타임: `/opt/motif-work/motif3-integrated-runtime-v1`  \nL93: 원격 실험과 원시 기록: `/opt/motif-work/motif3-quant/results/integrated-runtime-v1`  \nL94: 원격 실행 도구: `/opt/motif-work/motif3-quant/campaigns/integrated-runtime-v1`\nL95: \nL96: 첫 개발 시도는 완료된 첫 대조군 뒤 포트 재사용 검사에서 중단됐다. 측정 도구를 수정하고 해당 기록을 보존한 채 나머지를 별도 결과 폴더에서 수행했다. 전체 모델과 과거 실험 기록은 변경하지 않았다. GitHub/Hugging Face에 새 공개·커밋·업로드는 하지 않았다.\nL97: \nL98: 최종 점검에서 실행 파일·라이브러리 31개의 해시가 모두 유지됐고, 검증용 GPU 프로세스가 남아 있지 않았다. 모델 파일의 결속도 유지됐다. [최종 점검 기록](evidence/final-integrity-summary.json).",
+        "sha256": "19959a2a6263e5f564bb74d7c380071f92530aacd7de1f876729d5c4e457f50a",
+        "line_count": 98
+      }
+    }
+  ],
+  "max_steps": 8,
+  "deadline_seconds": 300,
+  "subject_scope": {
+    "mode": "explicit",
+    "subjects": [
+      "motif3",
+      "qwen"
+    ],
+    "index_sha256": "a9b49e6c7c359aaeaead6a45e3cf67b6871b6ec9d70e657a35234f7caf7929de"
+  },
+  "error": "ContractError: Maximum tool steps reached",
+  "elapsed_seconds": 199.58381130709313,
+  "case_id": "confirm-comparison",
+  "required_citation_coverage": false
+}
