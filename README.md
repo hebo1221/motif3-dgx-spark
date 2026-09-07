@@ -1,67 +1,24 @@
 # Motif-3 315B on one DGX Spark
 
+[English](README.md) | [한국어](README.ko.md)
+
 ![Motif-3 315B on one DGX Spark: 83.56 GiB, 316.71 tok/s prompt processing, and 16.49 tok/s generation](assets/motif3-dgx-spark-result-card.png)
 
-I put [Motif-3](https://huggingface.co/Motif-Technologies/Motif-3)'s 314.7B-parameter
-sparse-MoE core on one 128 GB DGX Spark. The mixed IQ2_XXS GGUF is **83.56 GiB**,
-and all 54 model layers load on the GPU. A pinned public build averaged
-**16.49 tok/s** for 128-token generation and **316.71 tok/s** for pp512, over
-five repetitions. Those speeds were measured before the tokenizer-exact patch;
-83.56 GiB is the file size.
+This project runs the 314.7B-parameter core of
+[Motif-3](https://huggingface.co/Motif-Technologies/Motif-3) entirely on one
+128 GB NVIDIA DGX Spark. The model is packaged as an 83.56 GiB mixed
+IQ2_XXS GGUF, with all model layers loaded on the GPU.
 
-Getting it to load left other problems to check. The runtime needed fixes to
-match Motif's tokenizer. Later, a document-agent answer quoted **629.69 GB**
-from its source and still wrote **89.72 GB** in its conclusion. The quant also
-failed the BF16 quality-preservation gates set before evaluation.
+The repository includes the exact model revision, a pinned Motif-capable
+llama.cpp runtime, a tokenizer correction, benchmark data, checksums, and the
+notes needed to reproduce the setup.
 
-The release includes the working model, patches, and records of those failures:
+**[Download the GGUF](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)**
+· **[Runtime notes](docs/RUNTIME.md)**
+· **[Results](docs/RESULTS.md)**
+· **[Case study](docs/CASE_STUDY.md)**
 
-- **Run it on a Spark:** [download the GGUF](https://huggingface.co/jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark)
-  and follow the [pinned build instructions](#download-and-run).
-- **Reuse a check:** inspect the [Motif tokenizer patch](patches/motif3-tokenizer-exact-v1.patch)
-  or run the [Q8 numerical probe](experiments/value-v2/runtime/README.md),
-  which needs a CUDA build but no model weights.
-- **Read it without a GPU:** start with the [actual answers and their sources](docs/RECORDED_DEMO.md),
-  then the [case study](docs/CASE_STUDY.md) or [한국어 회고](docs/CASE_STUDY.ko.md).
-
-Built on Motif Technologies' model, llama.cpp, Chrono's Motif port, and the
-cited GQA-5 work. Development and analysis were assisted by Codex. See
-[attribution](NOTICE.md).
-
-## Inspect the work without a GPU
-
-The [recorded answer tour](docs/RECORDED_DEMO.md) shows a useful distinction
-and a completed answer that misreads its own evidence. No model download is
-needed. To check the published records locally, use Git and Python 3:
-
-```bash
-git clone --depth 1 https://github.com/hebo1221/motif3-dgx-spark.git
-cd motif3-dgx-spark
-python3 experiments/value-v2/verify_public.py
-```
-
-The verification runs offline after cloning. It checks file hashes and source
-passages in recorded reports, with **zero model requests**. It does not grade
-the answers. CUDA researchers can also reuse the
-[model-free Q8 numerical probe](experiments/value-v2/runtime/README.md).
-
-## 한국어 요약
-
-Motif-3의 3,147억 파라미터 sparse MoE 핵심 모델을 128 GB DGX Spark 한 대에
-올렸습니다. 공식 BF16에서 직접 양자화한 혼합 IQ2_XXS 파일은 83.56 GiB입니다.
-고정한 공개 빌드에서 생성 속도는 다섯 번 평균 16.49 tok/s였고, 이 수치는
-토크나이저 수정 전의 측정값입니다.
-
-돌아가는 것을 확인한 뒤에는 입력을 나누는 규칙과 실제 답변을 살폈습니다.
-토크나이저를 고쳤고, 모델이 근거를 인용하면서도 숫자를 틀리는 답변도 남겼습니다.
-BF16 품질 유지 기준은 통과하지 못했습니다.
-
-Spark가 있으면 [실행 절차](#download-and-run)를 따라 해볼 수 있습니다.
-장비 없이 작업을 살펴보려면 [한국어 회고](docs/CASE_STUDY.ko.md)와
-[실제 답변·원문](docs/RECORDED_DEMO.md)을 보면 됩니다. 위 검증 명령은 공개된
-파일과 원문 연결을 확인하며, 새로 모델을 실행하거나 정답을 채점하지 않습니다.
-
-## What worked
+## At a glance
 
 | Item | Result |
 |---|---:|
@@ -75,56 +32,53 @@ Spark가 있으면 [실행 절차](#download-and-run)를 따라 해볼 수 있�
 | tg128 | 16.49 tok/s |
 | pp2048 + tg128 | 149.33 tok/s |
 
-Those four speeds come from one clean public-build session with five
-repetitions per shape. The earlier three-session campaign landed in the same
-range; both sets are kept in [Results](docs/RESULTS.md).
+The performance rows are means from five repetitions on one clean public
+build. Full results and the earlier three-session stability runs are in
+[Results](docs/RESULTS.md).
 
-## Experimental follow-up: native MTP
+> [!IMPORTANT]
+> This GGUF was validated with the pinned Motif-capable runtime and tokenizer
+> patch below. Compatibility with stock upstream llama.cpp has not been
+> established.
 
-A separate native-MTP experiment now passes a full target/MTP/target A-B-A
-check on one DGX Spark: 5,120/5,120 greedy tokens matched in the MTP arm,
-5,120/5,120 matched again after returning to a fresh target-only process, and
-server-reported decode improved from a 14.5872 tok/s counterbalanced target
-mean to 17.5565 tok/s (**1.2036x**). Draft acceptance was 47.11%.
+> [!NOTE]
+> This is a single-Spark feasibility release, not a BF16-equivalent quant. It
+> fits and runs at useful speed, but it did not pass the prespecified BF16
+> quality-preservation gates.
 
-This is a source-and-evidence release, not a replacement model upload. The
-512 MB sidecar is not redistributed, the public GGUF is unchanged, and the
-experiment's exact target is not byte-identical to the downloadable v1 GGUF.
-See [Experimental native MTP](docs/MTP_EXPERIMENTAL.md) for the patch series,
-sidecar recipe, public aggregate, and limitations.
+## Inspect the work without a GPU
 
-## Two things to know first
+The [recorded answer tour](docs/RECORDED_DEMO.md) pairs document-agent answers
+with the passages they cite, including an answer that quotes the right number
+and reaches the wrong conclusion. You can verify the published records without
+downloading the model:
 
-First, this release was validated with a pinned community runtime. Compatibility
-with unmodified upstream llama.cpp is not established here. The measured build
-includes the Motif-3 model port, GQA-5 Flash Attention support, and tokenizer handling.
-The measured runtime base is public at
-[`cc3f13b3f172978d7b3c215780d4cc98bb0e1c80`](https://github.com/hebo1221/llama.cpp/commit/cc3f13b3f172978d7b3c215780d4cc98bb0e1c80).
-Release v1.1.0 adds a hash-pinned
-[`Motif-only tokenizer patch`](patches/motif3-tokenizer-exact-v1.patch) on top
-of that commit. It fixes prompt token IDs; it does not change the GGUF weights
-or retroactively turn the published speed rows into patched-runtime results.
+```bash
+git clone --depth 1 https://github.com/hebo1221/motif3-dgx-spark.git
+cd motif3-dgx-spark
+python3 experiments/value-v2/verify_public.py
+```
 
-Second, fitting the model is not the same as preserving BF16 quality. On a
-fixed 49,152-token held-out comparison, this quant measured 1.4115x perplexity
-and 0.4541 mean KL against BF16. It missed both preservation gates I set before
-the run. I would use it for local research and systems work, not as a drop-in
-BF16 replacement.
+The verifier runs offline, checks hashes and cited passages, and makes no model
+requests. The follow-up release also includes a
+[model-free Q8 numerical probe](experiments/value-v2/runtime/README.md) for
+CUDA builds.
 
-## Download and run
+## Quick start
 
-### 1. Make room
+### Requirements
 
-The tested machine was one NVIDIA DGX Spark. Plan for:
+The tested system was one NVIDIA DGX Spark. Allow for:
 
-- about 90 GB for the model itself;
-- at least 110 GB of free disk while cloning and building the runtime;
-- the Spark's full 128 GB unified-memory pool, with other GPU workloads stopped;
+- about 90 GB for the model;
+- at least 110 GB of free disk while downloading and building;
+- the Spark's full 128 GB unified-memory pool, with other large GPU workloads
+  stopped;
 - Git, CMake, a C++ compiler, the CUDA toolkit, and the `hf` CLI.
 
-Other 128 GB NVIDIA systems may work, but I have not measured them.
+Other 128 GB NVIDIA systems may work, but they have not been measured here.
 
-### 2. Download the model and template
+### 1. Download the model and template
 
 ```bash
 mkdir -p model
@@ -138,22 +92,28 @@ hf download jhkim55/Motif-3-Direct-IQ2-XXS-DGX-Spark \
 sha256sum model/motif3-direct-iq2xxs.gguf
 ```
 
-The expected model digest is:
+Expected SHA-256:
 
 ```text
 9d6f7aee57f0271223f51d69c63d8576a259809e9f05e2ac596512e940c80c5a
 ```
 
-### 3. Build the runtime
+You can also run the read-only verifier after downloading:
+
+```bash
+git clone --branch v1.2.0 --depth 1 \
+  https://github.com/hebo1221/motif3-dgx-spark.git release-files
+
+release-files/scripts/verify_download.sh model
+```
+
+### 2. Build the runtime
 
 ```bash
 git clone --branch motif3-dgx-spark-v1 --single-branch \
   https://github.com/hebo1221/llama.cpp.git runtime
 
 git -C runtime checkout cc3f13b3f172978d7b3c215780d4cc98bb0e1c80
-
-git clone --branch v1.2.0 --depth 1 \
-  https://github.com/hebo1221/motif3-dgx-spark.git release-files
 
 sha256sum release-files/patches/motif3-tokenizer-exact-v1.patch
 git -C runtime apply --check --unidiff-zero \
@@ -175,17 +135,14 @@ cmake -S runtime -B runtime/build \
 cmake --build runtime/build --target llama-server llama-bench -j 12
 ```
 
-The patch file should hash to
+The tokenizer patch must have SHA-256
 `5eba842cd63731e3ee39c60c43134ef59a3a64c9d28c2aa58c3073225c6545cf`.
-The resulting normal Git diff should hash to
+After applying it, the normal Git diff must hash to
 `09abc52c2f7ff9f2cb3e9b8edd3af03684840969d0cdc7f24fd7aa63ca3207f3`.
-The patch is restricted to Motif tokenizer handling; other tokenizer families
-keep their existing paths.
+The patch only changes Motif tokenizer handling; it does not modify the model
+weights or other tokenizer families.
 
-The UI is disabled on purpose. It keeps the build smaller and avoids pulling a
-separate web bundle that is unrelated to inference.
-
-### 4. Start a local OpenAI-compatible server
+### 3. Start the server
 
 ```bash
 runtime/build/bin/llama-server \
@@ -205,8 +162,8 @@ runtime/build/bin/llama-server \
   --chat-template-file model/motif3-llama.cpp.jinja
 ```
 
-Keep it on `127.0.0.1` unless you have added authentication and understand the
-network exposure. Once the model is ready:
+Keep the server on `127.0.0.1` unless you have added authentication. Once the
+model is ready:
 
 ```bash
 curl -fsS http://127.0.0.1:8080/health
@@ -223,13 +180,13 @@ curl -fsS http://127.0.0.1:8080/v1/chat/completions \
   }'
 ```
 
-The clean-build smoke test for the published performance baseline returned
-`한국의 수도는 서울입니다.` and reported `b10498-cc3f13b3f`. That smoke test and
-the speed rows predate the v1.1.0 tokenizer-exact patch.
+The clean-build smoke test returned `한국의 수도는 서울입니다.` and reported
+`b10498-cc3f13b3f`. That smoke test and the published speed rows predate the
+v1.1.0 tokenizer patch.
 
-## Re-run the benchmark
+## Reproduce the benchmark
 
-Do this only when the model is not already loaded by another process:
+Run this only when no other process has the model loaded:
 
 ```bash
 runtime/build/bin/llama-bench \
@@ -245,16 +202,16 @@ runtime/build/bin/llama-bench \
   -o jsonl
 ```
 
-The normalized JSONL from the clean run is in
-[`evidence/clean_runtime_benchmark.jsonl`](evidence/clean_runtime_benchmark.jsonl),
-with the build and smoke-test receipt in
+The normalized rows are in
+[`evidence/clean_runtime_benchmark.jsonl`](evidence/clean_runtime_benchmark.jsonl).
+Build details and the server smoke test are in
 [`evidence/clean_runtime_verification.json`](evidence/clean_runtime_verification.json).
 
-## What is inside the GGUF
+## Quantization details
 
-This is mixed precision, not a pure 2-bit file. The large routed-expert tensors
-use IQ2_XXS; embeddings, output, attention, routing, and control tensors keep
-more precision where the memory budget allowed it.
+This is a mixed-precision file, not a pure 2-bit model. Routed-expert tensors
+carry most of the compression, while embeddings, output, attention, routing,
+and control tensors keep more precision.
 
 | Stored type | Tensors | Payload bytes |
 |---|---:|---:|
@@ -264,57 +221,56 @@ more precision where the memory budget allowed it.
 | Q2_K | 6 | 1,357,676,544 |
 | F32 | 1,424 | 552,591,880 |
 
-The path was official BF16 -> BF16 GGUF -> IQ2_XXS. There was no Q5
-intermediate and no `--allow-requantize` step.
+The conversion path was:
 
-## What I checked
+```text
+official BF16 -> BF16 GGUF -> IQ2_XXS
+```
+
+There was no Q5 intermediate and no `--allow-requantize` step. See
+[Method](docs/METHOD.md) for the complete source and tensor inventory.
+
+## Validation
+
+The public evidence covers:
 
 - all 54 model layers loaded on the GPU;
-- the public runtime loaded this exact 89.72 GB artifact;
-- `/health`, `/slots`, and one real Chat Completions request completed;
-- the patched public-runtime base matched the official tokenizer on 115,618
-  corpus token IDs and 318,951 deterministic fuzz token IDs using the final
-  GGUF's embedded `motif3` metadata;
-- a source-identical extended candidate matched all 4,164,390 token IDs from
-  591,984 generated cases plus the two corpora;
-- 15 existing llama.cpp tokenizer fixtures plus the Motif Unicode regression
-  test all passed;
-- the model file, source shards, template, tensor inventory, and public
-  evidence files are hash-bound.
+- the exact 89.72 GB GGUF loaded by the pinned runtime;
+- successful `/health`, `/slots`, and Chat Completions requests;
+- exact agreement with the official tokenizer on 115,618 corpus token IDs and
+  318,951 deterministic fuzz token IDs;
+- exact agreement on 4,164,390 token IDs in the extended tokenizer campaign;
+- 16 passing tokenizer regression tests;
+- SHA-bound model, template, source-shard, tensor, and benchmark records.
 
-The original aggregate comparison remains in
-[`evidence/tokenizer_parity.json`](evidence/tokenizer_parity.json). The
-v1.1.0 mechanism-specific suites, patch identity, and claim boundaries are in
-[`evidence/tokenizer_exact_v1.json`](evidence/tokenizer_exact_v1.json).
+Tokenizer evidence is in
+[`evidence/tokenizer_exact_v1.json`](evidence/tokenizer_exact_v1.json). The
+tokenizer patch fixes input token IDs only; it does not improve the IQ2 model
+weights.
 
-## Boundaries I would not gloss over
+## Quality and known limitations
 
-- The native MTP head is not in this downloadable GGUF. Release v1.2.0 adds an
-  experimental sidecar runtime and evidence for a different exact target; its
-  1.2036x observation must not be relabeled as a result for this GGUF.
-- The parent advertises 256K context; this release does not establish retained
-  256K retrieval or generation quality.
-- Tool calling is fragile at this bit rate. Schema or parser repair can improve
-  formatting, but it does not repair a bad call/no-call decision.
-- `-c` is the server's total context budget. With multiple slots, it is split
-  between them. Check `/slots` instead of assuming every request gets the full
-  value.
-- Internal task sets are reported only as diagnostics. They are not public
-  leaderboard scores.
-- Two passive quantization-provenance fields retain local build paths. They do
-  not affect inference; the current SHA binds those bytes, and any cleaned
-  model revision will get a new digest rather than a silent replacement.
-- The tokenizer-exact patch changes prompt tokenization, not the IQ2 weights.
-  The published throughput rows were measured on the pinned v1.0.0 runtime
-  base and have not been re-labeled as v1.1.0 measurements.
+On a fixed 49,152-token held-out comparison, the quant measured a 1.4115x
+perplexity ratio and 0.4541 mean KL against BF16. Both missed the prespecified
+limits of 1.10 and 0.10. Treat this as a local systems and research model, not
+as a drop-in BF16 replacement.
 
-## Research conclusion and maintenance
+Other limits:
 
-The held-out perplexity and KL comparison establishes that this 2.2805 bp/e
-artifact loses information relative to BF16. It does not establish how that
-loss maps to downstream behavior: which failures are already present in the
-parent model, which appear only after quantization, or which tensor families
-account for most of the change.
+- The downloadable GGUF does not include Motif-3's native MTP head.
+- The parent model advertises 256K context, but retained 256K retrieval and
+  generation quality have not been established here.
+- Tool calling is fragile at this bit rate. JSON validation can fix formatting,
+  not a wrong call/no-call decision.
+- In server mode, `-c` is divided across parallel slots. Check `/slots` before
+  assuming each request receives the full value.
+- Internal task sets are diagnostics, not public leaderboard scores.
+- Two passive quantization-provenance fields contain local build paths. They do
+  not affect inference; the published SHA binds the file as it is.
+- The throughput rows were measured on the pinned v1.0.0 runtime base, before
+  the tokenizer patch, and remain labeled accordingly.
+
+## Project status
 
 The active research phase is complete. The released model, tokenizer patch,
 numerical probes, and recorded agent failures remain available as a systems
@@ -328,7 +284,13 @@ with a bounded evaluation can justify follow-up work. See
 The missing MTP head in the downloadable file concerns speculative speed;
 it does not explain the measured BF16-to-IQ2 distribution shift.
 
-## Reusable experimental follow-up
+The open attribution question—what comes from the parent model and what comes
+from quantization—is tracked in
+[Discussion #1](https://github.com/hebo1221/motif3-dgx-spark/discussions/1).
+Paired BF16/Q5 results, mixed-precision proposals, and independent Spark
+reproductions are welcome.
+
+## Reusable experiments
 
 [v1.3.0-rc.1](https://github.com/hebo1221/motif3-dgx-spark/releases/tag/v1.3.0-rc.1)
 contains a model-free Q8 batch-consistency probe, a two-file opt-in reference
@@ -339,29 +301,45 @@ The release includes both outcomes and their public provenance.
 See [the follow-up](experiments/value-v2/README.md) and
 [한국어 결과](experiments/value-v2/README.ko.md).
 
-## The longer version
+## Experimental native MTP follow-up
+
+Release v1.2.0 adds an optional source patch for Motif-3's one-layer MTP head.
+On a separate, byte-distinct target, the fixed target/MTP/target A-B-A run
+matched 5,120/5,120 greedy tokens in both comparison arms and improved
+server-reported decode from a 14.5872 tok/s counterbalanced target mean to
+17.5565 tok/s (**1.2036x**). Draft acceptance was 47.11%.
+
+This is not a replacement model upload. The 512 MB sidecar is not
+redistributed, the downloadable GGUF is unchanged, and the result must not be
+attributed to that public GGUF. See
+[Experimental native MTP](docs/MTP_EXPERIMENTAL.md) for the patch, build
+recipe, evidence, and limits.
+
+## Documentation
 
 - [Engineering case study](docs/CASE_STUDY.md) · [한국어 회고](docs/CASE_STUDY.ko.md)
 - [Recorded answers and offline verification](docs/RECORDED_DEMO.md)
 - [Project status and completion criteria](docs/PROJECT_STATUS.md)
-- [How the file was made](docs/METHOD.md)
+- [Method and source binding](docs/METHOD.md)
 - [Results and limitations](docs/RESULTS.md)
-- [What the failed repair experiments taught me](docs/ENGINEERING_FINDINGS.md)
-- [Runtime details and troubleshooting](docs/RUNTIME.md)
-- [Experimental native MTP follow-up](docs/MTP_EXPERIMENTAL.md)
+- [Engineering findings](docs/ENGINEERING_FINDINGS.md)
+- [Runtime and troubleshooting](docs/RUNTIME.md)
+- [Experimental native MTP](docs/MTP_EXPERIMENTAL.md)
 - [Machine-readable metrics](evidence/public_metrics.json)
 
-## Share your result
+## Share a result
 
-If you run this on another DGX Spark or a similar 128 GB NVIDIA system, please
-use the [benchmark report form](https://github.com/hebo1221/motif3-dgx-spark/issues/new?template=benchmark.yml).
-Exact commands and raw `llama-bench` JSONL are much more useful than a single
-headline number. Questions and early observations are welcome in
+If you run the model on another DGX Spark or a similar 128 GB NVIDIA system,
+open a [benchmark report](https://github.com/hebo1221/motif3-dgx-spark/issues/new?template=benchmark.yml).
+Please include the full command and raw `llama-bench` JSONL rather than only a
+headline number. Setup questions and early results belong in
 [Discussions](https://github.com/hebo1221/motif3-dgx-spark/discussions).
 
-## License and attribution
+## License
 
-The repository code and original documentation are MIT licensed. The derived
-model follows the upstream Motif-3 MIT license and retains upstream
-attribution; see [NOTICE](NOTICE.md). This is an independent community project,
-not an official Motif Technologies or NVIDIA release.
+Repository code and original documentation are MIT licensed. The derived model
+retains the upstream Motif-3 license and attribution. The work builds on
+Motif Technologies' model, llama.cpp, Chrono's Motif port, and the cited GQA-5
+work; development and analysis were assisted by Codex. See [NOTICE](NOTICE.md)
+for details. This is an independent community project, not an official Motif
+Technologies, NVIDIA, or llama.cpp release.
