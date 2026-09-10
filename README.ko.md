@@ -1,5 +1,13 @@
 # DGX Spark 한 대에서 Motif-3 315B 구동하기
 
+**2026-09-10: 탐색 연구를 마무리했습니다.** 내부 NVMe에서 전문가 가중치를
+읽는 Q4 후속 실험은 1,024토큰 생성에서 평균 2.81토큰/초를 기록했습니다.
+지속 3~5토큰/초 목표에는 못 미쳤고, BF16과 Q4의 동일 조건 품질 비교는
+미완료입니다. 아래 IQ2 다운로드와 기존 측정값은 그대로 유지합니다.
+
+**[최종 회고](docs/FINAL_REPORT.ko.md) · [Q4 코드와 측정 기록](experiments/ssd-offload/README.md)**
+
+
 [English](README.md) | [한국어](README.ko.md)
 
 ![DGX Spark 한 대에서 구동한 Motif-3 315B: 83.56 GiB, 프롬프트 처리 316.71 tok/s, 생성 16.49 tok/s](assets/motif3-dgx-spark-result-card.png)

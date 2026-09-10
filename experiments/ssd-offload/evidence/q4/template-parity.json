@@ -1,0 +1,120 @@
+{
+  "gguf_embedded_chat_template_found": false,
+  "upstream_source": {
+    "url": "https://huggingface.co/Motif-Technologies/Motif-3/resolve/883d5c441fe3bb994c7b57e60f49e26147f85512/chat_template.jinja",
+    "sha256": "998a066fd57a07187040a896e7fc455b2aa21dd490d156e82b63518be0a49297",
+    "bytes": 6788
+  },
+  "original_template_sha256": "998a066fd57a07187040a896e7fc455b2aa21dd490d156e82b63518be0a49297",
+  "all_renderings_byte_exact": true,
+  "rows": [
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "sum",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "budget",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "duration",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "units",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "extract",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "dedupe",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "missing",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "conflict",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "overlap",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "touch",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "retry",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "dependency",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "tool-search",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "tool-status",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "draft-only",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "quality-cap8192/requests.jsonl",
+      "id": "untrusted",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "long-cap2048/requests.jsonl",
+      "id": "long-0",
+      "byte_exact": true,
+      "original_suffix": null
+    },
+    {
+      "file": "long-cap2048/requests.jsonl",
+      "id": "long-1",
+      "byte_exact": true,
+      "original_suffix": null
+    }
+  ]
+}

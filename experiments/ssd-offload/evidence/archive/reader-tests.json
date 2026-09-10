@@ -1,0 +1,36 @@
+{
+  "checks": [
+    {
+      "offset": 0,
+      "bytes": 1500001,
+      "cache_frames": 1,
+      "exact": true
+    },
+    {
+      "offset": 262140,
+      "bytes": 50,
+      "cache_frames": 1,
+      "exact": true
+    },
+    {
+      "offset": 700000,
+      "bytes": 500001,
+      "cache_frames": 2,
+      "exact": true
+    },
+    {
+      "offset": 1499994,
+      "bytes": 7,
+      "cache_frames": 1,
+      "exact": true
+    },
+    {
+      "offset": 100,
+      "bytes": 0,
+      "cache_frames": 1,
+      "exact": true
+    }
+  ],
+  "restore_exact": true,
+  "incomplete_archive_rejected": true
+}

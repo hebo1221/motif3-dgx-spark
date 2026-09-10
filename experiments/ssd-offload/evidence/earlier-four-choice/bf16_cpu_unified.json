@@ -1,0 +1,103 @@
+{
+  "context_tokens": 2048,
+  "cpu_only": true,
+  "kv_unified": true,
+  "load_seconds": 705.655800385,
+  "logical_decode_calls": 1,
+  "max_sequences": 4,
+  "model": "/media/hebo1221/JH-ARCHIVE/motif3-direct-bf16-883d5c44/bf16/motif3-official-bf16.gguf",
+  "prefill_seconds": 794.739984671,
+  "rows": [
+    {
+      "choice_logits": [
+        23.771455764770508,
+        18.025461196899414,
+        15.754597663879395,
+        14.417648315429688
+      ],
+      "choice_pass": true,
+      "choice_probabilities": [
+        0.9964009554354332,
+        0.0031840538305019333,
+        0.0003286676048244892,
+        8.632312924014098e-05
+      ],
+      "correct": 0,
+      "id": "fresh-source-size",
+      "input_tokens": 123,
+      "raw_top1_id": 351,
+      "raw_top1_is_selected_label": false,
+      "raw_top1_text": " ",
+      "selected": 0
+    },
+    {
+      "choice_logits": [
+        20.376920700073242,
+        18.291149139404297,
+        18.82986068725586,
+        16.151683807373047
+      ],
+      "choice_pass": false,
+      "choice_probabilities": [
+        0.7398058368755349,
+        0.09189220529342469,
+        0.15748461270026984,
+        0.01081734513077051
+      ],
+      "correct": 1,
+      "id": "fresh-end-to-end-time",
+      "input_tokens": 122,
+      "raw_top1_id": 351,
+      "raw_top1_is_selected_label": false,
+      "raw_top1_text": " ",
+      "selected": 0
+    },
+    {
+      "choice_logits": [
+        19.555801391601563,
+        17.614900588989258,
+        23.588041305541992,
+        17.023029327392578
+      ],
+      "choice_pass": true,
+      "choice_probabilities": [
+        0.01735807189539914,
+        0.0024921775204368537,
+        0.9787708512831889,
+        0.0013788993009753087
+      ],
+      "correct": 2,
+      "id": "fresh-evidence-scope",
+      "input_tokens": 124,
+      "raw_top1_id": 351,
+      "raw_top1_is_selected_label": false,
+      "raw_top1_text": " ",
+      "selected": 2
+    },
+    {
+      "choice_logits": [
+        18.426429748535156,
+        17.58015251159668,
+        17.43407440185547,
+        22.69708251953125
+      ],
+      "choice_pass": true,
+      "choice_probabilities": [
+        0.013629911168119827,
+        0.0058473554041833225,
+        0.0050526425397683355,
+        0.9754700908879285
+      ],
+      "correct": 3,
+      "id": "fresh-comparison-denominator",
+      "input_tokens": 120,
+      "raw_top1_id": 351,
+      "raw_top1_is_selected_label": false,
+      "raw_top1_text": " ",
+      "selected": 3
+    }
+  ],
+  "status": "complete",
+  "total_input_tokens": 489,
+  "total_seconds": 1500.397719995
+}

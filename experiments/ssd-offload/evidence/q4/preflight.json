@@ -1,0 +1,321 @@
+{
+  "all_pack_sha256_verified": true,
+  "ordinary_ranges_sha256_verified": true,
+  "identities": {
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer2.q4k": [
+      8520729,
+      3397386240,
+      1789018559980246099
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer3.q4k": [
+      8521075,
+      3397386240,
+      1789021135274733325
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer4.q4k": [
+      8521643,
+      3397386240,
+      1789027322901465453
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer5.q4k": [
+      8521644,
+      3397386240,
+      1789027339587340940
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer6.q4k": [
+      8521645,
+      3397386240,
+      1789027323232462947
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer7.q4k": [
+      8521646,
+      3397386240,
+      1789027322720466825
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer8.q4k": [
+      8521647,
+      3397386240,
+      1789027411872842926
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer9.q4k": [
+      8521648,
+      3397386240,
+      1789027418609799732
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer10.q4k": [
+      8521649,
+      3397386240,
+      1789027412064841688
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer11.q4k": [
+      8521650,
+      3397386240,
+      1789027436550687214
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer12.q4k": [
+      8521651,
+      3397386240,
+      1789027502852301278
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer13.q4k": [
+      8521652,
+      3397386240,
+      1789027508602269899
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer14.q4k": [
+      8521653,
+      3397386240,
+      1789027510459259833
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer15.q4k": [
+      8521654,
+      3397386240,
+      1789027527295170056
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer16.q4k": [
+      8521655,
+      3397386240,
+      1789027596851825999
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer17.q4k": [
+      8521656,
+      3397386240,
+      1789027600489809126
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer18.q4k": [
+      8521657,
+      3397386240,
+      1789027611760757520
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer19.q4k": [
+      8521658,
+      3397386240,
+      1789027632527665027
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer20.q4k": [
+      8521659,
+      3397386240,
+      1789027690758422569
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer21.q4k": [
+      8521660,
+      3397386240,
+      1789027699431388470
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer22.q4k": [
+      8521661,
+      3397386240,
+      1789027702387376962
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer23.q4k": [
+      8521662,
+      3397386240,
+      1789027735777250876
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer24.q4k": [
+      8521663,
+      3397386240,
+      1789027789789061245
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer25.q4k": [
+      8521664,
+      3397386240,
+      1789027795627041746
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer26.q4k": [
+      8521665,
+      3397386240,
+      1789027801439022519
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer27.q4k": [
+      8521296,
+      3397386240,
+      1789021511478795982
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer28.q4k": [
+      8521666,
+      3397386240,
+      1789027840040899355
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer29.q4k": [
+      8521667,
+      3397386240,
+      1789027884009768144
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer30.q4k": [
+      8521668,
+      3397386240,
+      1789027893525740946
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer31.q4k": [
+      8521669,
+      3397386240,
+      1789027899540723964
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer32.q4k": [
+      8521670,
+      3397386240,
+      1789027942158608166
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer33.q4k": [
+      8521671,
+      3397386240,
+      1789027985594497821
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer34.q4k": [
+      8521672,
+      3397386240,
+      1789027987732492578
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer35.q4k": [
+      8521673,
+      3397386240,
+      1789028002750456233
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer36.q4k": [
+      8521674,
+      3397386240,
+      1789028046179355678
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer37.q4k": [
+      8521675,
+      3397386240,
+      1789028080057281655
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer38.q4k": [
+      8521676,
+      3397386240,
+      1789028085626269838
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer39.q4k": [
+      8521677,
+      3397386240,
+      1789028099481240854
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer40.q4k": [
+      8521678,
+      3397386240,
+      1789028145549148562
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer41.q4k": [
+      8521679,
+      3397386240,
+      1789028170441861120
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer42.q4k": [
+      8521680,
+      3397386240,
+      1789028186579358592
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer43.q4k": [
+      8521681,
+      3397386240,
+      1789028194932610928
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer44.q4k": [
+      8521682,
+      3397386240,
+      1789028240414925652
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer45.q4k": [
+      8521683,
+      3397386240,
+      1789028269777724098
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer46.q4k": [
+      8521684,
+      3397386240,
+      1789028283052072828
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer47.q4k": [
+      8521685,
+      3397386240,
+      1789028295755399672
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer48.q4k": [
+      8521686,
+      3397386240,
+      1789028337030417183
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer49.q4k": [
+      8521687,
+      3397386240,
+      1789028367479126538
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer50.q4k": [
+      8521688,
+      3397386240,
+      1789028379563398871
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer51.q4k": [
+      8521689,
+      3397386240,
+      1789028385154523163
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/packs/layer52.q4k": [
+      8521300,
+      3397386240,
+      1789021542071955889
+    ],
+    "/opt/motif-work/motif3-quant/campaigns/q4-all-layers-20260910-v1/ordinary.sparse-shell.gguf": [
+      8521747,
+      629689477760,
+      1789028543288637280
+    ]
+  },
+  "pack_sha256": {
+    "2": "f1f4309a7cdaf4d60ef767d39ceb40b9545076f1283c7fab60a7cf37f74348a5",
+    "3": "6e5050f230a985721c261e38b5ed1b7b628b782b1970dd5577b3db13a64de90d",
+    "4": "edaaddcfb87f319120baf65a77c3ebf0865656a99c1b5a701f09926a03b0577f",
+    "5": "70e6bb94cbf282547b137ce1d111e258229812e63c02de5e72307d0c6593052d",
+    "6": "0416ddf734502e80125f88809245eeeef32b2b88f453c67c46a64e64477ba797",
+    "7": "ba414da815fe38d717b46ef280e6b9cf47cafb3d57140aff35482dff15f51424",
+    "8": "5c6468c44f7e7c914822a2cacb0b35774fa5b60e3a814822be9b36741cafae90",
+    "9": "e2621b4bb898578dd2e0ac27f6ad74e437e50d5f06af9ee4299bfee0e5882188",
+    "10": "88e8bc21c1b5382e7fc88e5e5d79a22722587c13b4c03080d154c956724e0a2d",
+    "11": "583e822e948b5ec158268f8f94a6753ba330b43f7a8c6f4293967b08b458526e",
+    "12": "bed8c4af788b176a885193635effbfbb18edb89d633b14a41dc33f1e35d09c38",
+    "13": "33e704e4606ceb002a90891432af65ee7f26008924bfec08696964d438074c6b",
+    "14": "33a0c0f420ff67e499d82853ac767a84630754c11406540e28e67346a4db56aa",
+    "15": "816936e28e894fdd2871b93fe98e4baaeae14b8894229e927a6ddcd50dc95815",
+    "16": "18d291cdb4445ae6d80e0efe8b47faae5057983c8e829dd58d7a1bc0a85d5923",
+    "17": "172b72a553585dbb5e7a521ab7e32e36ff1545ec187aaa09097b473d528ca69e",
+    "18": "a6046aab8d46af2605a31acf496e0abdc62d8fc3363e64071dbe8072b2b15184",
+    "19": "d585d21f3f681bd9437422c729b49f1a0103f29b6d2c29a9b1c6bb4522a18f2d",
+    "20": "4362b2b42aa65586e41aecf8232f0b5da9b3d0fa721b35a8da42c81c86b49b3c",
+    "21": "a1bbdde6d4171f0dba0daf5e7aaeae52eb146dfdd1ff93897b8fcdb70a293d4e",
+    "22": "952219498e1cd3e292dd1e905f2f8d3a27daa60227f182315fa86d45ca5bde84",
+    "23": "eb47b02f07dd9a75098ab4aa9db8fe9cf449322ebd38f505570dac37ad9912a6",
+    "24": "596baf3ac99e78a396c9495fbc5647fec3583806c7946c5b3df02aa2dcaafa77",
+    "25": "b0c9733353737d21da86b30daddbe88df4a1beba93afd888d95ad440c7d71aec",
+    "26": "3140be92faefa5711668085e568024f59195e68ab475404ad1bf71089d8a1404",
+    "27": "bea9e1e3875f3fb25fd7eb54ec0d559318e791c64846350716d1f51adaa8ca01",
+    "28": "b4b55dc130d4040735786d2f5dbec01adad3641bdde529ef1d0442cd4218d0aa",
+    "29": "f637ab9b4009d507a84eeba89cc1e5ea5330a5614a66fbf132d6668bfc791aa2",
+    "30": "7123fa26328d2d634e7c4a6b008c1c054504388a15db8e3a9525b3ba09375884",
+    "31": "67ee601f85efdcefc05126bf7fcb84efe10ec6ca3337df73434af6cb69b04895",
+    "32": "f71326397fed6bb733655ad8d4d8f4f3f9e88296837b39f575daa678b714f153",
+    "33": "db3155e309076c2340c2c7198148731b2ca2fad2b3db4045389ce542f92863ce",
+    "34": "87ca6de4a410535252bbebbc6d689bb48be810b5159367d75c054ab0c498efd7",
+    "35": "a17ff715162cb8d041179928a9d926d21f7151d0df0e5116c752f4aed3a7db11",
+    "36": "1c7b766a6db12191d97c41ec1259fb16ecc7a21a76cacadb809d9a597efe7ca9",
+    "37": "6c1b972a798740e874debfc338c8a4ce113c8567946bea93bc51a2ff2718cb86",
+    "38": "5e7426bc0c1ca3ab1277754c249102d2ee7cbe03c6679eff96935e8e6150bdf5",
+    "39": "b7f233a1c2e88a4111b73c44d45cff27584b3c2ebf94093b35a31b96b3c7f249",
+    "40": "5791c139ad07f59cba0a8459cc3c3020bdb16c2115fac36d4e1227b80cee5ea9",
+    "41": "06013051a449990b9ca4b254f617a1d3d9e796f48ecb269cecaafb9fa464d21e",
+    "42": "0065d3eb1ec46008beb89ef6e5f887ae24352c62e480939927150c1a0e61f915",
+    "43": "3a0299b969dba0f95899ecb2714d3d54bd93426b23e3ccb102eca6fd387242c3",
+    "44": "ad61bb2a4e9f5a2b1d1c30c1947996c2b3652636f922f650288b3dddf40ec18e",
+    "45": "d1211c1dc59a85457faf4c51ec34e3abed482731de94270a16a3bb544fdc8cfe",
+    "46": "10a61ef5e383757e519a347fc45e7bb75a5c3d76a7b0593b0ee560d39164a302",
+    "47": "a6ffcd1aac21e8f7854ae696f318a04bab6292f235af041be6a503bc8b6fba5f",
+    "48": "2d4b085ee546892f5ca634cc626acd4b943cfa7279be3e7f8a3efbc81fb9e972",
+    "49": "527b32e8bb934d74a8d79c606a798c451035f60274c86c783a632427170de7d0",
+    "50": "973fe1b748a5c2bbae7fe84a4fc4b20d9adbaab3575f6db60bbdb30fcde3dade",
+    "51": "d6b98b97a6c029f418e163ae47dc55822f8715c863b0a5e44218b36b2fd8c875",
+    "52": "0a9ce2c538fd12a06ff6edfb71555e608a790657d32ada0f12ffc0b0e5b77280"
+  },
+  "loader_sha256": "68895293f5ea80333b61a0ca8f2b7905663daa079d27c45fa8169b33254f0c78",
+  "probe_sha256": "387818696844666329d543565c2ea8a66faa5fc7e850f518d090b8d35ddb40b6"
+}

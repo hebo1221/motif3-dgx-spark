@@ -1,5 +1,7 @@
 # Fitting 315B parameters into one DGX Spark
 
+[Final SSD follow-up and project closure](FINAL_REPORT.md)
+
 [한국어](CASE_STUDY.ko.md) · [Recorded answer tour](RECORDED_DEMO.md) · [Repository](../README.md)
 
 **83.56 GiB · 16.49 tokens/s generation · one 128 GB DGX Spark.**

@@ -1,0 +1,13 @@
+{
+  "phase": "complete",
+  "original_bytes": 629689477760,
+  "archive_frame_bytes": 447839353422,
+  "saved_bytes": 181850124338,
+  "compressed_ratio": 0.7112066649344418,
+  "frames": 1173,
+  "original_sha256": "c921b7afb7fb8b5b5d90ff719e945a16988f696b8353e22bebcad2b6254362aa",
+  "full_reconstruction_verified": true,
+  "header_readback_byte_exact": true,
+  "header_sha256": "c1833ae1d98a9ee486e5902ea4d7a6ee79360abc8de03f98f6cbdfc13fee15ea",
+  "free_bytes_after": 196702756864
+}

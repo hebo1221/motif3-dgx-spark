@@ -1,0 +1,47 @@
+{
+  "artifact_audit": "pass",
+  "model_upgrade_qualified": false,
+  "head_annotation_records_replayed": 920,
+  "head_original_preferred_target_gaps": 6,
+  "head_repairs": 0,
+  "head_regressions": 0,
+  "choice_rows_replayed": 12,
+  "head_arithmetic_check_bound_to_source": true,
+  "original_bf16_attempt": "timeout_without_scores",
+  "unified_iq2_execution": "recovered_output_after_log_decoding_error",
+  "unified_iq2_native_returncode": null,
+  "unified_bf16_execution": "complete",
+  "bf16_correct_iq2_wrong": [],
+  "iq2_correct_bf16_wrong": [],
+  "both_wrong": [
+    "fresh-end-to-end-time"
+  ],
+  "iq2_choice_match_across_layouts": 4,
+  "iq2_max_choice_logit_difference_across_layouts": 1.5433635711669922,
+  "runtime_library_hashes_match": true,
+  "matched_tensor_shapes": 2162,
+  "project_template_rendering_byte_exact": true,
+  "native_batch_plan_microbatches": {
+    "separate": [
+      480,
+      6,
+      1,
+      2
+    ],
+    "unified": [
+      489
+    ]
+  },
+  "actual_split_records": {
+    "iq2_unified": [
+      489
+    ],
+    "bf16_unified": [
+      489
+    ]
+  },
+  "log_parser_correction": "Runner n_tokens lists also include the input dump. This audit counts only ubatch_add markers.",
+  "native_debug_logs_preserved_as_original_bytes": true,
+  "models_written_by_campaign": false,
+  "public_release_changed": false
+}

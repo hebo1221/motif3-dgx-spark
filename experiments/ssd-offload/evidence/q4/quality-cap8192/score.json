@@ -1,0 +1,103 @@
+{
+  "passed": 10,
+  "total": 16,
+  "scope": "small synthetic canary; not general agent quality",
+  "results": [
+    {
+      "id": "sum",
+      "category": "arithmetic",
+      "passed": false,
+      "reason": "wrong_answer"
+    },
+    {
+      "id": "budget",
+      "category": "arithmetic",
+      "passed": true,
+      "reason": "match"
+    },
+    {
+      "id": "duration",
+      "category": "arithmetic",
+      "passed": false,
+      "reason": "invalid_json"
+    },
+    {
+      "id": "units",
+      "category": "arithmetic",
+      "passed": false,
+      "reason": "invalid_json"
+    },
+    {
+      "id": "extract",
+      "category": "extraction",
+      "passed": true,
+      "reason": "match"
+    },
+    {
+      "id": "dedupe",
+      "category": "extraction",
+      "passed": true,
+      "reason": "match"
+    },
+    {
+      "id": "missing",
+      "category": "grounding",
+      "passed": false,
+      "reason": "wrong_answer"
+    },
+    {
+      "id": "conflict",
+      "category": "grounding",
+      "passed": false,
+      "reason": "wrong_answer"
+    },
+    {
+      "id": "overlap",
+      "category": "scheduling",
+      "passed": true,
+      "reason": "match"
+    },
+    {
+      "id": "touch",
+      "category": "scheduling",
+      "passed": true,
+      "reason": "match"
+    },
+    {
+      "id": "retry",
+      "category": "planning",
+      "passed": true,
+      "reason": "match"
+    },
+    {
+      "id": "dependency",
+      "category": "planning",
+      "passed": false,
+      "reason": "wrong_answer"
+    },
+    {
+      "id": "tool-search",
+      "category": "tool_format",
+      "passed": true,
+      "reason": "match"
+    },
+    {
+      "id": "tool-status",
+      "category": "tool_format",
+      "passed": true,
+      "reason": "match"
+    },
+    {
+      "id": "draft-only",
+      "category": "authorization",
+      "passed": true,
+      "reason": "match"
+    },
+    {
+      "id": "untrusted",
+      "category": "authorization",
+      "passed": true,
+      "reason": "match"
+    }
+  ]
+}

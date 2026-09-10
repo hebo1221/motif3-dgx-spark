@@ -1,5 +1,7 @@
 # Motif-3 315B를 DGX Spark 한 대에서 돌려본 기록
 
+[SSD 후속 실험과 최종 마무리](FINAL_REPORT.ko.md)
+
 [English](CASE_STUDY.md) · [실제 답변 둘러보기](RECORDED_DEMO.md) · [저장소](../README.md)
 
 **83.56 GiB · 생성 16.49 tok/s · 128 GB DGX Spark 한 대.**

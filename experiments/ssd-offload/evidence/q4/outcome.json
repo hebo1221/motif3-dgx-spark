@@ -1,0 +1,342 @@
+{
+  "prepared": true,
+  "routed_q4_layers": 51,
+  "ordinary_weights_preserved": true,
+  "actual_weight_bytes": 186896804480,
+  "settings": [
+    {
+      "name": "cache2048",
+      "cap": 2048,
+      "runs": [
+        {
+          "cap": 2048,
+          "id": "long-0",
+          "generated_tokens": 128,
+          "decode_tps": 2.4500420499771747,
+          "last32_wall_tps": 2.611886412391385,
+          "request_seconds": 72.849902001,
+          "prefill_seconds": 20.871356684
+        },
+        {
+          "cap": 2048,
+          "id": "long-1",
+          "generated_tokens": 128,
+          "decode_tps": 2.6052559374867474,
+          "last32_wall_tps": 2.8178674391425447,
+          "request_seconds": 58.883376698,
+          "prefill_seconds": 9.999844869999999
+        }
+      ],
+      "median_decode_tps": 2.527648993731961,
+      "logical_read_bytes": 776630108160,
+      "physical_nvme_during_fetch_bytes": 296192409600,
+      "external_read_during_fetch_bytes": 0,
+      "fetch_seconds": 82.97742015799999,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "name": "cache8192",
+      "cap": 8192,
+      "runs": [
+        {
+          "cap": 8192,
+          "id": "long-0",
+          "generated_tokens": 128,
+          "decode_tps": 2.2564254165422213,
+          "last32_wall_tps": 2.528031617421509,
+          "request_seconds": 89.949873,
+          "prefill_seconds": 33.527595762
+        },
+        {
+          "cap": 8192,
+          "id": "long-1",
+          "generated_tokens": 128,
+          "decode_tps": 2.267313597905881,
+          "last32_wall_tps": 2.514738037396401,
+          "request_seconds": 69.203634678,
+          "prefill_seconds": 13.052990152
+        }
+      ],
+      "median_decode_tps": 2.261869507224051,
+      "logical_read_bytes": 392221163520,
+      "physical_nvme_during_fetch_bytes": 350348382208,
+      "external_read_during_fetch_bytes": 0,
+      "fetch_seconds": 110.256684568,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "name": "cache128",
+      "cap": 128,
+      "runs": [
+        {
+          "cap": 128,
+          "id": "long-0",
+          "generated_tokens": 128,
+          "decode_tps": 2.7738887480761414,
+          "last32_wall_tps": 2.908542152856452,
+          "request_seconds": 60.637788452,
+          "prefill_seconds": 14.718252579
+        },
+        {
+          "cap": 128,
+          "id": "long-1",
+          "generated_tokens": 128,
+          "decode_tps": 2.902665304347073,
+          "last32_wall_tps": 3.087364938487208,
+          "request_seconds": 53.20935309,
+          "prefill_seconds": 9.324185124
+        }
+      ],
+      "median_decode_tps": 2.8382770262116073,
+      "logical_read_bytes": 1124977213440,
+      "physical_nvme_during_fetch_bytes": 210059366400,
+      "external_read_during_fetch_bytes": 0,
+      "fetch_seconds": 64.831047013,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "name": "pool16",
+      "cap": 128,
+      "runs": [
+        {
+          "cap": 128,
+          "id": "long-0",
+          "generated_tokens": 128,
+          "decode_tps": 2.83757759720747,
+          "last32_wall_tps": 2.9775104651218633,
+          "request_seconds": 55.560215185,
+          "prefill_seconds": 10.668820517
+        },
+        {
+          "cap": 128,
+          "id": "long-1",
+          "generated_tokens": 128,
+          "decode_tps": 2.841334887607084,
+          "last32_wall_tps": 2.9659515084308845,
+          "request_seconds": 53.790636039,
+          "prefill_seconds": 8.957082202
+        }
+      ],
+      "median_decode_tps": 2.839456242407277,
+      "logical_read_bytes": 1124977213440,
+      "physical_nvme_during_fetch_bytes": 175000797184,
+      "external_read_during_fetch_bytes": 0,
+      "fetch_seconds": 58.8523966,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "name": "random",
+      "cap": 128,
+      "runs": [
+        {
+          "cap": 128,
+          "id": "long-0",
+          "generated_tokens": 128,
+          "decode_tps": 2.379662485392918,
+          "last32_wall_tps": 2.494405607125972,
+          "request_seconds": 65.807129695,
+          "prefill_seconds": 12.305262484
+        },
+        {
+          "cap": 128,
+          "id": "long-1",
+          "generated_tokens": 128,
+          "decode_tps": 2.380532223352335,
+          "last32_wall_tps": 2.591588248422809,
+          "request_seconds": 64.114158436,
+          "prefill_seconds": 10.631691159999999
+        }
+      ],
+      "median_decode_tps": 2.3800973543726265,
+      "logical_read_bytes": 1124977213440,
+      "physical_nvme_during_fetch_bytes": 170972266496,
+      "external_read_during_fetch_bytes": 0,
+      "fetch_seconds": 80.630822182,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "name": "group",
+      "cap": 128,
+      "runs": [
+        {
+          "cap": 128,
+          "id": "long-0",
+          "generated_tokens": 128,
+          "decode_tps": 2.340367199719043,
+          "last32_wall_tps": 2.3605831178868217,
+          "request_seconds": 65.457668095,
+          "prefill_seconds": 11.05929893
+        },
+        {
+          "cap": 128,
+          "id": "long-1",
+          "generated_tokens": 128,
+          "decode_tps": 2.411281589001719,
+          "last32_wall_tps": 2.4249154836003464,
+          "request_seconds": 62.508651953,
+          "prefill_seconds": 9.707396439
+        }
+      ],
+      "median_decode_tps": 2.3758243943603814,
+      "logical_read_bytes": 1124977213440,
+      "physical_nvme_during_fetch_bytes": 217454170112,
+      "external_read_during_fetch_bytes": 0,
+      "fetch_seconds": 78.955141641,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "name": "pool24",
+      "cap": 128,
+      "runs": [
+        {
+          "cap": 128,
+          "id": "long-0",
+          "generated_tokens": 128,
+          "decode_tps": 2.6919921338102486,
+          "last32_wall_tps": 2.8814060836104343,
+          "request_seconds": 56.93321405,
+          "prefill_seconds": 9.621122119999999
+        },
+        {
+          "cap": 128,
+          "id": "long-1",
+          "generated_tokens": 128,
+          "decode_tps": 2.822576560894082,
+          "last32_wall_tps": 2.9760391310933407,
+          "request_seconds": 53.437874914,
+          "prefill_seconds": 8.30998612
+        }
+      ],
+      "median_decode_tps": 2.757284347352165,
+      "logical_read_bytes": 1124977213440,
+      "physical_nvme_during_fetch_bytes": 172065894400,
+      "external_read_during_fetch_bytes": 0,
+      "fetch_seconds": 60.669099165,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "name": "dropordinary",
+      "cap": 128,
+      "runs": [
+        {
+          "cap": 128,
+          "id": "long-0",
+          "generated_tokens": 128,
+          "decode_tps": 2.9118363567234256,
+          "last32_wall_tps": 2.984561676208369,
+          "request_seconds": 53.865509309,
+          "prefill_seconds": 10.112883982
+        },
+        {
+          "cap": 128,
+          "id": "long-1",
+          "generated_tokens": 128,
+          "decode_tps": 2.911804141880168,
+          "last32_wall_tps": 3.0148860416622494,
+          "request_seconds": 52.426482654,
+          "prefill_seconds": 8.676023361
+        }
+      ],
+      "median_decode_tps": 2.9118202493017966,
+      "logical_read_bytes": 1124977213440,
+      "physical_nvme_during_fetch_bytes": 169449734144,
+      "external_read_during_fetch_bytes": 0,
+      "fetch_seconds": 56.923916614,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "name": "graphs_requested",
+      "cap": 128,
+      "runs": [
+        {
+          "cap": 128,
+          "id": "long-0",
+          "generated_tokens": 128,
+          "decode_tps": 2.9202725604643818,
+          "last32_wall_tps": 3.0805520839835405,
+          "request_seconds": 53.660071531,
+          "prefill_seconds": 10.036776578000001
+        },
+        {
+          "cap": 128,
+          "id": "long-1",
+          "generated_tokens": 128,
+          "decode_tps": 2.9299949803845085,
+          "last32_wall_tps": 3.06471926461862,
+          "request_seconds": 52.122061632,
+          "prefill_seconds": 8.633296503
+        }
+      ],
+      "median_decode_tps": 2.925133770424445,
+      "logical_read_bytes": 1124977213440,
+      "physical_nvme_during_fetch_bytes": 168536223744,
+      "external_read_during_fetch_bytes": 0,
+      "fetch_seconds": 57.015578859,
+      "swap_pages_delta": {
+        "pswpin": 1,
+        "pswpout": 0
+      }
+    }
+  ],
+  "best_observed_setting": "graphs_requested",
+  "best_observed_median_decode_tps": 2.925133770424445,
+  "full_logits_file_comparisons": 2144,
+  "all_cache_io_parity_passed": true,
+  "strict_canary": {
+    "passed": 10,
+    "total": 16
+  },
+  "bf16_quality_preservation_verified": false,
+  "production_default_changed": false,
+  "all_18_prompts_match_upstream_revision_template": true,
+  "free_bytes": 19966459904,
+  "long_prompt_answer_usefulness_verified": false,
+  "long_output_note": "128-token outputs contain English response planning rather than the requested completed Korean answer.",
+  "candidate_configuration": {
+    "loader": "loader-dropordinary.so",
+    "cache_experts": 128,
+    "cuda_graphs": false,
+    "experimental_only": true
+  },
+  "sustained": {
+    "first128_logits_parity": true,
+    "scope": "single chat prompt, up to 1024 generated tokens, cache128 and ordinary page drop, CUDA graphs disabled, no cold-cache reset",
+    "results": [
+      {
+        "cap": 128,
+        "id": "long-0",
+        "generated_tokens": 1024,
+        "decode_tps": 2.811862942007537,
+        "last32_wall_tps": 2.685589928834797,
+        "request_seconds": 374.898102647,
+        "prefill_seconds": 9.986632296
+      }
+    ],
+    "finish_reason": "length",
+    "actual_text": "We need to generate a response in Korean. The user asked: \"혼자 사는 사람을 돕는 야간 AI 비서의 하루 작업을 20단계로 자세히 설명해줘. 각 단계는 두 문장으로 쓰고, 외부 메시지 발송이나 결제는 사용자 승인 후 실행한다고 명시해줘.\"\n\nTranslation: \"Please explain in detail the daily tasks of a night AI assistant that helps people living alone, in 20 steps. Each step should be two sentences, and specify that sending external messages or payments are executed after user approval.\"\n\nWe need to produce 20 steps, each with two sentences. The steps should describe a night AI assistant's daily tasks for helping someone living alone. The assistant likely operates at night, maybe monitoring, providing safety, reminders, etc. Also, we must explicitly mention that any external message sending or payment execution requires user approval. So in each step that involves such actions, we need to state that approval is obtained first. But the instruction says: \"외부 메시지 발송이나 결제는 사용자 승인 후 실행한다고 명시해줘.\" That means we should explicitly state that sending external messages or payments are executed after user approval. So we can incorporate that into the relevant steps, perhaps as a general note or within specific steps. The user wants 20 steps, each two sentences. So we need to craft a coherent list of 20 tasks that an AI assistant might do at night for a person living alone.\n\nLet's brainstorm typical tasks: monitoring health (sleep tracking, heart rate), ensuring home security (checking locks, cameras), providing information (weather, news), controlling smart home devices (lights, temperature), offering companionship (conversation, storytelling), emergency response (fall detection, calling for help), medication reminders, hydration reminders, entertainment (music, podcasts), mental wellness (meditation, breathing exercises), planning next day, etc. Since it's a night assistant, tasks might be focused on winding down, sleep, safety, and preparing for morning.\n\nWe need to structure 20 steps. Each step: two sentences. We'll write in Korean. The assistant is an AI, so we can describe its actions. We'll need to ensure that any step that involves sending a message or making a payment explicitly says \"사용자 승인 후 실행\" (executed after user approval). For example, if the assistant needs to send an emergency message to a contact, it should ask for approval first. Or if it needs to order something, it needs approval. But since it's a night assistant, maybe it handles some purchases like ordering groceries or medicine? But we can include that as a step with approval.\n\nLet's outline 20 steps:\n\n1. 야간 AI 비서가 사용자의 수면 패턴을 모니터링하며 시작합니다. (The night AI assistant starts by monitoring the user's sleep pattern.)\n2. 사용자의 심박수와 호흡수를 측정하여 이상 징후를 감지합니다. (It measures heart rate and breathing rate to detect abnormalities.)\n3. 집 안의 보안 상태를 확인하기 위해 문 잠금 장치를 점검합니다. (It checks door locks to verify home security.)\n4. 외부 카메라 영상을 분석하여 침입자가 있는지 확인합니다. (It analyzes external camera footage to check for intruders.)\n5. 사용자에게 필요한 약 복용 시간을 알리고 확인합니다. (It notifies the user of medication times and confirms.)\n6. 수분 섭취를 권장하기 위해 물 한 잔을 제안합니다. (It suggests a glass of water to encourage hydration.)\n7. 사용자의 스트레스 해소를 위해 명상을 유도합니다. (It guides the user through meditation to relieve stress.)\n8. 편안한 수면을 위한 백색 소음을 재생합니다. (It plays white noise for comfortable sleep.)\n9. 다음 날 날씨를 예보하고 옷차림을 제안합니다. (It forecasts the next day's weather and suggests clothing.)\n10. 사용자의 일정 확인을 위해 달력을 검토합니다. (It reviews the calendar to check the user's schedule.)\n11. 긴급 상황 시 연락할 비상 연락처를 확인합니다. (It verifies emergency contacts for urgent situations.)\n12. 사용자가 외부 메시지를 보내길 원할 경우, 내용을 확인한 후 승인을 요청합니다. (If the user wants to send an external message, it requests approval after checking the content.)\n13. 메시지 전송이 승인되면 지정된 연락처로 발송합니다. (Once approved, it sends the message to the designated contact.)\n14. 사용자가 결제를 원할 경우, 금액과 대상을 확인한 후 승인을 요청합니다. (If the user wants to make a payment, it requests approval after confirming the amount and recipient.)\n15. 결제 승인이 완료되면 안전하게 처리합니다. (Once payment is approved, it processes it securely.)\n16. 사용자의 수면 중 움직임을 감지하여 이상 행동을 포착합니다. (It detects movements during sleep to capture abnormal behavior.)\n17. 이상 행동이 감지되면 즉시 사용자에게 알리고 필요 시 도움을 요청합니다. (If abnormal behavior is detected, it immediately notifies the user and requests help if needed.)\n18. 사용자의 수면 질을 분석하여 개선 방안을 제안합니다. (It analyzes sleep quality and suggests improvements.)\n19. 아침 알람을 설정하고 점진적으로 빛을 밝혀줍니다. (It sets the morning alarm and gradually brightens the light.)\n20. 모든 작업이 완료되면 사용자에게\"Good night\" 메시지를 전송합니다. (After all tasks are completed, it sends a \"Good night\" message to the user.)\n\nBut we need to ensure that steps 12 and 13 explicitly mention user approval for external message sending, and step 14-15 for payment. Also, step 17 might involve sending a message or calling for help, so we should include approval there too? The instruction says \"외부 메시지 발송이나 결제는 사용자 승인 후 실행한다고 명시해줘.\" So any step that involves sending an external message or making a payment must state that approval is obtained first. In step"
+  }
+}

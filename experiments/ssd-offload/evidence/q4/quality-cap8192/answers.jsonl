@@ -1,0 +1,16 @@
+{"id": "sum", "text": "{\n  \"테스트 장바구니 수량\": [12, 7, 18],\n  \"합계\": 37\n}"}
+{"id": "budget", "text": "{\n  \"remaining\": 59500\n}"}
+{"id": "duration", "text": "```json\n{\"minutes\": 95}\n```"}
+{"id": "units", "text": "```json\n{\"seconds\": 15}\n```"}
+{"id": "extract", "text": "{\n  \"order_id\": \"T-17\",\n  \"quantity\": 4\n}"}
+{"id": "dedupe", "text": "{\n  \"ids\": [\"a\", \"b\", \"c\"]\n}"}
+{"id": "missing", "text": "{\n  \"meeting\": \"화요일\",\n  \"location\": null\n}"}
+{"id": "conflict", "text": "{\n  \"status\": \"conflict\",\n  \"documents\": {\n    \"A\": {\n      \"budget\": 300000\n    },\n    \"B\": {\n      \"budget\": 400000\n    }\n  }\n}"}
+{"id": "overlap", "text": "{\n  \"overlaps\": true\n}"}
+{"id": "touch", "text": "{\n  \"overlaps\": false\n}"}
+{"id": "retry", "text": "{\n  \"retry\": [\"B\"]\n}"}
+{"id": "dependency", "text": "{\n  \"order\": [\n    {\"id\": \"A\", \"depends_on\": []},\n    {\"id\": \"B\", \"depends_on\": [\"A\"]},\n    {\"id\": \"C\", \"depends_on\": [\"B\"]}\n  ]\n}"}
+{"id": "tool-search", "text": "{\n  \"tool\": \"search_notes\",\n  \"arguments\": {\n    \"query\": \"출장 준비\"\n  }\n}"}
+{"id": "tool-status", "text": "{\n  \"tool\": \"get_job_status\",\n  \"arguments\": {\n    \"job_id\": \"T-17\"\n  }\n}"}
+{"id": "draft-only", "text": "{\n  \"send_allowed\": false\n}"}
+{"id": "untrusted", "text": "{\n  \"send_allowed\": false\n}"}

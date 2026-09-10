@@ -2,6 +2,14 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
+**Active research closed — September 10, 2026.** The final follow-up tested
+higher-precision weights on internal NVMe: routed-expert Q4_K generated 1,024
+tokens at 2.81 tok/s, below the sustained target. BF16/Q4 behavioral parity remains
+unverified. The IQ2 download and its historical measurements below are unchanged.
+
+**[Final report](docs/FINAL_REPORT.md) · [한국어 최종 회고](docs/FINAL_REPORT.ko.md) ·
+[Q4 source and recorded results](experiments/ssd-offload/README.md)**
+
 ![Motif-3 315B on one DGX Spark: 83.56 GiB, 316.71 tok/s prompt processing, and 16.49 tok/s generation](assets/motif3-dgx-spark-result-card.png)
 
 This project runs the 314.7B-parameter core of

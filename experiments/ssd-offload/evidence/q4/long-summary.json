@@ -1,0 +1,46 @@
+{
+  "results": [
+    {
+      "cap": 2048,
+      "id": "long-0",
+      "generated_tokens": 128,
+      "decode_tps": 2.4500420499771747,
+      "last32_wall_tps": 2.611886412391385,
+      "request_seconds": 72.849902001,
+      "prefill_seconds": 20.871356684,
+      "text": "We need to generate a response in Korean. The user asked: \"혼자 사는 사람을 돕는 야간 AI 비서의 하루 작업을 20단계로 자세히 설명해줘. 각 단계는 두 문장으로 쓰고, 외부 메시지 발송이나 결제는 사용자 승인 후 실행한다고 명시해줘.\"\n\nTranslation: \"Please explain in detail the daily tasks of a night AI assistant that helps people living alone, in 20 steps. Each step should be two sentences, and specify that sending external messages or payments are executed after user approval.\"\n\nWe need to produce 20 steps, each with two sentences. The steps should describe a night AI assistant's daily tasks for helping someone living alone. The assistant likely operates at night, maybe monitoring,"
+    },
+    {
+      "cap": 2048,
+      "id": "long-1",
+      "generated_tokens": 128,
+      "decode_tps": 2.6052559374867474,
+      "last32_wall_tps": 2.8178674391425447,
+      "request_seconds": 58.883376698,
+      "prefill_seconds": 9.999844869999999,
+      "text": "We need to generate a response in Korean. The user asked: \"혼자 사는 사람을 돕는 야간 AI 비서의 하루 작업을 20단계로 자세히 설명해줘. 각 단계는 두 문장으로 쓰고, 외부 메시지 발송이나 결제는 사용자 승인 후 실행한다고 명시해줘.\"\n\nTranslation: \"Please explain in detail the daily tasks of a night AI assistant that helps people living alone, in 20 steps. Each step should be two sentences, and specify that sending external messages or payments are executed after user approval.\"\n\nWe need to produce 20 steps, each with two sentences. The steps should describe a night AI assistant's daily tasks for helping someone living alone. The assistant likely operates at night, maybe monitoring,"
+    },
+    {
+      "cap": 8192,
+      "id": "long-0",
+      "generated_tokens": 128,
+      "decode_tps": 2.2564254165422213,
+      "last32_wall_tps": 2.528031617421509,
+      "request_seconds": 89.949873,
+      "prefill_seconds": 33.527595762,
+      "text": "We need to generate a response in Korean. The user asked: \"혼자 사는 사람을 돕는 야간 AI 비서의 하루 작업을 20단계로 자세히 설명해줘. 각 단계는 두 문장으로 쓰고, 외부 메시지 발송이나 결제는 사용자 승인 후 실행한다고 명시해줘.\"\n\nTranslation: \"Please explain in detail the daily tasks of a night AI assistant that helps people living alone, in 20 steps. Each step should be two sentences, and specify that sending external messages or payments are executed after user approval.\"\n\nWe need to produce 20 steps, each with two sentences. The steps should describe a night AI assistant's daily tasks for helping someone living alone. The assistant likely operates at night, maybe monitoring,"
+    },
+    {
+      "cap": 8192,
+      "id": "long-1",
+      "generated_tokens": 128,
+      "decode_tps": 2.267313597905881,
+      "last32_wall_tps": 2.514738037396401,
+      "request_seconds": 69.203634678,
+      "prefill_seconds": 13.052990152,
+      "text": "We need to generate a response in Korean. The user asked: \"혼자 사는 사람을 돕는 야간 AI 비서의 하루 작업을 20단계로 자세히 설명해줘. 각 단계는 두 문장으로 쓰고, 외부 메시지 발송이나 결제는 사용자 승인 후 실행한다고 명시해줘.\"\n\nTranslation: \"Please explain in detail the daily tasks of a night AI assistant that helps people living alone, in 20 steps. Each step should be two sentences, and specify that sending external messages or payments are executed after user approval.\"\n\nWe need to produce 20 steps, each with two sentences. The steps should describe a night AI assistant's daily tasks for helping someone living alone. The assistant likely operates at night, maybe monitoring,"
+    }
+  ],
+  "cache_logits_parity": true,
+  "scope": "one 128-token chat prompt repeated twice in each fresh process; 2048 then 8192; no cold-cache reset"
+}

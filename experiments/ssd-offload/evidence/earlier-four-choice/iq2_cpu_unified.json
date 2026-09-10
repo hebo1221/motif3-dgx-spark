@@ -1,0 +1,103 @@
+{
+  "context_tokens": 2048,
+  "cpu_only": true,
+  "kv_unified": true,
+  "load_seconds": 88.935169917,
+  "logical_decode_calls": 1,
+  "max_sequences": 4,
+  "model": "/media/hebo1221/JH-ARCHIVE/motif3-direct-bf16-883d5c44/iq2/motif3-direct-iq2xxs.gguf",
+  "prefill_seconds": 92.110144825,
+  "rows": [
+    {
+      "choice_logits": [
+        22.37717056274414,
+        17.258014678955078,
+        15.501545906066895,
+        14.730376243591309
+      ],
+      "choice_pass": true,
+      "choice_probabilities": [
+        0.992564407721875,
+        0.005936596688403314,
+        0.0010249740018384483,
+        0.00047402158788312297
+      ],
+      "correct": 0,
+      "id": "fresh-source-size",
+      "input_tokens": 123,
+      "raw_top1_id": 351,
+      "raw_top1_is_selected_label": false,
+      "raw_top1_text": " ",
+      "selected": 0
+    },
+    {
+      "choice_logits": [
+        20.15979766845703,
+        19.0668888092041,
+        19.35604476928711,
+        16.963455200195313
+      ],
+      "choice_pass": false,
+      "choice_probabilities": [
+        0.5483065432699613,
+        0.18381423529234622,
+        0.24544714209634244,
+        0.022432079341349966
+      ],
+      "correct": 1,
+      "id": "fresh-end-to-end-time",
+      "input_tokens": 122,
+      "raw_top1_id": 351,
+      "raw_top1_is_selected_label": false,
+      "raw_top1_text": " ",
+      "selected": 0
+    },
+    {
+      "choice_logits": [
+        14.396256446838379,
+        14.276833534240723,
+        19.94357681274414,
+        16.017677307128906
+      ],
+      "choice_pass": true,
+      "choice_probabilities": [
+        0.003795111297289037,
+        0.003367904783906313,
+        0.9736326765104599,
+        0.01920430740834489
+      ],
+      "correct": 2,
+      "id": "fresh-evidence-scope",
+      "input_tokens": 124,
+      "raw_top1_id": 607,
+      "raw_top1_is_selected_label": false,
+      "raw_top1_text": " \"",
+      "selected": 2
+    },
+    {
+      "choice_logits": [
+        21.736026763916016,
+        20.93842315673828,
+        22.83989715576172,
+        26.017288208007813
+      ],
+      "choice_pass": true,
+      "choice_probabilities": [
+        0.013021198255544101,
+        0.005864839155626906,
+        0.039269536134400415,
+        0.9418444264544287
+      ],
+      "correct": 3,
+      "id": "fresh-comparison-denominator",
+      "input_tokens": 120,
+      "raw_top1_id": 351,
+      "raw_top1_is_selected_label": false,
+      "raw_top1_text": " ",
+      "selected": 3
+    }
+  ],
+  "status": "complete",
+  "total_input_tokens": 489,
+  "total_seconds": 181.045364295
+}

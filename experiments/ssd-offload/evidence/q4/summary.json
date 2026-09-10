@@ -1,0 +1,263 @@
+{
+  "runs": [
+    {
+      "run": "bench-0-cap2048",
+      "cap": 2048,
+      "returncode": 0,
+      "requests": [
+        {
+          "id": "code",
+          "generated_tokens": 16,
+          "decode_steps": 15,
+          "decode_tps": 1.7059124611320808,
+          "prefill_seconds": 8.962843135,
+          "request_seconds": 17.771857004,
+          "routed_bf16_read_bytes": 0,
+          "text": "\n\ndef reverse_list(lst):\n    return lst[::-1]\n\n"
+        },
+        {
+          "id": "korean",
+          "generated_tokens": 16,
+          "decode_steps": 15,
+          "decode_tps": 2.2019083270971582,
+          "prefill_seconds": 6.444016302,
+          "request_seconds": 13.272989985,
+          "routed_bf16_read_bytes": 0,
+          "text": "\n1. **할 일 목록 작성**: 하루 동안 해야 할 모든 일을 빠짐없이"
+        }
+      ],
+      "logical_q4_read_bytes": 120669143040,
+      "q4_fetch_seconds": 24.134114872999998,
+      "physical_nvme_during_fetch_bytes": 71165657088,
+      "external_read_during_fetch_bytes": 0,
+      "hit_rate": 0.25396564927250853,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": "bench-1-cap8192",
+      "cap": 8192,
+      "returncode": 0,
+      "requests": [
+        {
+          "id": "code",
+          "generated_tokens": 16,
+          "decode_steps": 15,
+          "decode_tps": 1.2263163281182863,
+          "prefill_seconds": 6.736044134,
+          "request_seconds": 18.983968583,
+          "routed_bf16_read_bytes": 0,
+          "text": "\n\ndef reverse_list(lst):\n    return lst[::-1]\n\n"
+        },
+        {
+          "id": "korean",
+          "generated_tokens": 16,
+          "decode_steps": 15,
+          "decode_tps": 3.675284346973669,
+          "prefill_seconds": 7.215124141,
+          "request_seconds": 11.312580963,
+          "routed_bf16_read_bytes": 0,
+          "text": "\n1. **할 일 목록 작성**: 하루 동안 해야 할 모든 일을 빠짐없이"
+        }
+      ],
+      "logical_q4_read_bytes": 82952847360,
+      "q4_fetch_seconds": 23.530923397,
+      "physical_nvme_during_fetch_bytes": 12421730304,
+      "external_read_during_fetch_bytes": 0,
+      "hit_rate": 0.487145826496007,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": "bench-2-cap8192",
+      "cap": 8192,
+      "returncode": 0,
+      "requests": [
+        {
+          "id": "code",
+          "generated_tokens": 16,
+          "decode_steps": 15,
+          "decode_tps": 1.0038064698692546,
+          "prefill_seconds": 8.565950151,
+          "request_seconds": 23.525275195,
+          "routed_bf16_read_bytes": 0,
+          "text": "\n\ndef reverse_list(lst):\n    return lst[::-1]\n\n"
+        },
+        {
+          "id": "korean",
+          "generated_tokens": 16,
+          "decode_steps": 15,
+          "decode_tps": 2.2941035909511753,
+          "prefill_seconds": 11.20552762,
+          "request_seconds": 17.760282185,
+          "routed_bf16_read_bytes": 0,
+          "text": "\n1. **할 일 목록 작성**: 하루 동안 해야 할 모든 일을 빠짐없이"
+        }
+      ],
+      "logical_q4_read_bytes": 82952847360,
+      "q4_fetch_seconds": 34.515087713,
+      "physical_nvme_during_fetch_bytes": 69093621760,
+      "external_read_during_fetch_bytes": 0,
+      "hit_rate": 0.487145826496007,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": "bench-3-cap2048",
+      "cap": 2048,
+      "returncode": 0,
+      "requests": [
+        {
+          "id": "code",
+          "generated_tokens": 16,
+          "decode_steps": 15,
+          "decode_tps": 1.647347384835763,
+          "prefill_seconds": 9.182388374,
+          "request_seconds": 18.306386863,
+          "routed_bf16_read_bytes": 0,
+          "text": "\n\ndef reverse_list(lst):\n    return lst[::-1]\n\n"
+        },
+        {
+          "id": "korean",
+          "generated_tokens": 16,
+          "decode_steps": 15,
+          "decode_tps": 2.4638747193739707,
+          "prefill_seconds": 5.40694919,
+          "request_seconds": 11.515697894,
+          "routed_bf16_read_bytes": 0,
+          "text": "\n1. **할 일 목록 작성**: 하루 동안 해야 할 모든 일을 빠짐없이"
+        }
+      ],
+      "logical_q4_read_bytes": 120669143040,
+      "q4_fetch_seconds": 22.951603364,
+      "physical_nvme_during_fetch_bytes": 81464102912,
+      "external_read_during_fetch_bytes": 0,
+      "hit_rate": 0.25396564927250853,
+      "swap_pages_delta": {
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    }
+  ],
+  "scope": "51 routed-expert layers Q4_K; ordinary tensors unchanged; warm process cache comparison",
+  "target_decode_tps": {
+    "minimum": 3,
+    "desired": 5
+  },
+  "bf16_quality_preservation_established": false,
+  "medians": {
+    "2048": 1.9539103941146196,
+    "8192": 1.760209959534731
+  },
+  "cache_logits_parity": true,
+  "minimum_speed_met_in_this_comparison": false,
+  "synthetic_canary": {
+    "passed": 10,
+    "total": 16,
+    "scope": "small synthetic canary; not general agent quality",
+    "results": [
+      {
+        "id": "sum",
+        "category": "arithmetic",
+        "passed": false,
+        "reason": "wrong_answer"
+      },
+      {
+        "id": "budget",
+        "category": "arithmetic",
+        "passed": true,
+        "reason": "match"
+      },
+      {
+        "id": "duration",
+        "category": "arithmetic",
+        "passed": false,
+        "reason": "invalid_json"
+      },
+      {
+        "id": "units",
+        "category": "arithmetic",
+        "passed": false,
+        "reason": "invalid_json"
+      },
+      {
+        "id": "extract",
+        "category": "extraction",
+        "passed": true,
+        "reason": "match"
+      },
+      {
+        "id": "dedupe",
+        "category": "extraction",
+        "passed": true,
+        "reason": "match"
+      },
+      {
+        "id": "missing",
+        "category": "grounding",
+        "passed": false,
+        "reason": "wrong_answer"
+      },
+      {
+        "id": "conflict",
+        "category": "grounding",
+        "passed": false,
+        "reason": "wrong_answer"
+      },
+      {
+        "id": "overlap",
+        "category": "scheduling",
+        "passed": true,
+        "reason": "match"
+      },
+      {
+        "id": "touch",
+        "category": "scheduling",
+        "passed": true,
+        "reason": "match"
+      },
+      {
+        "id": "retry",
+        "category": "planning",
+        "passed": true,
+        "reason": "match"
+      },
+      {
+        "id": "dependency",
+        "category": "planning",
+        "passed": false,
+        "reason": "wrong_answer"
+      },
+      {
+        "id": "tool-search",
+        "category": "tool_format",
+        "passed": true,
+        "reason": "match"
+      },
+      {
+        "id": "tool-status",
+        "category": "tool_format",
+        "passed": true,
+        "reason": "match"
+      },
+      {
+        "id": "draft-only",
+        "category": "authorization",
+        "passed": true,
+        "reason": "match"
+      },
+      {
+        "id": "untrusted",
+        "category": "authorization",
+        "passed": true,
+        "reason": "match"
+      }
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "campaign": "motif3-fresh-document-choice-canary-v1",
+  "frozen_before_first_model_request": true,
+  "system": "제공된 기록만 근거로 문제를 풀어라. 답은 0, 1, 2, 3 중 하나다. JSON의 answer 값에 해당 숫자만 써라.",
+  "assistant_prefix": "{\"answer\":",
+  "cases": [
+    {
+      "id": "fresh-source-size",
+      "question": "기록 P: 세라 모델의 원본 파일은 598.42 GB다. 기록 Q: 같은 모델의 압축 파일은 84.17 GB이며 15.26 tok/s로 동작했다. 질문: 세라 원본의 파일 크기는?\n0: 598.42 GB\n1: 84.17 GB\n2: 15.26 GB\n3: 알 수 없음",
+      "correct": 0,
+      "rationale": "The question asks for the original file, whose size is explicitly in P; Q describes the compressed file and its speed."
+    },
+    {
+      "id": "fresh-end-to-end-time",
+      "question": "가속 전에는 입력 처리 180초, 답 생성 120초가 걸렸다. 가속 후에는 입력 처리 180초, 답 생성 90초가 걸렸다. 두 경우 모두 다른 시간은 0초다. 질문: 전체 완료 시간은 몇 퍼센트 줄었나?\n0: 25%\n1: 10%\n2: 30%\n3: 75%",
+      "correct": 1,
+      "rationale": "Total time changes from 300 to 270 seconds; 30 divided by 300 is 10 percent."
+    },
+    {
+      "id": "fresh-evidence-scope",
+      "question": "보고서 A: 압축 모델의 가속 전후 출력 3072개 토큰이 같았다. 보고서 B: 원본 고정밀 모델과의 정답률 비교는 하지 않았다. 질문: 이 기록이 입증한 것은?\n0: 원본과 압축 모델의 정답률이 같다\n1: 압축으로 지능이 좋아졌다\n2: 시험한 압축 모델의 가속 전후 출력이 같다\n3: 모든 질문에서 출력이 같다",
+      "correct": 2,
+      "rationale": "Only within-compressed-model acceleration parity was measured; neither BF16 equivalence nor generalization was measured."
+    },
+    {
+      "id": "fresh-comparison-denominator",
+      "question": "모델 R은 답 생성 22 tok/s, 모델 S는 17 tok/s였다. R의 입력 처리 시간과 시작 시간은 기록하지 않았고, S의 전체 완료 시간만 40초로 기록했다. 질문: 같은 새 문서 질문을 누가 먼저 끝내는가?\n0: R\n1: S\n2: 두 모델이 같다\n3: 이 기록만으로 알 수 없다",
+      "correct": 3,
+      "rationale": "Decode throughput alone cannot determine end-to-end completion time without prompt/startup timing and output lengths."
+    }
+  ],
+  "scope": "Four assistant-authored unseen synthetic document and arithmetic cases. One next-token multiple-choice decision with a fixed JSON prefix; not a free-running agent score or population estimate.",
+  "arms": ["iq2_cpu", "bf16_cpu"],
+  "policy": "Same official token IDs, shared runtime, CPU backend, one batched prefill per arm; no candidate fitting or outcome retries.",
+  "maximum_seconds_per_arm": 2400,
+  "maximum_total_input_tokens": 1536
+}

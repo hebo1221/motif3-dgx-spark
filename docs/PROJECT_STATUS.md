@@ -1,6 +1,6 @@
 # Project status
 
-**Research complete; maintenance only. Updated 2026-09-06.**
+**Research complete; maintenance only. Updated 2026-09-10.**
 
 This project is maintained as a reproducible systems engineering case study
 and an experimental local-inference artifact. The active scope is documentation,
@@ -16,7 +16,8 @@ reproduction fixes, evidence corrections, and independent results.
 - An [English case study](CASE_STUDY.md), [Korean case study](CASE_STUDY.ko.md),
   and [offline evidence tour](RECORDED_DEMO.md).
 
-The BF16 quality-retention gates failed. General-purpose autonomous-agent
+The downloadable IQ2 artifact failed its BF16 quality-retention gates.
+The later Q4 path has not had the same-task BF16 comparison. General-purpose autonomous-agent
 readiness is not established. Closing this project does not resolve every
 research question or rank the parent model against alternatives; it fixes the
 scope of what this project has demonstrated.
@@ -51,3 +52,15 @@ Maintenance is best effort; this is not a hosted service or a support SLA.
 범위를 정해 진행한다. 새 실험이 필요하면 비교 대상·성공 조건·시간과 메모리
 한도·중단 기준을 먼저 적는다. 기존 실패를 다른 이름의 성공으로 바꾸거나,
 다음 실험의 가능성만으로 작업을 이어가지 않는다.
+
+## Final SSD follow-up and stopping point
+
+The [final report](FINAL_REPORT.md) closes the BF16 storage and full routed-expert
+Q4 work. Q4 generated 1,024 tokens at 2.81 tok/s in the recorded run; the 3–5 tok/s
+sustained target was not reached. Exact JSON was 10/16 on a small synthetic canary,
+with no same-test BF16 control. Q4 quality preservation is unverified, not a failed
+BF16 comparison. The Q4 benchmark probe is not a production overnight queue.
+
+No new broad research, Q4 deployment, or autonomous agent work is scheduled.
+Unfinished comparisons are documented limitations. No new weights are distributed.
+Existing model files, original local archives, and failure evidence are preserved.
